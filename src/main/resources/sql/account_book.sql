@@ -11,8 +11,8 @@ create table account_book (
     method enum('bank','card','cash','etc') comment '결제수단',
     amount int not null comment '금액',
     content varchar(255) comment '내용',
-    created_at datetime default now() comment '생성일',
-    updated_at datetime default null comment '수정일',
+    create_at datetime default now() comment '생성일',
+    update_at datetime default null comment '수정일',
     
     primary key(account_id),
     constraint user_account_fk foreign key(user_id) references user(user_id),
