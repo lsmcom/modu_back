@@ -17,15 +17,15 @@ public class UserSettingController {
     private final UserSettingService userSettingService;
 
     /** 사용자 설정 조회 */
-    @GetMapping
-    public ResponseEntity<ApiResponse<UserSettingEntity>> getUserSetting(@RequestParam String userId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserSettingEntity>> getUserSetting(@PathVariable String userId) {
         UserSettingEntity setting = userSettingService.getUserSetting(userId);
         return ResponseEntity.ok(ApiResponse.ok(setting));
     }
 
     /** 사용자 설정 수정 */
-    @PutMapping
-    public ResponseEntity<ApiResponse<String>> updateUserSetting(@RequestParam String userId,
+    @PutMapping("/{userId}")
+    public ResponseEntity<ApiResponse<String>> updateUserSetting(@PathVariable String userId,
             @Valid @RequestBody UserSettingUpdateDTO dto) {
 
         userSettingService.updateUserSetting(userId, dto);
