@@ -59,13 +59,13 @@ create table budget (
     user_id varchar(100) not null comment '회원 아이디',
     category_id int comment '카테고리 아이디',
 
-    year_month varchar(7) not null comment '예산 년월 (YYYY-MM)',
+    `year_month` varchar(7) not null comment '예산 년월 (YYYY-MM)',
     budget_amount int not null comment '예산 금액',
     
     primary key(budget_id),
     constraint user_budget_fk foreign key(user_id) references user(user_id),
     constraint category_budget_fk foreign key(category_id) references category(category_id),
-    unique key unique_budget (user_id, category_id, year_month)
+    unique key unique_budget (user_id, category_id, `year_month`)
 ) comment '예산 테이블';
 
 

@@ -19,7 +19,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
             from AccountBookEntity a
             where a.userId.userId = :userId
                 and a.date between :startDate and :endDate
-            order by a.date desc 
+            order by a.date desc
             """)
     List<AccountBookEntity> findWeeklyByUserIdAndDateBetween(@Param("userId") String userId,
                                                              @Param("startDate") LocalDate startDate,
@@ -31,7 +31,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
             from AccountBookEntity a
             where a.userId.userId = :userId
                 and a.date between :monthStart and :monthEnd
-            order by a.date desc 
+            order by a.date desc
             """)
     List<AccountBookEntity> findMonthlyByUserIdAndDateBetween(@Param("userId") String userId,
                                                              @Param("monthStart") LocalDate monthStart,
