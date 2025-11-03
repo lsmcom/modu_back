@@ -20,6 +20,7 @@ bin/
 ### IntelliJ IDEA ###
 .idea
 .env
+src/main/resources/application-haram.yml
 *.iws
 *.iml
 *.ipr
