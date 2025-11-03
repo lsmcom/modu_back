@@ -1,0 +1,158 @@
+package back.code.file.service;
+
+import back.code.common.utils.FileUtils;
+import back.code.file.dto.FileDTO;
+import back.code.file.entity.FileEntity;
+import back.code.file.repository.FileRepository;
+import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class FileService {
+
+    private final FileRepository fileRepository;
+    private final UserRepository userRepository;
+    private final FileUtils fileUtils;
+    private final WebClient webClient = WebClient.builder()
+            .codecs(configurer -> configurer.defaultCodecs()
+                    .maxInMemorySize(10 * 1024 * 1024))
+            .build();
+
+    // 업로드 할 파일 경로
+    @Value("${server.file.upload.path}")
+    private String uploadPath;
+
+    /**
+     * 일반 파일 업로드
+     */
+    @Transactional
+    public FileDTO uploadFile(MultipartFile file, String userId, String fileType) throws IOException {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        Map<String, Object> uploadFile = fileUtils.uploadFile(file, uploadPath, fileType);
+        String storedName = (String) uploadFile.get("storedFileName");
+        String filePath = (String) uploadFile.get("filePath");
+        String fileName = (String) uploadFile.get("fileName");
+
+        // 이미지일 경우 썸네일 생성
+        String thumbName = null;
+        try {
+            thumbName = fileUtils.createThumbnail(
+                    150, 150,
+                    new File(filePath, storedName),
+                    Paths.get(filePath, "thumb").toString()
+            );
+        } catch (Exception e) {
+            log.debug("썸네일 생성 스킵 (비이미지 가능): {}", e.getMessage());
+        }
+
+        FileEntity entity = new FileEntity();
+        entity.setFileId(UUID.randomUUID().toString());
+        entity.setUser(user);
+        entity.setFileType(fileType.toUpperCase());
+        entity.setFileName(fileName);
+        entity.setStoredName(storedName);
+        entity.setFilePath(filePath);
+        entity.setFileSize(file.getSize());
+        entity.setFileThumbName(thumbName);
+
+        fileRepository.save(entity);
+
+        log.info("[FILE] 업로드 완료 - userId={}, type={}, file={}", userId, fileType, storedName);
+
+        return FileDTO.from(entity, uploadPath);
+    }
+
+    /**
+     * URL 기반 파일 업로드 (소셜 프로필)
+     */
+    @Transactional
+    public FileDTO uploadFromUrl(String userId, String imageUrl, String fileType) throws IOException {
+        if(imageUrl == null || imageUrl.isBlank()) {
+            throw new RuntimeException("이미지 URL이 비어있습니다.");
+        }
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        byte[] bytes = webClient.get().uri(imageUrl).retrieve().bodyToMono(byte[].class).block();
+
+        if (bytes == null || bytes.length == 0) {
+            throw new RuntimeException("이미지 다운로드 실패");
+        }
+
+        String ext = guessExtension(imageUrl);
+        String dateDir = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        String fullDirPath = Paths.get(uploadPath, fileType, dateDir).toString();
+
+        new File(fullDirPath).mkdirs();
+
+        String rand = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        String storedName = rand + "." + ext;
+        String fullPath = Paths.get(fullDirPath, storedName).toString();
+
+        try {
+            FileOutputStream fos = new FileOutputStream(fullPath);
+            fos.write(bytes);
+        } catch (Exception e) {
+            throw new RuntimeException("파일 저장 실패: " + e.getMessage());
+        }
+
+        // 있을 경우 썸네일
+        String thumbName = null;
+        try {
+            thumbName = fileUtils.createThumbnail(
+                    150, 150,
+                    new File(fullPath),
+                    Paths.get(fullDirPath, "thumb").toString()
+            );
+        } catch (Exception e) {
+            log.debug("썸네일 생성 스킵: {}", e.getMessage());
+        }
+
+        FileEntity entity = new FileEntity();
+        entity.setFileId(UUID.randomUUID().toString());
+        entity.setUser(user);
+        entity.setFileType(fileType.toUpperCase());
+        entity.setFileName(fileType + "_auto." + ext);
+        entity.setStoredName(storedName);
+        entity.setFilePath(fullDirPath);
+        entity.setFileSize((long) bytes.length);
+        entity.setFileThumbName(thumbName);
+
+        fileRepository.save(entity);
+        log.info("[FILE] URL 업로드 완료 - userId={}, type={}, url={}", userId, fileType, imageUrl);
+
+        return FileDTO.from(entity, uploadPath);
+    }
+
+    // 파일 확장자 찾기
+    private String guessExtension(String url) {
+        String lower = url.toLowerCase();
+        if(lower.contains(".png")) return "png";
+        if(lower.contains(".webp")) return "webp";
+        if(lower.contains(".gif")) return "gif";
+        if(lower.contains(".bmp")) return "bmp";
+        if(lower.contains(".jpeg")) return "jpeg";
+        return "jpg";
+    }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <include resource="logback-common.xml" />
+
+    <root level="info">
+        <appender-ref ref="ASYNC_STDOUT"/>
+        <appender-ref ref="ASYNC_FILE_LOGGING"/>
+        <appender-ref ref="ASYNC_FILE_ERROR_LOGGING"/>
+    </root>
+
+</configuration>

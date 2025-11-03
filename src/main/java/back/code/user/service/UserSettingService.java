@@ -1,0 +1,52 @@
+package back.code.user.service;
+
+import back.code.user.dto.UserSettingUpdateDTO;
+import back.code.user.entity.UserEntity;
+import back.code.user.entity.UserSettingEntity;
+import back.code.user.repository.UserRepository;
+import back.code.user.repository.UserSettingRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class UserSettingService {
+
+    private final UserSettingRepository userSettingRepository;
+    private final UserRepository userRepository;
+
+    /** 사용자 설정 조회 */
+    @Transactional(readOnly = true)
+    public UserSettingEntity getUserSetting(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+        return userSettingRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("사용자 설정이 존재하지 않습니다."));
+    }
+
+    /** 사용자 설정 수정 */
+    @Transactional
+    public void updateUserSetting(String userId, UserSettingUpdateDTO dto) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        UserSettingEntity setting = userSettingRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("사용자 설정이 존재하지 않습니다."));
+
+        if (dto.getTheDayOfWeek() != null)
+            setting.setTheDayOfWeek(dto.getTheDayOfWeek());
+        if (dto.getThemeMode() != null)
+            setting.setThemeMode(dto.getThemeMode());
+        if (dto.getAlarmAllowed() != null)
+            setting.setAlarmAllowed(dto.getAlarmAllowed());
+        if (dto.getMarketingInfoAgreed() != null)
+            setting.updateMarketingAgree(dto.getMarketingInfoAgreed());
+
+        userSettingRepository.save(setting);
+
+        log.info("[사용자 설정 변경 완료] userId={}, dto={}", userId, dto);
+    }
+}

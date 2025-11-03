@@ -1,0 +1,119 @@
+#서버 포트 설정
+server:
+  servlet:
+    encoding:
+      charset: 'UTF-8'
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
+  port: 9090
+  file:
+    upload:
+      path: C:\\files\\modu\\
+
+spring:
+  config:
+    import: optional:classpath:.env[.properties]
+
+  main:
+    allow-bean-definition-overriding: true
+
+  jwt:
+    secretKey : vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bus00216@gmail.com
+    password: kdhs bfnl cuso ysvg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+#Database 설정
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url : jdbc:mariadb://localhost:3306/modu
+    username: root
+    password: 1234
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 50
+      minimum-idle: 20
+      idle-timeout: 10000
+      data-source-properties:
+        cachePrepStmts : true #캐쉬 설정 on
+        prepStmtCacheSize : 250 #문서 할당 수
+        prepStmtCacheSqlLimit: 2048 #sql 최대길이 byte 단위
+        useServerPrepStmts: true # 최신기능 지원설정 on
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    database: mysql
+    generate-ddl: false
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        generate_statistics: false
+        format_sql: true
+        use_sql_comments: false
+        cache:
+          use_sql_comments: false
+          use_query_cache: false
+
+  p6spy:
+    logMessageFormat: back.code.config.P6SpySqlFormatter
+
+  #코드 수정 시 자동으로 컴파일 & 적용
+  devtools:
+    livereload:
+      enabled: true
+    remote:
+      restart:
+        enabled: true
+    restart:
+      enabled: true
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  client-secret: ${KAKAO_CLIENT_SECRET}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
+
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
+  redirect-uri: ${NAVER_REDIRECT_URI}
+
+#로그 설정
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure: INFO
+      thymeleaf: OFF
+      hibernate:
+        SQL : debug
+        type:
+          descriptor:
+            sql : trace
+  config : classpath:logback.xml
+
+#Swagger 세팅
+springdoc:
+  swagger-ui:
+    path: /swagger
+    try-it-out-enabled: []
+    persist-authorization:  true
+    filter : true
+  paths-to-match : /api/**
+  api-doc:
+    path: /v3/api-doc
