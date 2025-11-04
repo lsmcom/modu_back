@@ -8,10 +8,13 @@ import back.code.memo.entity.MemoEntity;
 import back.code.memo.entity.MemoFolderEntity;
 import back.code.memo.repository.MemoRepository;
 import back.code.memo.repository.MemoFolderRepository;
+import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ public class MemoServiceImpl implements MemoService {
 
     private final MemoRepository memoRepository;
     private final MemoFolderRepository memoFolderRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
@@ -58,6 +62,7 @@ public class MemoServiceImpl implements MemoService {
                     dto.setMemoContents(m.getMemoContents());
                     dto.setIsFixed(m.getIsFixed());
                     dto.setFolderId(m.getFolder().getFolderId());
+                    dto.setUserId(m.getUser().getUserId());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -92,6 +97,7 @@ public class MemoServiceImpl implements MemoService {
                 dto.setMemoContents(m.getMemoContents());
                 dto.setIsFixed(m.getIsFixed());
                 dto.setFolderId(m.getFolder().getFolderId());
+                dto.setUserId(m.getUser().getUserId());
                 return dto;
             }).collect(Collectors.toList());
 
@@ -132,5 +138,30 @@ public class MemoServiceImpl implements MemoService {
         for (MemoEntity memo : memos) {
             memo.setFolder(targetFolder); // 폴더 변경
         }
+    }
+    //메모 추가
+    @Transactional
+    public MemoEntity addMemo(MemoDTO dto) {
+        // 유저 조회
+        UserEntity user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found: " + dto.getUserId()));
+
+        // 폴더 조회 (선택사항)
+        MemoFolderEntity folder = null;
+        if (dto.getFolderId() != null) {
+            folder = memoFolderRepository.findById(dto.getFolderId())
+                    .orElseThrow(() -> new RuntimeException("Folder not found: " + dto.getFolderId()));
+        }
+
+        // 메모 생성
+        MemoEntity memo = MemoEntity.builder()
+                .user(user)
+                .folder(folder)
+                .memoTitle(dto.getMemoTitle())
+                .memoContents(dto.getMemoContents())
+                .isFixed(dto.getIsFixed() != null ? dto.getIsFixed() : "N")
+                .build();
+        // 저장
+        return memoRepository.save(memo);
     }
 }

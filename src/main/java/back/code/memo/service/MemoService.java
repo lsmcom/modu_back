@@ -4,6 +4,7 @@ import back.code.memo.dto.MemoDTO;
 import back.code.memo.dto.MemoFolderDTO;
 import back.code.memo.dto.MemoFolderWithMemosDTO;
 import back.code.memo.dto.MoveFolderRequest;
+import back.code.memo.entity.MemoEntity;
 
 import java.util.List;
 
@@ -26,4 +27,7 @@ public interface MemoService {
 
     //폴더 이동
     public void moveMemosToFolder(MoveFolderRequest request);
+    
+    //메모 추가
+    public MemoEntity addMemo(MemoDTO dto);
 }
