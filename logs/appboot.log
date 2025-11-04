@@ -53225,3 +53225,762 @@ select table_name from information_schema.TABLES where table_schema=database() a
     where
         mfe1_0.folder_id=4
 [2025-11-04 12:42:01:232016][http-nio-9090-exec-8] INFO  p6spy - 
+[2025-11-04 12:44:26:377338][http-nio-9090-exec-2] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:44:26:377341][http-nio-9090-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:26:377341][http-nio-9090-exec-2] INFO  p6spy - 2025-11-04 12:44:26 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=16
+[2025-11-04 12:44:26:377342][http-nio-9090-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:26:377343][http-nio-9090-exec-2] INFO  p6spy - 2025-11-04 12:44:26 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=16
+[2025-11-04 12:44:26:377343][http-nio-9090-exec-2] DEBUG org.hibernate.SQL - 
+    delete 
+    from
+        memo 
+    where
+        memo_id=?
+[2025-11-04 12:44:26:377344][http-nio-9090-exec-2] INFO  p6spy - 2025-11-04 12:44:26 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    delete 
+    from
+        memo 
+    where
+        memo_id=16
+[2025-11-04 12:44:26:377345][http-nio-9090-exec-2] INFO  p6spy - 
+[2025-11-04 12:44:30:381562][http-nio-9090-exec-7] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:44:30:381563][http-nio-9090-exec-9] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:44:30:381564][http-nio-9090-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:30:381564][http-nio-9090-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:30:381564][http-nio-9090-exec-7] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=13
+[2025-11-04 12:44:30:381566][http-nio-9090-exec-9] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        count(*) 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=14
+[2025-11-04 12:44:30:381566][http-nio-9090-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:30:381566][http-nio-9090-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=?
+[2025-11-04 12:44:30:381566][http-nio-9090-exec-7] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=13
+[2025-11-04 12:44:30:381566][http-nio-9090-exec-9] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0 
+    where
+        me1_0.memo_id=14
+[2025-11-04 12:44:30:381567][http-nio-9090-exec-9] DEBUG org.hibernate.SQL - 
+    delete 
+    from
+        memo 
+    where
+        memo_id=?
+[2025-11-04 12:44:30:381567][http-nio-9090-exec-7] DEBUG org.hibernate.SQL - 
+    delete 
+    from
+        memo 
+    where
+        memo_id=?
+[2025-11-04 12:44:30:381567][http-nio-9090-exec-7] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    delete 
+    from
+        memo 
+    where
+        memo_id=13
+[2025-11-04 12:44:30:381567][http-nio-9090-exec-9] INFO  p6spy - 2025-11-04 12:44:30 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    delete 
+    from
+        memo 
+    where
+        memo_id=14
+[2025-11-04 12:44:30:381569][http-nio-9090-exec-9] INFO  p6spy - 
+[2025-11-04 12:44:30:381569][http-nio-9090-exec-7] INFO  p6spy - 
+[2025-11-04 12:44:39:390692][http-nio-9090-exec-10] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:44:39:390697][http-nio-9090-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0
+[2025-11-04 12:44:39:390698][http-nio-9090-exec-10] INFO  p6spy - 2025-11-04 12:44:39 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        me1_0.memo_id,
+        me1_0.create_date,
+        me1_0.folder_id,
+        me1_0.is_fixed,
+        me1_0.memo_contents,
+        me1_0.memo_title,
+        me1_0.update_date,
+        me1_0.user_id 
+    from
+        memo me1_0
+[2025-11-04 12:44:39:390699][http-nio-9090-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=?
+[2025-11-04 12:44:39:390700][http-nio-9090-exec-10] INFO  p6spy - 2025-11-04 12:44:39 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=4
+[2025-11-04 12:44:39:390702][http-nio-9090-exec-10] INFO  p6spy - 
+[2025-11-04 12:44:45:395849][http-nio-9090-exec-8] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:44:45:395884][http-nio-9090-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        ue1_0.user_id,
+        ue1_0.addr,
+        ue1_0.addr_detail,
+        ue1_0.agency,
+        ue1_0.birth,
+        ue1_0.create_at,
+        ue1_0.email,
+        ue1_0.password,
+        ue1_0.phone,
+        ue1_0.social_type,
+        ue1_0.status,
+        ue1_0.update_at,
+        ue1_0.user_name,
+        ue1_0.user_nick,
+        ur1_0.role_id,
+        ur1_0.role_name,
+        ue1_0.withdraw_at,
+        ue1_0.withdraw_reason 
+    from
+        user ue1_0 
+    left join
+        user_role ur1_0 
+            on ur1_0.role_id=ue1_0.user_role 
+    where
+        ue1_0.user_id=?
+[2025-11-04 12:44:45:395884][http-nio-9090-exec-8] INFO  p6spy - 2025-11-04 12:44:45 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        ue1_0.user_id,
+        ue1_0.addr,
+        ue1_0.addr_detail,
+        ue1_0.agency,
+        ue1_0.birth,
+        ue1_0.create_at,
+        ue1_0.email,
+        ue1_0.password,
+        ue1_0.phone,
+        ue1_0.social_type,
+        ue1_0.status,
+        ue1_0.update_at,
+        ue1_0.user_name,
+        ue1_0.user_nick,
+        ur1_0.role_id,
+        ur1_0.role_name,
+        ue1_0.withdraw_at,
+        ue1_0.withdraw_reason 
+    from
+        user ue1_0 
+    left join
+        user_role ur1_0 
+            on ur1_0.role_id=ue1_0.user_role 
+    where
+        ue1_0.user_id='user01'
+[2025-11-04 12:44:45:395886][http-nio-9090-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=?
+[2025-11-04 12:44:45:395887][http-nio-9090-exec-8] INFO  p6spy - 2025-11-04 12:44:45 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=4
+[2025-11-04 12:44:45:395892][http-nio-9090-exec-8] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        memo
+        (folder_id, is_fixed, memo_contents, memo_title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+[2025-11-04 12:44:45:395894][http-nio-9090-exec-8] INFO  p6spy - 2025-11-04 12:44:45 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    insert 
+    into
+        memo
+        (folder_id, is_fixed, memo_contents, memo_title, user_id) 
+    values
+        (4, 'N', '321321', '123123', 'user01')
+[2025-11-04 12:44:45:395910][http-nio-9090-exec-8] INFO  p6spy - 
+[2025-11-04 12:44:45:395931][http-nio-9090-exec-8] ERROR b.c.c.h.CommonExceptionHandler - ==== RuntimeException 발생 ====
+org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.writeInternal(AbstractJackson2HttpMessageConverter.java:494)
+	at org.springframework.http.converter.AbstractGenericHttpMessageConverter.write(AbstractGenericHttpMessageConverter.java:126)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:345)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.handleReturnValue(RequestResponseBodyMethodProcessor.java:208)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:235)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:229)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at back.code.filter.JWTFilter.doFilterInternal(JWTFilter.java:45)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at back.code.filter.CustomLogoutFilter.process(CustomLogoutFilter.java:46)
+	at back.code.filter.CustomLogoutFilter.doFilter(CustomLogoutFilter.java:34)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1774)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: com.fasterxml.jackson.databind.JsonMappingException: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session (through reference chain: back.code.memo.entity.MemoEntity["folder"]->back.code.memo.entity.MemoFolderEntity["memos"])
+	at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:400)
+	at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:359)
+	at com.fasterxml.jackson.databind.ser.std.StdSerializer.wrapAndThrow(StdSerializer.java:324)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:765)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider._serialize(DefaultSerializerProvider.java:503)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:342)
+	at com.fasterxml.jackson.databind.ObjectWriter$Prefetch.serialize(ObjectWriter.java:1587)
+	at com.fasterxml.jackson.databind.ObjectWriter.writeValue(ObjectWriter.java:1061)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.writeInternal(AbstractJackson2HttpMessageConverter.java:485)
+	... 110 common frames omitted
+Caused by: org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session
+	at org.hibernate.collection.spi.AbstractPersistentCollection.throwLazyInitializationException(AbstractPersistentCollection.java:635)
+	at org.hibernate.collection.spi.AbstractPersistentCollection.withTemporarySessionIfNeeded(AbstractPersistentCollection.java:219)
+	at org.hibernate.collection.spi.AbstractPersistentCollection.readSize(AbstractPersistentCollection.java:150)
+	at org.hibernate.collection.spi.PersistentBag.size(PersistentBag.java:353)
+	at com.fasterxml.jackson.databind.ser.std.CollectionSerializer.serialize(CollectionSerializer.java:101)
+	at com.fasterxml.jackson.databind.ser.std.CollectionSerializer.serialize(CollectionSerializer.java:25)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	... 119 common frames omitted
+[2025-11-04 12:44:45:395940][http-nio-9090-exec-8] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session]
+[2025-11-04 12:45:13:423894][SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+[2025-11-04 12:45:13:423916][tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+[2025-11-04 12:45:13:423939][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 12:45:13:423941][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2025-11-04 12:45:13:423945][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+[2025-11-04 12:45:16:1156][background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+[2025-11-04 12:45:16:1218][restartedMain] INFO  back.code.ModuBackApplication - Starting ModuBackApplication using Java 21.0.7 with PID 14840 (C:\haram\modu-project\modu_back\build\classes\java\main started by ere01 in C:\haram\modu-project\modu_back)
+[2025-11-04 12:45:16:1218][restartedMain] INFO  back.code.ModuBackApplication - The following 1 profile is active: "haram"
+[2025-11-04 12:45:16:1268][restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+[2025-11-04 12:45:16:1268][restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+[2025-11-04 12:45:18:2534][restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2025-11-04 12:45:18:2773][restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 226 ms. Found 9 JPA repository interfaces.
+[2025-11-04 12:45:19:3535][restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 9090 (http)
+[2025-11-04 12:45:19:3548][restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-9090"]
+[2025-11-04 12:45:19:3551][restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+[2025-11-04 12:45:19:3551][restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.48]
+[2025-11-04 12:45:19:3650][restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+[2025-11-04 12:45:19:3650][restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2382 ms
+[2025-11-04 12:45:19:3932][restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2025-11-04 12:45:19:4014][restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.33.Final
+[2025-11-04 12:45:19:4059][restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+[2025-11-04 12:45:19:4404][restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+[2025-11-04 12:45:19:4440][restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+[2025-11-04 12:45:20:4538][restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.mariadb.jdbc.Connection@2df65f0f
+[2025-11-04 12:45:20:4540][restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+[2025-11-04 12:45:20:4569][restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+[2025-11-04 12:45:20:4588][restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'p6SpyDataSourceDecorator [com.p6spy.engine.spy.P6DataSource] -> dataSource [com.zaxxer.hikari.HikariDataSource]']
+	Database driver: undefined/unknown
+	Database version: 11.8.2
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(12, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@76f0617d) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@547cb750)
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(-9, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@1150de26) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@41fc58a9)
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(-3, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@34f22262) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@585c59b)
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4003, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@12b38ae3) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3129b10c)
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4001, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@14ed6479) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3f6fd262)
+[2025-11-04 12:45:20:4596][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4002, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3185a3fe) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@4d58d513)
+[2025-11-04 12:45:20:4597][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2004, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@32e9be6d) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@73548690)
+[2025-11-04 12:45:20:4597][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2005, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@6fd24157) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@64a9f1f3)
+[2025-11-04 12:45:20:4597][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2011, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@1bcc21dd) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@4c7b5432)
+[2025-11-04 12:45:21:5828][restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2025-11-04 12:45:21:5860][restartedMain] INFO  p6spy - #1762227921387 | took 4ms | statement | connection 1| url jdbc:mariadb://localhost/modu?user=root&password=***&prepStmtCacheSqlLimit=2048&useServerPrepStmts=true
+select table_name from information_schema.TABLES where table_schema=database() and table_type='SEQUENCE'
+select table_name from information_schema.TABLES where table_schema=database() and table_type='SEQUENCE';
+[2025-11-04 12:45:21:5885][restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 12:45:21:6136][restartedMain] INFO  o.s.d.j.r.q.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+[2025-11-04 12:45:23:7762][restartedMain] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authProvider
+[2025-11-04 12:45:23:7763][restartedMain] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+[2025-11-04 12:45:23:7911][restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/static/imgs/**'], Ant [pattern='/static/imgs/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+[2025-11-04 12:45:23:7911][restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore org.springframework.boot.autoconfigure.security.servlet.StaticResourceRequest$StaticResourceRequestMatcher@6e87fd96. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+[2025-11-04 12:45:23:8329][restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+[2025-11-04 12:45:23:8356][restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-9090"]
+[2025-11-04 12:45:23:8377][restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 9090 (http) with context path '/'
+[2025-11-04 12:45:23:8386][restartedMain] INFO  back.code.ModuBackApplication - Started ModuBackApplication in 7.761 seconds (process running for 9.263)
+[2025-11-04 12:45:27:11856][http-nio-9090-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2025-11-04 12:45:27:11856][http-nio-9090-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+[2025-11-04 12:45:27:11858][http-nio-9090-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+[2025-11-04 12:45:27:11900][http-nio-9090-exec-1] INFO  back.code.filter.JWTFilter - acessToken is null
+[2025-11-04 12:45:27:12012][http-nio-9090-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        ue1_0.user_id,
+        ue1_0.addr,
+        ue1_0.addr_detail,
+        ue1_0.agency,
+        ue1_0.birth,
+        ue1_0.create_at,
+        ue1_0.email,
+        ue1_0.password,
+        ue1_0.phone,
+        ue1_0.social_type,
+        ue1_0.status,
+        ue1_0.update_at,
+        ue1_0.user_name,
+        ue1_0.user_nick,
+        ur1_0.role_id,
+        ur1_0.role_name,
+        ue1_0.withdraw_at,
+        ue1_0.withdraw_reason 
+    from
+        user ue1_0 
+    left join
+        user_role ur1_0 
+            on ur1_0.role_id=ue1_0.user_role 
+    where
+        ue1_0.user_id=?
+[2025-11-04 12:45:27:12017][http-nio-9090-exec-1] INFO  p6spy - 2025-11-04 12:45:27 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        ue1_0.user_id,
+        ue1_0.addr,
+        ue1_0.addr_detail,
+        ue1_0.agency,
+        ue1_0.birth,
+        ue1_0.create_at,
+        ue1_0.email,
+        ue1_0.password,
+        ue1_0.phone,
+        ue1_0.social_type,
+        ue1_0.status,
+        ue1_0.update_at,
+        ue1_0.user_name,
+        ue1_0.user_nick,
+        ur1_0.role_id,
+        ur1_0.role_name,
+        ue1_0.withdraw_at,
+        ue1_0.withdraw_reason 
+    from
+        user ue1_0 
+    left join
+        user_role ur1_0 
+            on ur1_0.role_id=ue1_0.user_role 
+    where
+        ue1_0.user_id='user01'
+[2025-11-04 12:45:27:12046][http-nio-9090-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=?
+[2025-11-04 12:45:27:12047][http-nio-9090-exec-1] INFO  p6spy - 2025-11-04 12:45:27 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    select
+        mfe1_0.folder_id,
+        mfe1_0.folder_name 
+    from
+        memo_folder mfe1_0 
+    where
+        mfe1_0.folder_id=4
+[2025-11-04 12:45:27:12085][http-nio-9090-exec-1] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        memo
+        (folder_id, is_fixed, memo_contents, memo_title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+[2025-11-04 12:45:27:12088][http-nio-9090-exec-1] INFO  p6spy - 2025-11-04 12:45:27 | OperationTime : 0ms | 
+(P6Spy sql, Hibernate format):
+
+    insert 
+    into
+        memo
+        (folder_id, is_fixed, memo_contents, memo_title, user_id) 
+    values
+        (4, 'N', '321321', '123123', 'user01')
+[2025-11-04 12:45:27:12115][http-nio-9090-exec-1] INFO  p6spy - 
+[2025-11-04 12:45:27:12169][http-nio-9090-exec-1] ERROR b.c.c.h.CommonExceptionHandler - ==== RuntimeException 발생 ====
+org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.writeInternal(AbstractJackson2HttpMessageConverter.java:494)
+	at org.springframework.http.converter.AbstractGenericHttpMessageConverter.write(AbstractGenericHttpMessageConverter.java:126)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:345)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.handleReturnValue(RequestResponseBodyMethodProcessor.java:208)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:235)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:229)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at back.code.filter.JWTFilter.doFilterInternal(JWTFilter.java:45)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at back.code.filter.CustomLogoutFilter.process(CustomLogoutFilter.java:46)
+	at back.code.filter.CustomLogoutFilter.doFilter(CustomLogoutFilter.java:34)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1774)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: com.fasterxml.jackson.databind.JsonMappingException: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session (through reference chain: back.code.memo.entity.MemoEntity["folder"]->back.code.memo.entity.MemoFolderEntity["memos"])
+	at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:400)
+	at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:359)
+	at com.fasterxml.jackson.databind.ser.std.StdSerializer.wrapAndThrow(StdSerializer.java:324)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:765)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider._serialize(DefaultSerializerProvider.java:503)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:342)
+	at com.fasterxml.jackson.databind.ObjectWriter$Prefetch.serialize(ObjectWriter.java:1587)
+	at com.fasterxml.jackson.databind.ObjectWriter.writeValue(ObjectWriter.java:1061)
+	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.writeInternal(AbstractJackson2HttpMessageConverter.java:485)
+	... 110 common frames omitted
+Caused by: org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session
+	at org.hibernate.collection.spi.AbstractPersistentCollection.throwLazyInitializationException(AbstractPersistentCollection.java:635)
+	at org.hibernate.collection.spi.AbstractPersistentCollection.withTemporarySessionIfNeeded(AbstractPersistentCollection.java:219)
+	at org.hibernate.collection.spi.AbstractPersistentCollection.readSize(AbstractPersistentCollection.java:150)
+	at org.hibernate.collection.spi.PersistentBag.size(PersistentBag.java:353)
+	at com.fasterxml.jackson.databind.ser.std.CollectionSerializer.serialize(CollectionSerializer.java:101)
+	at com.fasterxml.jackson.databind.ser.std.CollectionSerializer.serialize(CollectionSerializer.java:25)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	... 119 common frames omitted
+[2025-11-04 12:45:27:12181][http-nio-9090-exec-1] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: failed to lazily initialize a collection of role: back.code.memo.entity.MemoFolderEntity.memos: could not initialize proxy - no Session]
+[2025-11-04 14:40:40:6924515][SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+[2025-11-04 14:40:40:6924521][tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+[2025-11-04 14:40:40:6924569][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 14:40:40:6924574][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2025-11-04 14:40:40:6924574][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
