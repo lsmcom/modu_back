@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -17,6 +19,24 @@ public class UserSettingService {
 
     private final UserSettingRepository userSettingRepository;
     private final UserRepository userRepository;
+
+    /** 회원가입시 기본 사용자 설정 생성 */
+    @Transactional
+    public void createDefaultSetting(UserEntity user) {
+        UserSettingEntity setting = UserSettingEntity.builder()
+                .settingId(UUID.randomUUID().toString())
+                .user(user)
+                .theDayOfWeek("M")           // 기본 월요일
+                .themeMode("light")          // 기본 라이트 모드
+                .alarmAllowed("Y")           // 알림 허용
+                .personalInfoAgreed("Y")     // 개인정보 동의
+                .locationInfoAgreed("Y")     // 위치정보 동의
+                .marketingInfoAgreed("Y")    // 마케팅 동의
+                .build();
+
+        userSettingRepository.save(setting);
+        log.info("[기본 설정 생성 완료] userId={}", user.getUserId());
+    }
 
     /** 사용자 설정 조회 */
     @Transactional(readOnly = true)
