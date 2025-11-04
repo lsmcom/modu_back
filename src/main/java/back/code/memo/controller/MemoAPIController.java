@@ -4,6 +4,7 @@ import back.code.memo.dto.MemoDTO;
 import back.code.memo.dto.MemoFolderDTO;
 import back.code.memo.dto.MemoFolderWithMemosDTO;
 import back.code.memo.dto.MoveFolderRequest;
+import back.code.memo.entity.MemoEntity;
 import back.code.memo.service.MemoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,5 +57,11 @@ public class MemoAPIController {
     public ResponseEntity<Void> deleteMemo(@PathVariable int memoId) {
         memoService.deleteMemo(memoId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 메모 등록
+    @PostMapping("/add")
+    public MemoEntity addMemo(@RequestBody MemoDTO dto) {
+        return memoService.addMemo(dto);
     }
 }

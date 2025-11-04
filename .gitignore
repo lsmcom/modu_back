@@ -11,6 +11,8 @@ build/
 .factorypath
 .project
 .settings
+logs/appboot.log
+logs/appboot_error.log
 .springBeans
 .sts4-cache
 bin/
