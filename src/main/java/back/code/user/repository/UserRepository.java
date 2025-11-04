@@ -28,4 +28,7 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     // 하이픈 제거 후 전화번호로 사용자 찾기
     @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM user WHERE REPLACE(phone, '-', '') = :normalizedPhone", nativeQuery = true)
     int existsByPhoneNormalized(@Param("normalizedPhone") String normalizedPhone);
+
+    // 닉네임 중복 확인용
+    boolean existsByUserNick(String userNick);
 }

@@ -22,6 +22,10 @@ spring:
   jwt:
     secretKey : vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
 
+  web:
+    resources:
+      static-locations: file:/C:/files/modu/
+
   mail:
     host: smtp.gmail.com
     port: 587
