@@ -24,7 +24,7 @@ public class AccountBookController {
     public ResponseEntity<ApiResponse<List<AccountBookDTO.Response>>> dailyAccountList(
                                                                         @RequestParam String userId,
                                                                         @RequestParam LocalDate date)throws  Exception {
-        List<AccountBookDTO.Response> accountList = accountBookService.getDailyAccountList(userId, date);
+        List<AccountBookDTO.Response> accountList = accountBookService.getDailyAccountList(userId,date);
         return ResponseEntity.ok(ApiResponse.ok(accountList));
     }
 
@@ -33,16 +33,25 @@ public class AccountBookController {
     public ResponseEntity<ApiResponse<List<AccountBookDTO.Response>>> weeklyAccountList(
                                                                         @RequestParam String userId,
                                                                         @RequestParam LocalDate date)throws  Exception {
-        List<AccountBookDTO.Response> accountList = accountBookService.getWeeklyAccountList(userId, date);
+        List<AccountBookDTO.Response> accountList = accountBookService.getWeeklyAccountList(userId,date);
         return ResponseEntity.ok(ApiResponse.ok(accountList));
     }
 
     // 가계부 리스트(월별) 조회
-    @GetMapping("/monthly")
-    public ResponseEntity<ApiResponse<List<AccountBookDTO.Response>>> monthlyAccountList(
+//    @GetMapping("/monthly")
+//    public ResponseEntity<ApiResponse<List<AccountBookDTO.Response>>> monthlyAccountList(
+//                                                                        @RequestParam String userId)throws  Exception {
+//        List<AccountBookDTO.Response> accountList = accountBookService.getMonthlyAccountList(userId);
+//        return ResponseEntity.ok(ApiResponse.ok(accountList));
+//    }
+
+    // 가계부 리스트(달력) 조회
+    @GetMapping("/calendar")
+    public ResponseEntity<ApiResponse<List<AccountBookDTO.CalendarAccountResponse>>> calendarAccountList(
                                                                         @RequestParam String userId,
                                                                         @RequestParam LocalDate date)throws  Exception {
-        List<AccountBookDTO.Response> accountList = accountBookService.getMonthlyAccountList(userId, date);
+        List<AccountBookDTO.CalendarAccountResponse> accountList =
+                                    accountBookService.getCalendarAccountList(userId,date);
         return ResponseEntity.ok(ApiResponse.ok(accountList));
     }
 

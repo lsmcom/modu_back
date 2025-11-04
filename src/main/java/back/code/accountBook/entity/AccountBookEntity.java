@@ -1,5 +1,7 @@
 package back.code.accountBook.entity;
 
+import back.code.accountBook.enums.AccountMethod;
+import back.code.accountBook.enums.AccountType;
 import back.code.common.entity.BaseTimeEntity;
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
@@ -18,9 +20,11 @@ public class AccountBookEntity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int accountId;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private AccountType type;
     private LocalDate date;
-    private String method;
+    @Enumerated(EnumType.STRING)
+    private AccountMethod method;
     private int amount;
     private String content;
 
