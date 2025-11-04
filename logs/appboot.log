@@ -17398,6 +17398,78 @@ Caused by: com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot des
     where
         mfe1_0.folder_id=4
 [2025-11-03 17:50:52:449817][http-nio-9090-exec-3] INFO  p6spy -
+[2025-11-04 01:54:33:15402594][HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h59m21s783ms568µs600ns).
+[2025-11-04 08:56:41:40730726][HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7h2m12s78ms630µs800ns).
+[2025-11-04 08:56:58:40748011][SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+[2025-11-04 08:56:58:40748016][tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+[2025-11-04 08:56:58:40748128][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 08:56:59:40748186][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2025-11-04 08:56:59:40748191][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+[2025-11-03 17:50:52:449817][http-nio-9090-exec-3] INFO  p6spy -
+[2025-11-04 01:54:33:15402594][HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h59m21s783ms568µs600ns).
+[2025-11-04 08:56:41:40730726][HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7h2m12s78ms630µs800ns).
+[2025-11-04 08:56:58:40748011][SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+[2025-11-04 08:56:58:40748016][tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+[2025-11-04 08:56:58:40748128][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 08:56:59:40748186][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2025-11-04 08:56:59:40748191][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+[2025-11-04 09:29:25:884][background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+[2025-11-04 09:29:25:942][restartedMain] INFO  back.code.ModuBackApplication - Starting ModuBackApplication using Java 21.0.7 with PID 6820 (C:\modu_project\modu_back\build\classes\java\main started by sm002 in C:\modu_project\modu_back)
+[2025-11-04 09:29:25:943][restartedMain] INFO  back.code.ModuBackApplication - No active profile set, falling back to 1 default profile: "default"
+[2025-11-04 09:29:25:997][restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+[2025-11-04 09:29:25:998][restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+[2025-11-04 09:29:26:2164][restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2025-11-04 09:29:27:2382][restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 210 ms. Found 9 JPA repository interfaces.
+[2025-11-04 09:29:27:3095][restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 9090 (http)
+[2025-11-04 09:29:27:3109][restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-9090"]
+[2025-11-04 09:29:27:3111][restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+[2025-11-04 09:29:27:3111][restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.48]
+[2025-11-04 09:29:27:3172][restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+[2025-11-04 09:29:27:3172][restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2174 ms
+[2025-11-04 09:29:28:3387][restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2025-11-04 09:29:28:3455][restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.33.Final
+[2025-11-04 09:29:28:3549][restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+[2025-11-04 09:29:28:3867][restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+[2025-11-04 09:29:28:3905][restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+[2025-11-04 09:29:28:4006][restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.mariadb.jdbc.Connection@636b694c
+[2025-11-04 09:29:28:4008][restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+[2025-11-04 09:29:28:4043][restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+[2025-11-04 09:29:28:4063][restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'p6SpyDataSourceDecorator [com.p6spy.engine.spy.P6DataSource] -> dataSource [com.zaxxer.hikari.HikariDataSource]']
+	Database driver: undefined/unknown
+	Database version: 11.8.2
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2025-11-04 09:29:28:4070][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(12, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@24b957c1) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@1be19f85)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(-9, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@4f8866cc) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@6a8bfcb1)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(-3, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@462b97e) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@13e813c0)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4003, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@1fdab977) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@2a01a049)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4001, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3bb9553e) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@681c279a)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(4002, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@22c73aef) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@563c516)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2004, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@74027021) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@7daba9cc)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2005, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@6620e4d4) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@7d70d673)
+[2025-11-04 09:29:28:4071][restartedMain] DEBUG o.h.t.d.sql.spi.DdlTypeRegistry - addDescriptor(2011, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@1a942284) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3ad10dd3)
+[2025-11-04 09:29:29:5049][restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2025-11-04 09:29:29:5086][restartedMain] INFO  p6spy - #1762216169771 | took 11ms | statement | connection 1| url jdbc:mariadb://localhost/modu?user=root&password=***&prepStmtCacheSqlLimit=2048&useServerPrepStmts=true
+select table_name from information_schema.TABLES where table_schema=database() and table_type='SEQUENCE'
+select table_name from information_schema.TABLES where table_schema=database() and table_type='SEQUENCE';
+[2025-11-04 09:29:29:5126][restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 09:29:30:5356][restartedMain] INFO  o.s.d.j.r.q.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+[2025-11-04 09:29:31:6700][restartedMain] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authProvider
+[2025-11-04 09:29:31:6701][restartedMain] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+[2025-11-04 09:29:31:6796][restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/static/imgs/**'], Ant [pattern='/static/imgs/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+[2025-11-04 09:29:31:6796][restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore org.springframework.boot.autoconfigure.security.servlet.StaticResourceRequest$StaticResourceRequestMatcher@67482cb0. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+[2025-11-04 09:29:31:7108][restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+[2025-11-04 09:29:31:7130][restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-9090"]
+[2025-11-04 09:29:31:7145][restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 9090 (http) with context path '/'
+[2025-11-04 09:29:31:7152][restartedMain] INFO  back.code.ModuBackApplication - Started ModuBackApplication in 6.701 seconds (process running for 7.915)
+[2025-11-04 09:29:43:18793][SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+[2025-11-04 09:29:43:18800][tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+[2025-11-04 09:29:43:18820][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2025-11-04 09:29:43:18822][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2025-11-04 09:29:43:18826][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
 [2025-11-03 11:56:17:1306][background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
 [2025-11-03 11:56:17:1419][restartedMain] INFO  back.code.ModuBackApplication - Starting ModuBackApplication using Java 21.0.7 with PID 10712 (C:\haram\modu-project\modu_back\build\classes\java\main started by ere01 in C:\haram\modu-project\modu_back)
 [2025-11-03 11:56:17:1420][restartedMain] INFO  back.code.ModuBackApplication - The following 1 profile is active: "haram"
