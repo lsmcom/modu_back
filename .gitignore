@@ -27,10 +27,11 @@ src/main/resources/application-haram.yml
 *.iml
 *.ipr
 out/
-appboot.log
-appboot_error.log
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+# logs 폴더 전체 무시
+logs/
 
 ### NetBeans ###
 /nbproject/private/
