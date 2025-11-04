@@ -1,5 +1,9 @@
 package back.code.user.service;
 
+import back.code.file.dto.FileDTO;
+import back.code.file.entity.FileEntity;
+import back.code.file.repository.FileRepository;
+import back.code.file.service.FileService;
 import back.code.user.dto.JoinRequestDTO;
 import back.code.user.entity.UserEntity;
 import back.code.user.entity.UserRoleEntity;
@@ -11,9 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +33,9 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRoleRepository userRoleRepository;
     private final EmailService emailService;
+    private final UserSettingService userSettingService;
+    private final FileRepository fileRepository;
+    private final FileService fileService;
 
     /** 아이디 중복 확인 */
     @Transactional(readOnly = true)
@@ -123,6 +135,8 @@ public class UserService {
 
         // 저장
         userRepository.save(user);
+        // 기본 사용자 설정 생성
+        userSettingService.createDefaultSetting(user);
 
         log.info("[회원가입 성공] userId={}, email={}", dto.getUserId(), dto.getEmail());
     }
@@ -220,4 +234,98 @@ public class UserService {
 
         log.info("[비밀번호 재설정 완료] userId={}", userId);
     }
+
+    /**
+     * 사용자 프로필 이미지 조회
+     */
+    @Transactional(readOnly = true)
+    public String getProfileImage(String userId) {
+        // 유효성 검사
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("유효하지 않은 사용자 ID입니다.");
+        }
+
+        // 파일 조회
+        List<FileEntity> files = fileRepository.findByUser_UserIdAndFileType(userId, "PROFILE");
+        if (files.isEmpty()) {
+            log.info("[PROFILE] userId={} 프로필 이미지 없음", userId);
+            return null;
+        }
+
+        // 최신 파일(가장 최근 createAt 기준) 선택
+        FileEntity latest = files.stream()
+                .max(Comparator.comparing(FileEntity::getCreateAt))
+                .orElseThrow(() -> new RuntimeException("프로필 이미지 조회 중 오류가 발생했습니다."));
+
+        // 경로 문자열 반환
+        String fullPath = Paths.get(latest.getFilePath(), latest.getStoredName())
+                .toString()
+                .replace("\\", "/");
+
+        log.info("[PROFILE] userId={} 최신 프로필 이미지 반환: {}", userId, fullPath);
+        return fullPath;
+    }
+
+    /**
+     * 프로필 이미지 변경
+     */
+    public FileDTO updateProfileImage(String userId, MultipartFile newFile) throws IOException {
+        if (newFile == null || newFile.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 파일이 존재하지 않습니다.");
+        }
+
+        // 유저 존재 여부 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 기존 프로필 파일 조회
+        List<FileEntity> existingFiles = fileRepository.findByUser_UserIdAndFileType(userId, "PROFILE");
+
+        // 기존 파일 삭제
+        for (FileEntity oldFile : existingFiles) {
+            fileService.deleteFileEntity(oldFile);
+        }
+
+        // 새 프로필 업로드
+        FileDTO uploaded = fileService.uploadFile(newFile, userId, "PROFILE");
+        log.info("[PROFILE] 사용자 {} 새 프로필 업로드 완료: {}", userId, uploaded.getStoredName());
+
+        return null;
+    }
+
+    /**
+     * 닉네임 조회
+     */
+    public String getUserNickname(String userId) {
+        return userRepository.findById(userId)
+                .map(UserEntity::getUserNick)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
+    /**
+     * 닉네임 변경
+     */
+    @Transactional
+    public void updateNickname(String userId, String newNick) {
+        if (newNick == null || newNick.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임을 입력해주세요.");
+        }
+
+        // 유저 존재 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 중복 닉네임 확인
+        boolean exists = userRepository.existsByUserNick(newNick);
+        if (exists) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+        }
+
+        // 닉네임 변경
+        user.setUserNick(newNick);
+        userRepository.save(user);
+
+        log.info("[USER] 닉네임 변경 완료 - userId={}, newNick={}", userId, newNick);
+    }
 }
+
