@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "memo")
@@ -42,4 +44,7 @@ public class MemoEntity {
 
     @Column(name = "update_date", insertable = false, updatable = false)
     private LocalDateTime updateDate;
+
+    @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileMemoMapEntity> memoFiles = new ArrayList<>();
 }

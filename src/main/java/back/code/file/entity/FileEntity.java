@@ -1,12 +1,16 @@
 package back.code.file.entity;
 
 import back.code.common.entity.BaseTimeEntity;
+import back.code.memo.entity.FileMemoMapEntity;
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,5 +36,8 @@ public class FileEntity extends BaseTimeEntity {
     private Long fileSize; // 파일 크기
 
     private String fileThumbName; // 썸네일 파일명(이미지일 경우)
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileMemoMapEntity> memoFiles = new ArrayList<>();
 
 }
