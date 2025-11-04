@@ -6,6 +6,7 @@ import back.code.accountBook.enums.AccountType;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class AccountBookDTO {
 
@@ -69,6 +70,27 @@ public class AccountBookDTO {
                     .savingGoalName(entity.getGoalId() != null ? entity.getGoalId().getGoalName() : null)
                     .build();
         }
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class WeekResponse{
+        private String weekStartDate; // 2025-11-03
+        private String weekEndDate;   // 2025-11-09
+        private int income;
+        private int expense;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class MonthResponse{
+        private String month;
+        private int income;
+        private int expense;
     }
 
     @Builder
