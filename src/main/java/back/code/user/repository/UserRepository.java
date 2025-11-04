@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     // 로그인 시 필요한 최소 컬럼만 조회하기 위해 DTO Projection을 사용
-    @Query("SELECT new back.code.user.dto.LoginUserInfoDTO(u.userId, u.userName, u.password, r.roleName) " +
+    @Query("SELECT new back.code.user.dto.LoginUserInfoDTO(u.userId, u.userName, u.password, r.roleName, u.status) " +
             "FROM UserEntity u JOIN u.userRole r " +
             "WHERE u.userId = :userId")
     Optional<LoginUserInfoDTO> findLoginInfo(@Param("userId") String userId);
