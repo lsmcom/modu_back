@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("api/v1/accountBook")
+@RequestMapping("/api/v1/accountBook")
 public class AccountBookController {
 
     private final AccountBookService accountBookService;
@@ -37,14 +37,14 @@ public class AccountBookController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
-//     가계부 리스트(월별) 조회
-//    @GetMapping("/monthly")
-//    public ResponseEntity<ApiResponse<List<AccountBookDTO.Response>>> monthlyAccountList(
-//                                                                        @RequestParam String userId
-//                                                            )throws  Exception {
-//        List<AccountBookDTO.Response> result = accountBookService.getMonthlyAccountList(userId);
-//        return ResponseEntity.ok(ApiResponse.ok(result));
-//    }
+    // 가계부 리스트(월별) 조회
+   @GetMapping("/monthly")
+   public ResponseEntity<ApiResponse<List<AccountBookDTO.MonthResponse>>> monthlyAccountList(
+                                                                       @RequestParam String userId
+                                                           )throws  Exception {
+       List<AccountBookDTO.MonthResponse> result = accountBookService.getMonthlyAccountList(userId);
+       return ResponseEntity.ok(ApiResponse.ok(result));
+   }
 
     // 가계부 리스트(달력) 조회
     @GetMapping("/calendar")

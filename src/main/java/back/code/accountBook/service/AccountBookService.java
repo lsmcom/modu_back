@@ -7,10 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -51,49 +49,33 @@ public class AccountBookService {
         LocalDate startOfMonth = date.withDayOfMonth(1);
         LocalDate endOfMonth = date.withDayOfMonth(date.lengthOfMonth());
 
-        List<Object[]> results = accountBookRepository.findByUserIdAndDateBetween(userId, startOfMonth, endOfMonth);
+        List<Object[]> results = accountBookRepository.findWeeklyByUserIdAndDateBetween(userId, startOfMonth, endOfMonth);
 
-        List<AccountBookDTO.WeekResponse> weekList = new ArrayList<>();
+        List<AccountBookDTO.WeekResponse> result = new ArrayList<>();
         for (Object[] row : results) {
-            String weekStartStr = (String) row[0];
-            String weekEndStr = (String) row[1];
-
-            LocalDate weekStart = LocalDate.parse(weekStartStr);
-            LocalDate weekEnd = LocalDate.parse(weekEndStr);
-
-            int income = ((Number) row[2]).intValue();
-            int expense = ((Number) row[3]).intValue();
-
-            weekList.add(AccountBookDTO.WeekResponse.builder()
-                    .weekStartDate(weekStart.toString())
-                    .weekEndDate(weekEnd.toString())
-                    .income(income)
-                    .expense(expense)
-                    .build());
+            result.add(AccountBookDTO.WeekResponse.of(row));
         }
 
-        return weekList;
+        return result;
     }
 
     // 가계부 리스트(월별) 조회
-//    @Transactional
-//    public List<AccountBookDTO.Response> getMonthlyAccountList(String userId) throws  Exception {
-//
-//        if (userId == null || date == null) {
-//            throw new IllegalArgumentException("userId와 date는 필수값입니다.");
-//        }
-//
-//        // 이번 달의 시작일과 마지막일 계산
-//        LocalDate startOfMonth = date.withDayOfMonth(1);
-//        LocalDate endOfMonth = date.withDayOfMonth(date.lengthOfMonth());
-//
-//        List<AccountBookEntity> entities =
-//                accountBookRepository.findDailyByUserIdAndDateBetween(userId, startOfMonth,endOfMonth);
-//
-//        List<AccountBookDTO.Response> accountList =entities.stream().map(AccountBookDTO.Response::of).toList();
-//
-//        return accountList;
-//    }
+   @Transactional
+   public List<AccountBookDTO.MonthResponse> getMonthlyAccountList(String userId) throws  Exception {
+
+       if (userId == null) {
+           throw new IllegalArgumentException("userId는 필수값입니다.");
+       }
+
+       List<Object[]> results = accountBookRepository.findMonthlyByUserId(userId);
+
+       List<AccountBookDTO.MonthResponse> result = new ArrayList<>();
+        for (Object[] row : results) {
+            result.add(AccountBookDTO.MonthResponse.of(row));
+        }
+
+       return result;
+   }
 
     // 가계부 리스트(달력) 조회
     @Transactional
@@ -105,7 +87,10 @@ public class AccountBookService {
 
         List<Object[]> results  = accountBookRepository.findCalendarByUserIdAndDate(userId, date);
         Object[] projection = results.isEmpty() ? new Object[]{0, 0} : results.get(0);
-        return AccountBookDTO.CalendarAccountResponse.of(projection);
+
+        AccountBookDTO.CalendarAccountResponse result = AccountBookDTO.CalendarAccountResponse.of(projection);
+
+        return result;
     }
 
 }

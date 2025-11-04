@@ -6,10 +6,10 @@ import back.code.accountBook.enums.AccountType;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class AccountBookDTO {
 
+    // 서버 -> 클라이언트
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -26,7 +26,6 @@ public class AccountBookDTO {
         private String content;
 
         public static Response of (AccountBookEntity entity){
-
             return Response.builder()
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
@@ -40,6 +39,7 @@ public class AccountBookDTO {
         }
     }
 
+    // 상세내용
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -57,7 +57,6 @@ public class AccountBookDTO {
         private String savingGoalName;
 
         public static Detail of (AccountBookEntity entity){
-
             return Detail.builder()
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
@@ -72,17 +71,28 @@ public class AccountBookDTO {
         }
     }
 
+    // 주별 리스트
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     public static class WeekResponse{
-        private String weekStartDate; // 2025-11-03
-        private String weekEndDate;   // 2025-11-09
+        private String weekStartDate;
+        private String weekEndDate;  
         private int income;
         private int expense;
+
+        public static WeekResponse of(Object[] projection) {
+            return WeekResponse.builder()
+                    .weekStartDate((String) projection[0])
+                    .weekEndDate((String) projection[1])
+                    .income(projection[2] != null ? ((Number) projection[2]).intValue() : 0)
+                    .expense(projection[3] != null ? ((Number) projection[3]).intValue() : 0)
+                    .build();
+        }   
     }
 
+    // 월별 리스트
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -91,8 +101,17 @@ public class AccountBookDTO {
         private String month;
         private int income;
         private int expense;
+
+        public static MonthResponse of(Object[] projection) {
+            return MonthResponse.builder()
+                    .month((String) projection[0])
+                    .income(projection[1] != null ? ((Number) projection[1]).intValue() : 0)
+                    .expense(projection[2] != null ? ((Number) projection[2]).intValue() : 0)
+                    .build();
+        }
     }
 
+    // 캘린더 리스트
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
