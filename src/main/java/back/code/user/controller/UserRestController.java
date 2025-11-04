@@ -1,13 +1,20 @@
 package back.code.user.controller;
 
 import back.code.common.dto.ApiResponse;
+import back.code.file.dto.FileDTO;
 import back.code.user.dto.JoinRequestDTO;
+import back.code.user.dto.UserInfoDTO;
+import back.code.user.dto.UserUpdateRequest;
 import back.code.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -107,5 +114,77 @@ public class UserRestController {
             @RequestParam String newPassword) {
         userService.resetPassword(userId, newPassword);
         return ResponseEntity.ok(ApiResponse.ok("비밀번호가 성공적으로 변경되었습니다."));
+    }
+
+    /**
+     * 유저 프로필 이미지 조회 API
+     */
+    @GetMapping("/{userId}/profile-image")
+    public ResponseEntity<ApiResponse<String>> getProfileImage(@PathVariable String userId) {
+        String profileImagePath = userService.getProfileImage(userId);
+        return ResponseEntity.ok(ApiResponse.ok(profileImagePath));
+    }
+
+    /**
+     * 프로필 이미지 업로드 및 변경
+     */
+    @PostMapping("/{userId}/profile-image")
+    public ResponseEntity<ApiResponse<String>> updateProfileImage(@PathVariable String userId,
+            @RequestPart("file") MultipartFile file) throws IOException {
+        userService.updateProfileImage(userId, file);
+        return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 변경되었습니다."));
+    }
+
+    /**
+     * 사용자 닉네임 조회
+     */
+    @GetMapping("/{userId}/nickname")
+    public ResponseEntity<ApiResponse<String>> getUserNickname(@PathVariable String userId) {
+        String nickname = userService.getUserNickname(userId);
+        return ResponseEntity.ok(ApiResponse.ok(nickname));
+    }
+
+    /**
+     * 닉네임 변경
+     */
+    @PutMapping("/{userId}/nickname")
+    public ResponseEntity<ApiResponse<String>> updateNickname(@PathVariable String userId,
+            @RequestBody Map<String, String> body) {
+        String newNick = body.get("nickname");
+        userService.updateNickname(userId, newNick);
+        return ResponseEntity.ok(ApiResponse.ok("닉네임이 변경되었습니다."));
+    }
+
+    /** 회원정보 조회 */
+    @GetMapping("/{userId}/info")
+    public ResponseEntity<ApiResponse<UserInfoDTO>> getUserInfo(@PathVariable String userId) {
+        UserInfoDTO result = userService.getUserInfo(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /** 회원정보 수정 */
+    @PutMapping("/{userId}/info")
+    public ResponseEntity<ApiResponse<String>> updateUserInfo(@PathVariable String userId,
+            @RequestBody UserUpdateRequest req) {
+        userService.updateUserInfo(userId, req);
+        return ResponseEntity.ok(ApiResponse.ok("회원정보가 수정되었습니다."));
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    @PostMapping("/edit/pw")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String userId,
+            @RequestParam String currentPassword, @RequestParam String newPassword) {
+        userService.editPassword(userId, currentPassword, newPassword);
+        return ResponseEntity.ok(ApiResponse.ok("비밀번호가 성공적으로 변경되었습니다."));
+    }
+
+    /** 회원 탈퇴 */
+    @PostMapping("/withdraw")
+    public ResponseEntity<ApiResponse<String>> withdrawUser(@RequestParam String userId,
+            @RequestParam String password, @RequestParam(required = false) String reason) {
+        userService.withdrawUser(userId, password, reason);
+        return ResponseEntity.ok(ApiResponse.ok("회원 탈퇴가 완료되었습니다."));
     }
 }

@@ -2,14 +2,17 @@ package back.code.memo.entity;
 
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "memo")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MemoEntity {
 
     @Id
@@ -18,11 +21,11 @@ public class MemoEntity {
     private Integer memoId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false)
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "folder_id")
+    @JoinColumn(name = "folder_id", nullable = false)
     private MemoFolderEntity folder;
 
     @Column(name = "memo_title")
@@ -34,9 +37,9 @@ public class MemoEntity {
     @Column(name = "is_fixed", columnDefinition = "CHAR(1)")
     private String isFixed;
 
-    @Column(name = "create_date")
+    @Column(name = "create_date", insertable = false, updatable = false)
     private LocalDateTime createDate;
 
-    @Column(name = "update_date")
+    @Column(name = "update_date", insertable = false, updatable = false)
     private LocalDateTime updateDate;
 }

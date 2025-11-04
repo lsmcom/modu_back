@@ -29,6 +29,16 @@ public class SecureUserDetailService implements  UserDetailsService {
         LoginUserInfoDTO user = userRepository.findLoginInfo(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
 
+        // 탈퇴 회원 로그인 차단
+        if ("withdrawn".equalsIgnoreCase(user.getStatus())) {
+            throw new UsernameNotFoundException("탈퇴한 회원은 로그인할 수 없습니다.");
+        }
+
+        // 필요 시 추가 검증
+        if ("inactive".equalsIgnoreCase(user.getStatus())) {
+            throw new UsernameNotFoundException("비활성화된 계정입니다.");
+        }
+
         // DB의 사용자 정보를 기반으로 인증용 DTO 생성
         return new SecureUserDTO(user.getUserId(), user.getUserName(),
                 user.getPassword(), user.getRoleName()) ;

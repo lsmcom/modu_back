@@ -11,6 +11,8 @@ build/
 .factorypath
 .project
 .settings
+logs/appboot.log
+logs/appboot_error.log
 .springBeans
 .sts4-cache
 bin/
@@ -20,12 +22,16 @@ bin/
 ### IntelliJ IDEA ###
 .idea
 .env
+src/main/resources/application-haram.yml
 *.iws
 *.iml
 *.ipr
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+# logs 폴더 전체 무시
+logs/
 
 ### NetBeans ###
 /nbproject/private/

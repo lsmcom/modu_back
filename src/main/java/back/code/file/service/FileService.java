@@ -51,7 +51,7 @@ public class FileService {
         Map<String, Object> uploadFile = fileUtils.uploadFile(file, uploadPath, fileType);
         String storedName = (String) uploadFile.get("storedFileName");
         String filePath = (String) uploadFile.get("filePath");
-        String fileName = (String) uploadFile.get("fileName");
+        String fileName = (String) uploadFile.get("originalName");
 
         // 이미지일 경우 썸네일 생성
         String thumbName = null;
@@ -154,5 +154,24 @@ public class FileService {
         if(lower.contains(".bmp")) return "bmp";
         if(lower.contains(".jpeg")) return "jpeg";
         return "jpg";
+    }
+
+    // 파일 삭제
+    @Transactional
+    public void deleteFileEntity(FileEntity file) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("삭제할 파일 정보가 없습니다.");
+        }
+
+        String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+
+        try {
+            fileUtils.deleteFile(path);
+            fileRepository.delete(file);
+            log.info("[FILE] 삭제 완료: {}", path);
+        } catch (IOException e) {
+            log.error("[FILE] 파일 삭제 실패: {}", path, e);
+            throw e; // CommonExceptionHandler가 처리
+        }
     }
 }
