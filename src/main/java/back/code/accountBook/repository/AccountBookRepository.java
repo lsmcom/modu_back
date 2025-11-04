@@ -11,7 +11,16 @@ import java.util.List;
 public interface AccountBookRepository extends JpaRepository<AccountBookEntity, Integer> {
 
     // 가계부 리스트(일별) 조회
-    List<AccountBookEntity> findByUserId_UserIdAndDate(String userId, LocalDate date);
+    @Query("""
+            select a
+            from AccountBookEntity a
+            where a.userId.userId = :userId
+              and a.date between :monthStart and :monthEnd
+            order by a.date desc
+            """)
+    List<AccountBookEntity> findDailyByUserIdAndDateBetween(@Param("userId") String userId,
+                                                              @Param("monthStart") LocalDate monthStart,
+                                                              @Param("monthEnd") LocalDate monthEnd);
 
     // 가계부 리스트(주별) 조회
     @Query("""
@@ -25,16 +34,16 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
                                                              @Param("startDate") LocalDate startDate,
                                                              @Param("endDate") LocalDate endDate);
 
-    // 가계부 리스트(월별) 조회
+    // 가계부 리스트(달력) 조회
     @Query("""
-            select a
+            select 
+                SUM(case when a.type = 'income' then a.amount else 0 end) as totalIncome,
+                SUM(case when a.type = 'expense' then a.amount else 0 end) as totalExpense
             from AccountBookEntity a
             where a.userId.userId = :userId
-                and a.date between :monthStart and :monthEnd
-            order by a.date desc
+              and a.date = :date
             """)
-    List<AccountBookEntity> findMonthlyByUserIdAndDateBetween(@Param("userId") String userId,
-                                                             @Param("monthStart") LocalDate monthStart,
-                                                             @Param("monthEnd") LocalDate monthEnd);
+    Object[] findCalendarByUserIdAndDate(@Param("userId") String userId,
+                                         @Param("date") LocalDate date);
 
 }

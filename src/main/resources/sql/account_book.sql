@@ -121,4 +121,52 @@ values ('급여', 'income', '#66BB6A', true),
        ('여가', 'expense', '#FFCE56', true),
        ('운동', 'expense', '#AB47BC', true);
 
+-- ------------------------------------------------------------ 여기부터 추가
+ALTER TABLE account_book
+    MODIFY COLUMN type ENUM('INCOME','EXPENSE') NOT NULL;
 
+ALTER TABLE account_book
+    MODIFY COLUMN method ENUM('BANK','CARD','CASH','ETC');
+
+-- 9월 데이터
+INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+VALUES
+    ('user01', 1, NULL, 'INCOME', '2025-09-01', 'BANK', 1800000, '월급 입금'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-09-02', 'CARD', 25000, '점심 식사'),
+    ('user01', 6, NULL, 'EXPENSE', '2025-09-05', 'CARD', 89000, '가을옷 쇼핑'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-09-07', 'BANK', 45000, '영화관 데이트'),
+    ('user01', 8, NULL, 'EXPENSE', '2025-09-09', 'BANK', 69000, '헬스장 등록'),
+    ('user01', 5, NULL, 'EXPENSE', '2025-09-10', 'CASH', 3400, '버스비'),
+    ('user01', 3, NULL, 'INCOME', '2025-09-15', 'BANK', 150000, '적금 입금'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-09-20', 'CARD', 57000, '놀이공원 이용료'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-09-25', 'CASH', 12000, '카페 간식'),
+    ('user01', 6, NULL, 'EXPENSE', '2025-09-28', 'CARD', 45000, '책 구입');
+
+-- 10월 데이터
+INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+VALUES
+    ('user01', 1, NULL, 'INCOME', '2025-10-01', 'BANK', 1800000, '월급 입금'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-10-02', 'CARD', 23000, '점심 식사'),
+    ('user01', 8, NULL, 'EXPENSE', '2025-10-05', 'BANK', 61000, '클라이밍장 이용'),
+    ('user01', 6, NULL, 'EXPENSE', '2025-10-08', 'CARD', 99000, '자켓 구입'),
+    ('user01', 5, NULL, 'EXPENSE', '2025-10-10', 'CASH', 4800, '지하철 요금'),
+    ('user01', 3, NULL, 'INCOME', '2025-10-15', 'BANK', 100000, '적금 입금'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-10-17', 'CARD', 32000, '보드게임 카페'),
+    ('user01', 8, NULL, 'EXPENSE', '2025-10-20', 'BANK', 45000, '헬스장 등록'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-10-23', 'CARD', 28000, '저녁 식사'),
+    ('user01', 6, NULL, 'EXPENSE', '2025-10-29', 'BANK', 75000, '가방 구입');
+
+-- 11월 데이터
+INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+VALUES
+    ('user01', 1, NULL, 'INCOME', '2025-11-01', 'BANK', 1800000, '월급 입금'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-11-02', 'CARD', 27000, '점심 식사'),
+    ('user01', 5, NULL, 'EXPENSE', '2025-11-03', 'CASH', 2400, '버스 요금'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-11-05', 'BANK', 64000, '공연 티켓'),
+    ('user01', 8, NULL, 'EXPENSE', '2025-11-08', 'BANK', 69000, '헬스장 등록'),
+    ('user01', 3, NULL, 'INCOME', '2025-11-10', 'BANK', 150000, '적금 입금'),
+    ('user01', 4, NULL, 'EXPENSE', '2025-11-15', 'CARD', 34000, '외식'),
+    ('user01', 6, NULL, 'EXPENSE', '2025-11-20', 'BANK', 120000, '겨울코트 구입'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 45000, '영화관 데이트'),
+    ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 36000, '영화관 데이트'),
+    ('user01', 5, NULL, 'EXPENSE', '2025-11-25', 'CASH', 3600, '버스비');
