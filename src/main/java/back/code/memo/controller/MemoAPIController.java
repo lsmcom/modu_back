@@ -21,6 +21,7 @@ public class MemoAPIController {
     // 로그인된 사용자의 폴더 조회
     @GetMapping("/folders/{userId}")
     public List<MemoFolderDTO> getUserFolders(@PathVariable String userId) {
+        System.out.println("폴더 조회");
         return memoService.getUserFolders(userId);
     }
 

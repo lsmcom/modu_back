@@ -14,17 +14,17 @@ public class MemoFolderAPIController {
 
     private final MemoFolderService memoFolderService;
 
-    // 🔹 모든 폴더 조회 (전역)
-    @GetMapping("/all")
-    public List<MemoFolderDTO> getAllFolders() {
-        return memoFolderService.getAllFolders();
+    // 🔹 특정 유저의 폴더 조회
+    @GetMapping("/{userId}")
+    public List<MemoFolderDTO> getUserFolders(@PathVariable String userId) {
+        System.out.println("📁 폴더 조회 요청 userId=" + userId);
+        return memoFolderService.getUserFolders(userId);
     }
 
     // 🔹 폴더 추가
     @PostMapping("/add")
-    public ResponseEntity<MemoFolderDTO> addFolder(@RequestBody MemoFolderDTO dto) {
-        MemoFolderDTO saved = memoFolderService.addFolder(dto);
-        return ResponseEntity.ok(saved);
+    public MemoFolderDTO addFolder(@RequestBody MemoFolderDTO dto) {
+        return memoFolderService.addFolder(dto);
     }
 
     // 🔹 폴더 수정

@@ -3,6 +3,7 @@ package back.code.memo.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class MemoDTO {
@@ -15,5 +16,8 @@ public class MemoDTO {
     private String isFixed;          // 상단 고정 여부 ('Y' / 'N')
     private LocalDateTime createDate; // 생성일 (DB 자동)
     private LocalDateTime updateDate; // 수정일 (DB 자동)
+
+    // 첨부된 파일 리스트
+    private List<String> fileIds;
 
 }

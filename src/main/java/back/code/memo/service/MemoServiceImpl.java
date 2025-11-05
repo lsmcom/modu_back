@@ -1,5 +1,6 @@
 package back.code.memo.service;
 
+import back.code.file.service.FileService;
 import back.code.memo.dto.MemoDTO;
 import back.code.memo.dto.MemoFolderDTO;
 import back.code.memo.dto.MemoFolderWithMemosDTO;
@@ -27,28 +28,21 @@ public class MemoServiceImpl implements MemoService {
     private final MemoRepository memoRepository;
     private final MemoFolderRepository memoFolderRepository;
     private final UserRepository userRepository;
+    private final FileService fileService;
+    private final FileMemoMapService fileMemoMapService;
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public List<MemoFolderDTO> getUserFolders(String userId) {
-        // 현재 구조상 memo_folder에는 user_id 컬럼이 없으므로
-        // 사용자의 메모에 연결된 폴더를 DISTINCT로 추출
-        List<MemoEntity> userMemos = memoRepository.findAll()
-                .stream()
-                .filter(m -> m.getUser().getUserId().equals(userId))
-                .collect(Collectors.toList());
-
-        return userMemos.stream()
-                .map(MemoEntity::getFolder)
-                .distinct()
-                .map(f -> {
-                    MemoFolderDTO dto = new MemoFolderDTO();
-                    dto.setFolderId(f.getFolderId());
-                    dto.setFolderName(f.getFolderName());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        List<MemoFolderEntity> folders = memoFolderRepository.findByUser_UserId(userId);
+        return folders.stream().map(f -> {
+            MemoFolderDTO dto = new MemoFolderDTO();
+            dto.setFolderId(f.getFolderId());
+            dto.setFolderName(f.getFolderName());
+            return dto;
+        }).collect(Collectors.toList());
     }
+
 
     @Transactional
     @Override
@@ -146,7 +140,7 @@ public class MemoServiceImpl implements MemoService {
         UserEntity user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + dto.getUserId()));
 
-        // 폴더 조회 (선택사항)
+        // 폴더 조회
         MemoFolderEntity folder = null;
         if (dto.getFolderId() != null) {
             folder = memoFolderRepository.findById(dto.getFolderId())
@@ -161,7 +155,16 @@ public class MemoServiceImpl implements MemoService {
                 .memoContents(dto.getMemoContents())
                 .isFixed(dto.getIsFixed() != null ? dto.getIsFixed() : "N")
                 .build();
-        // 저장
-        return memoRepository.save(memo);
+
+        MemoEntity saved = memoRepository.save(memo);
+
+        // 첨부된 파일이 있을 경우 매핑
+        if (dto.getFileIds() != null && !dto.getFileIds().isEmpty()) {
+            for (String fileId : dto.getFileIds()) {
+                fileMemoMapService.linkFileToMemo(saved.getMemoId(), fileId);
+            }
+        }
+
+        return saved;
     }
 }
