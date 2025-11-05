@@ -42,6 +42,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .setCachePeriod(0) // 캐시 비활성화 (개발 환경용)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
+
+        // React에서 접근하는 실제 URL 패턴
+        registry.addResourceHandler("/files/**")
+                .addResourceLocations("file:///" + filePath.replace("\\", "/"))
+                .setCachePeriod(0)
+                .resourceChain(true)
+                .addResolver(new PathResourceResolver());
     }
 
     /**

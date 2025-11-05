@@ -54,15 +54,34 @@ public class FileDTO {
                 .build();
     }
 
-    /** 내부 저장 경로를 외부 접근 URL로 변환 */
+    /* 내부 저장 경로를 외부 접근 URL로 변환 */
     private static String toPublicUrl(String uploadPath, String absDirPath, String storedName) {
-        String normalized = absDirPath.replace("\\", "/");
-        String base = uploadPath.replace("\\", "/");
-        String relative = normalized.replace(base, "");
-        if(relative.startsWith("/")) {
-            relative = relative.substring(1);
+        if (uploadPath == null || absDirPath == null) return "";
+
+        // 경로 구분자 통일 및 중복 슬래시 정리
+        String normalized = absDirPath.replace("\\", "/").replaceAll("//+", "/");
+        String base = uploadPath.replace("\\", "/").replaceAll("//+", "/");
+
+        // 마지막 슬래시 제거
+        if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+
+        // 대소문자 무시 비교 (Windows는 case-insensitive)
+        String relative = normalized;
+        if (relative.toLowerCase().startsWith(base.toLowerCase())) {
+            relative = relative.substring(base.length());
         }
 
-        return "/static/imgs/" + relative + "/" + storedName;
+        // 맨 앞 슬래시 제거
+        if (relative.startsWith("/")) relative = relative.substring(1);
+
+        // 최종 URL 조립
+        String result = "http://localhost:9090/files/" + relative + "/" + storedName;
+
+        // 경로 확인용 임시 로그 (에러나면 경로보고 에러 유추)
+        System.out.println("[DEBUG] uploadPath=" + base);
+        System.out.println("[DEBUG] absDirPath=" + normalized);
+        System.out.println("[DEBUG] result=" + result);
+
+        return result;
     }
 }

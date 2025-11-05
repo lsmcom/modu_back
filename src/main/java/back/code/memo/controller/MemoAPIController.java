@@ -33,6 +33,13 @@ public class MemoAPIController {
         return memoService.getMemosByFolder(userId, folderId);
     }
 
+    /* 단일 메모 조회 */
+    @GetMapping("/{memoId}")
+    public ResponseEntity<MemoDTO> getMemoById(@PathVariable Integer memoId) {
+        MemoDTO memo = memoService.getMemoById(memoId);
+        return ResponseEntity.ok(memo);
+    }
+
     // 로그인된 사용자의 모든 폴더 + 메모 조회
     @GetMapping("/all/{userId}")
     public List<MemoFolderWithMemosDTO> getAllFoldersWithMemos(@PathVariable String userId) {
@@ -64,5 +71,25 @@ public class MemoAPIController {
     @PostMapping("/add")
     public MemoEntity addMemo(@RequestBody MemoDTO dto) {
         return memoService.addMemo(dto);
+    }
+
+    // 메모 수정
+    @PutMapping("/{memoId}")
+    public ResponseEntity<MemoDTO> updateMemo(
+            @PathVariable Integer memoId,
+            @RequestBody MemoDTO dto) {
+        MemoDTO updated = memoService.updateMemo(memoId, dto);
+        return ResponseEntity.ok(updated);
+    }
+
+    // 메모 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<MemoDTO>> searchMemos(
+            @RequestParam String userId,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "전체") String range
+    ) {
+        List<MemoDTO> results = memoService.searchMemos(userId, keyword, range);
+        return ResponseEntity.ok(results);
     }
 }
