@@ -7,9 +7,9 @@ CREATE TABLE memo_folder (
                              folder_id    INT AUTO_INCREMENT PRIMARY KEY COMMENT '폴더 고유 ID (자동 증가)',
                              user_id      VARCHAR(100) NOT NULL COMMENT '소유자 ID (FK)',  --  추가
                              folder_name  VARCHAR(50) NOT NULL COMMENT '폴더명',
-                             CONSTRAINT fk_folder_user
+                             CONSTRAINT fk_memo_folder_user
                                  FOREIGN KEY (user_id)
-                                     REFERENCES user (user_id)
+                                     REFERENCES `user` (user_id)
                                      ON DELETE CASCADE
 ) COMMENT='메모 폴더 테이블';
 

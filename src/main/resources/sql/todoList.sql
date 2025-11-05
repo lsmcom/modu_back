@@ -1,3 +1,18 @@
+/* 투두 폴더 */
+CREATE TABLE todofolder (
+                            folder_id INT PRIMARY KEY NOT NULL COMMENT '폴더 고유 ID',
+                            user_id VARCHAR(255) NOT NULL COMMENT '사용자 ID (FK)',
+                            name VARCHAR(255) NOT NULL COMMENT '폴더 이름',
+
+    -- 외래 키 정의: todofolder는 user 테이블의 user_id를 참조
+                            CONSTRAINT fk_folder_user
+                                FOREIGN KEY (user_id) REFERENCES user (user_id)
+                                    ON DELETE CASCADE -- 사용자 탈퇴 시 해당 사용자의 모든 폴더 삭제
+) COMMENT '할 일 폴더 테이블';
+
+CREATE INDEX idx_folder_user_id ON todofolder (user_id);
+
+
 /* 투두 */
 CREATE TABLE todolist (
                           todo_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT '할 일 항목 고유 ID',
@@ -25,19 +40,6 @@ CREATE TABLE todolist (
 CREATE INDEX idx_user_folder_order ON todolist (user_id, folder_id, order_index);
 CREATE INDEX idx_due_date ON todolist (due_date);
 
-/* 투두 폴더 */
-CREATE TABLE todofolder (
-                            folder_id INT PRIMARY KEY NOT NULL COMMENT '폴더 고유 ID',
-                            user_id VARCHAR(255) NOT NULL COMMENT '사용자 ID (FK)',
-                            name VARCHAR(255) NOT NULL COMMENT '폴더 이름',
-
-    -- 외래 키 정의: todofolder는 user 테이블의 user_id를 참조
-                            CONSTRAINT fk_folder_user
-                                FOREIGN KEY (user_id) REFERENCES user (user_id)
-                                    ON DELETE CASCADE -- 사용자 탈퇴 시 해당 사용자의 모든 폴더 삭제
-) COMMENT '할 일 폴더 테이블';
-
-CREATE INDEX idx_folder_user_id ON todofolder (user_id);
 
 
 -- 1. todofolder 테이블 데이터 삽입
