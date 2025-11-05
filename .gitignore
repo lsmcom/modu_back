@@ -23,6 +23,7 @@ bin/
 .idea
 .env
 src/main/resources/application-haram.yml
+src/main/resources/application-hy.yml
 *.iws
 *.iml
 *.ipr
