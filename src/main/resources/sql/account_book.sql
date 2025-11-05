@@ -121,7 +121,6 @@ values ('급여', 'income', '#66BB6A', true),
        ('여가', 'expense', '#FFCE56', true),
        ('운동', 'expense', '#AB47BC', true);
 
--- ------------------------------------------------------------ 여기부터 추가
 ALTER TABLE account_book
     MODIFY COLUMN type ENUM('INCOME','EXPENSE') NOT NULL;
 
@@ -170,3 +169,7 @@ VALUES
     ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 45000, '영화관 데이트'),
     ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 36000, '영화관 데이트'),
     ('user01', 5, NULL, 'EXPENSE', '2025-11-25', 'CASH', 3600, '버스비');
+
+-- ------------------------------------------------------------ 여기부터 추가
+ALTER TABLE category
+    MODIFY COLUMN type ENUM('INCOME','EXPENSE') NOT NULL;

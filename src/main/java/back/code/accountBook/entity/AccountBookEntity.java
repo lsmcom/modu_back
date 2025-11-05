@@ -29,14 +29,14 @@ public class AccountBookEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private CategoryEntity categoryId;
+    private AccountCategoryEntity category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
-    private SavingsGoalEntity goalId;
+    private AccountSavingsGoalEntity goal;
 
 }

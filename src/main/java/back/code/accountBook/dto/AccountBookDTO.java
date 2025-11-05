@@ -1,11 +1,16 @@
 package back.code.accountBook.dto;
 
 import back.code.accountBook.entity.AccountBookEntity;
+import back.code.accountBook.entity.AccountFileMappingEntity;
+import back.code.accountBook.entity.AccountCategoryEntity;
+import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.enums.AccountMethod;
 import back.code.accountBook.enums.AccountType;
+import back.code.user.entity.UserEntity;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class AccountBookDTO {
 
@@ -32,8 +37,8 @@ public class AccountBookDTO {
                     .date(entity.getDate())
                     .method(entity.getMethod().getLabel())
                     .amount(entity.getAmount())
-                    .userId(entity.getUserId().getUserId())
-                    .categoryName(entity.getCategoryId().getCategoryName())
+                    .userId(entity.getUser().getUserId())
+                    .categoryName(entity.getCategory().getCategoryName())
                     .content(entity.getContent())
                     .build();
         }
@@ -55,8 +60,12 @@ public class AccountBookDTO {
         private String userId;
         private String categoryName;
         private String savingGoalName;
+        private List<AccountFileMappingEntity> fileList;
 
         public static Detail of (AccountBookEntity entity){
+
+
+
             return Detail.builder()
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
@@ -64,9 +73,9 @@ public class AccountBookDTO {
                     .method(entity.getMethod().getLabel())
                     .amount(entity.getAmount())
                     .content(entity.getContent())
-                    .userId(entity.getUserId().getUserId())
-                    .categoryName(entity.getCategoryId().getCategoryName())
-                    .savingGoalName(entity.getGoalId() != null ? entity.getGoalId().getGoalName() : null)
+                    .userId(entity.getUser().getUserId())
+                    .categoryName(entity.getCategory().getCategoryName())
+                    .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .build();
         }
     }
@@ -82,14 +91,14 @@ public class AccountBookDTO {
         private int income;
         private int expense;
 
-        public static WeekResponse of(Object[] projection) {
+        public static WeekResponse of(AccountProjection projection) {
             return WeekResponse.builder()
-                    .weekStartDate((String) projection[0])
-                    .weekEndDate((String) projection[1])
-                    .income(projection[2] != null ? ((Number) projection[2]).intValue() : 0)
-                    .expense(projection[3] != null ? ((Number) projection[3]).intValue() : 0)
+                    .weekStartDate(projection.getWeekStart())
+                    .weekEndDate(projection.getWeekEnd())
+                    .income(projection.getIncome() != null ? projection.getIncome() : 0)
+                    .expense(projection.getExpense() != null ? projection.getExpense() : 0)
                     .build();
-        }   
+        }
     }
 
     // 월별 리스트
@@ -102,11 +111,11 @@ public class AccountBookDTO {
         private int income;
         private int expense;
 
-        public static MonthResponse of(Object[] projection) {
+        public static MonthResponse of(AccountProjection projection) {
             return MonthResponse.builder()
-                    .month((String) projection[0])
-                    .income(projection[1] != null ? ((Number) projection[1]).intValue() : 0)
-                    .expense(projection[2] != null ? ((Number) projection[2]).intValue() : 0)
+                    .month(projection.getYearMonth())
+                    .income(projection.getIncome() != null ? projection.getIncome() : 0)
+                    .expense(projection.getExpense() != null ? projection.getExpense() : 0)
                     .build();
         }
     }
@@ -119,28 +128,58 @@ public class AccountBookDTO {
     public static class CalendarAccountResponse{
         private int totalIncome;
         private int totalExpense;
+        private List<DailyAccount> dailyList;
 
-        public static CalendarAccountResponse of(Object[] projection){
-            return CalendarAccountResponse.builder()
-                                          .totalIncome(projection[0] != null ? ((Number) projection[0]).intValue() : 0)
-                                          .totalExpense(projection[1] != null ? ((Number) projection[1]).intValue() : 0)
-                                          .build();
+        // 일별 데이터
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        public static class DailyAccount {
+            private String date;
+            private int income;
+            private int expense;
+
+            public static DailyAccount of(AccountProjection projection) {
+                return DailyAccount.builder()
+                        .date(projection.getDate())
+                        .income(projection.getIncome() != null ? projection.getIncome() : 0)
+                        .expense(projection.getExpense() != null ? projection.getExpense() : 0)
+                        .build();
+            }
         }
-
     }
 
     // 클라이언트 -> 서버
     @Data
     public static class Request {
-
+        private int accountBookId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
         private int amount;
         private String content;
         private String userId;
-        private String categoryId;
-        private String savingGoalId;
+        private int categoryId;
+        private Integer savingGoalId;
+
+        public AccountBookEntity to(List<AccountFileMappingEntity> fileEntities,
+                                    UserEntity user,
+                                    AccountCategoryEntity category,
+                                    AccountSavingsGoalEntity savingsGoal) {
+            AccountBookEntity accountBook = new AccountBookEntity();
+            accountBook.setAccountId(this.accountBookId);
+            accountBook.setType(this.type);
+            accountBook.setDate(this.date);
+            accountBook.setMethod(this.method);
+            accountBook.setAmount(this.amount);
+            accountBook.setContent(this.content);
+            accountBook.setUser(user);
+            accountBook.setCategory(category);
+            accountBook.setGoal(savingsGoal);
+
+            return accountBook;
+        }
     }
 
 }
