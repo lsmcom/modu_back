@@ -6,8 +6,7 @@ import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,9 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "file")
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class FileEntity extends BaseTimeEntity {
 
     @Id
