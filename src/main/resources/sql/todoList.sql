@@ -1,6 +1,6 @@
 /* 투두 폴더 */
 CREATE TABLE todofolder (
-                            folder_id INT PRIMARY KEY NOT NULL COMMENT '폴더 고유 ID',
+                            folder_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT '폴더 고유 ID',
                             user_id VARCHAR(255) NOT NULL COMMENT '사용자 ID (FK)',
                             name VARCHAR(255) NOT NULL COMMENT '폴더 이름',
 
@@ -81,3 +81,5 @@ INSERT INTO todolist (
 ALTER TABLE todolist
     ADD COLUMN repeat_days VARCHAR(255) NULL COMMENT '반복 요일 (콤마로 구분된 문자열: 0=월요일, 6=일요일)',
     ADD COLUMN auto_migrate TINYINT(1) NULL COMMENT '미완료 시 익일 자동 이월 여부';
+
+ALTER TABLE todofolder AUTO_INCREMENT = 1000;

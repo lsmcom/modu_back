@@ -2,6 +2,7 @@ package back.code.todo.repository;
 
 import back.code.todo.entity.TodoList;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -60,7 +61,8 @@ public interface TodoListRepository extends JpaRepository<TodoList, Integer> {
     /**
      * 특정 사용자가 가진 Todo 항목 중 가장 큰 orderIndex를 조회합니다.
      * @param userId 사용자 ID
-     * @return 최대 orderIndex (Optional)
+     * @return 최대 orderIndex (Optional<Integer>)
      */
-    Optional<Integer> findTopByUserIdOrderByOrderIndexDesc(String userId);
+    @Query("SELECT MAX(t.orderIndex) FROM TodoList t WHERE t.userId = :userId")
+    Optional<Integer> findMaxOrderIndexByUserId(String userId);
 }

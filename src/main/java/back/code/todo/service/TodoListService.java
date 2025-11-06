@@ -64,7 +64,7 @@ public class TodoListService {
         TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다."));
 
-        Optional<Integer> maxOrderIndex = todoListRepository.findTopByUserIdOrderByOrderIndexDesc(userId);
+        Optional<Integer> maxOrderIndex = todoListRepository.findMaxOrderIndexByUserId(userId);
         int newOrderIndex = maxOrderIndex.map(index -> index + 1).orElse(0);
 
         TodoList newTodo = new TodoList();
