@@ -174,4 +174,9 @@ public class FileService {
             throw e; // CommonExceptionHandler가 처리
         }
     }
+
+    //파일 아이디로 가져오기
+    public FileEntity getFileById(String fileId) {
+        return fileRepository.findById(fileId).orElse(null);
+    }
 }

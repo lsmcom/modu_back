@@ -30,4 +30,13 @@ public interface MemoService {
     
     //메모 추가
     public MemoEntity addMemo(MemoDTO dto);
+
+    //단일 메모 아이디로 조회
+    public MemoDTO getMemoById(Integer memoId);
+
+    //메모 수정
+    MemoDTO updateMemo(Integer memoId, MemoDTO dto);
+
+    //메모 검색
+    List<MemoDTO> searchMemos(String userId, String keyword, String range);
 }

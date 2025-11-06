@@ -180,7 +180,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:3001",
                 "http://localhost:4000",
-                "http://localhost:4001"
+                "http://localhost:4001",
+                "http://localhost:4002"
         ));
 
         // 쿠키 포함 허용
