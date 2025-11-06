@@ -77,3 +77,7 @@ INSERT INTO todolist (
 (12, 'user01', 1, '주말 할 일 (11/08)', NULL, 0, 0, '2025-11-08 09:00:00', 9, NOW()),
 (13, 'user01', 1, '다음 주 월요일 (11/10)', NULL, 0, 0, '2025-11-10 16:00:00', 10, NOW()),
 (14, 'user01', 3, '10월 말 업무 (10/30)', NULL, 0, 0, '2025-10-30 10:00:00', 11, NOW());
+
+ALTER TABLE todolist
+    ADD COLUMN repeat_days VARCHAR(255) NULL COMMENT '반복 요일 (콤마로 구분된 문자열: 0=월요일, 6=일요일)',
+    ADD COLUMN auto_migrate TINYINT(1) NULL COMMENT '미완료 시 익일 자동 이월 여부';

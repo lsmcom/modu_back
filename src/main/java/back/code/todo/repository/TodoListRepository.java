@@ -56,4 +56,11 @@ public interface TodoListRepository extends JpaRepository<TodoList, Integer> {
      * @return 기한 초과 TodoList 목록
      */
     List<TodoList> findByUserIdAndIsCompletedAndDueDateBefore(String userId, Boolean isCompleted, Instant now);
+
+    /**
+     * 특정 사용자가 가진 Todo 항목 중 가장 큰 orderIndex를 조회합니다.
+     * @param userId 사용자 ID
+     * @return 최대 orderIndex (Optional)
+     */
+    Optional<Integer> findTopByUserIdOrderByOrderIndexDesc(String userId);
 }

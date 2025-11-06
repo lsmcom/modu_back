@@ -60,6 +60,14 @@ public class TodoList {
     @Column(name = "create_date", nullable = false)
     private Instant createDate; // 생성 일시
 
+    // repeat_days (VARCHAR(255) NULL)
+    @Column(name = "repeat_days")
+    private String repeatDays; // 반복 요일 (콤마로 구분된 문자열)
+
+    // auto_migrate (TINYINT(1) NULL)
+    @Column(name = "auto_migrate")
+    private Boolean autoMigrate; // 익일 자동 이월 여부
+
     /*
      * N:1 관계 매핑 (TodoList : User, TodoList : TodoFolder).
      * private User user;

@@ -2,6 +2,8 @@ package back.code.todo.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ public class TodoFolder {
 
     // @Id: Primary Key (folder_id INT PRIMARY KEY NOT NULL)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "folder_id", nullable = false)
     private Integer folderId; // 폴더 고유 ID
 
