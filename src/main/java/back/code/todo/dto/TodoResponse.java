@@ -44,7 +44,6 @@ public class TodoResponse {
                 .dueDate(todoList.getDueDate())
                 .orderIndex(todoList.getOrderIndex())
                 .createDate(todoList.getCreateDate())
-                // DB 스키마에 추가할 필드들 (임시로 null 처리, 필요시 엔티티에 추가해야 함)
                 .repeatDays(todoList.getRepeatDays())
                 .autoMigrate(todoList.getAutoMigrate())
                 .build();

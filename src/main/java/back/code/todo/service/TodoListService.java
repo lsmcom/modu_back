@@ -1,3 +1,4 @@
+// back/code/todo/service/TodoListService.java
 package back.code.todo.service;
 
 import back.code.todo.dto.*;
@@ -122,7 +123,7 @@ public class TodoListService {
         }
 
         todo.setDueDate(request.getDueDate());
-        todo.setRepeatDays(request.getRepeatDays());
+        todo.setRepeatDays(request.getRepeatDays()); // 수정된 부분 7. repeatDays 업데이트 로직 추가
         todo.setAutoMigrate(request.getAutoMigrate());
 
         // save() 호출 없이 @Transactional에 의해 자동 업데이트
