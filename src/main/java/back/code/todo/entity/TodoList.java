@@ -36,10 +36,6 @@ public class TodoList {
     @Column(name = "title", nullable = false)
     private String title; // 할 일 제목
 
-    // sub_title (TEXT NULL)
-    @Column(name = "sub_title", columnDefinition = "TEXT")
-    private String subTitle; // 할 일 부제/상세 내용
-
     // td_fixed (TINYINT(1) NOT NULL)
     @Column(name = "td_fixed", nullable = false)
     private Boolean tdFixed; // 고정 핀 상태

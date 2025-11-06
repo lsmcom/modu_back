@@ -1,9 +1,10 @@
-// back/code/todo/service/TodoListService.java
 package back.code.todo.service;
 
 import back.code.todo.dto.*;
+import back.code.todo.entity.SubTodoList;
 import back.code.todo.entity.TodoFolder;
 import back.code.todo.entity.TodoList;
+import back.code.todo.repository.SubTodoListRepository;
 import back.code.todo.repository.TodoFolderRepository;
 import back.code.todo.repository.TodoListRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +24,23 @@ public class TodoListService {
 
     private final TodoListRepository todoListRepository;
     private final TodoFolderRepository todoFolderRepository;
+    private final SubTodoListRepository subTodoListRepository;
+
+    /**
+     * TodoList를 SubTodoResponse를 포함한 TodoResponse로 변환하는 헬퍼 메소드
+     */
+    private TodoResponse convertToTodoResponse(TodoList todo, String folderName) {
+        // 해당 TodoId에 연결된 모든 SubTodoList 항목 조회
+        List<SubTodoList> subTodos = subTodoListRepository.findByTodoListId(todo.getTodoId());
+
+        // SubTodoList를 SubTodoResponse DTO로 변환
+        List<SubTodoResponse> subTodoResponses = subTodos.stream()
+                .map(SubTodoResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        // SubTodoResponse 리스트를 포함하여 TodoResponse 생성 (새로운 fromEntity 오버로드 사용)
+        return TodoResponse.fromEntity(todo, folderName, subTodoResponses);
+    }
 
     /**
      * 애플리케이션 초기 로드를 위한 전체 Todo와 폴더 목록을 조회합니다.
@@ -42,8 +61,9 @@ public class TodoListService {
         // 2. 모든 TodoList 조회 (order_index 순으로 정렬되어 조회)
         List<TodoList> todos = todoListRepository.findByUserIdOrderByOrderIndexAsc(userId);
 
+        // 3. TodoList를 TodoResponse로 변환 (SubTodo 정보 포함)
         List<TodoResponse> todoResponses = todos.stream()
-                .map(todo -> TodoResponse.fromEntity(todo, folderNameMap.getOrDefault(todo.getFolderId(), "알 수 없음")))
+                .map(todo -> convertToTodoResponse(todo, folderNameMap.getOrDefault(todo.getFolderId(), "알 수 없음")))
                 .collect(Collectors.toList());
 
         return TodoDataResponse.builder()
@@ -72,7 +92,6 @@ public class TodoListService {
         newTodo.setUserId(userId);
         newTodo.setFolderId(request.getFolderId());
         newTodo.setTitle(request.getTitle());
-        newTodo.setSubTitle(request.getSubTitle());
         newTodo.setTdFixed(request.getTdFixed() != null ? request.getTdFixed() : false);
         newTodo.setIsCompleted(false); // 새로 생성되는 항목은 항상 미완료
         newTodo.setDueDate(request.getDueDate());
@@ -83,7 +102,8 @@ public class TodoListService {
 
         TodoList savedTodo = todoListRepository.save(newTodo);
 
-        return TodoResponse.fromEntity(savedTodo, folder.getName());
+        // 생성 시점에는 하위 할 일이 없으므로 빈 리스트 반환
+        return TodoResponse.fromEntity(savedTodo, folder.getName(), Collections.emptyList());
     }
 
     /**
@@ -110,7 +130,7 @@ public class TodoListService {
         // 2. 필드 업데이트
         todo.setTitle(request.getTitle());
         todo.setFolderId(request.getFolderId());
-        todo.setSubTitle(request.getSubTitle());
+
 
         // isCompleted 필드는 요청에 따라 토글 가능
         if (request.getIsCompleted() != null) {
@@ -123,11 +143,11 @@ public class TodoListService {
         }
 
         todo.setDueDate(request.getDueDate());
-        todo.setRepeatDays(request.getRepeatDays()); // 수정된 부분 7. repeatDays 업데이트 로직 추가
+        todo.setRepeatDays(request.getRepeatDays());
         todo.setAutoMigrate(request.getAutoMigrate());
 
         // save() 호출 없이 @Transactional에 의해 자동 업데이트
-        return TodoResponse.fromEntity(todo, folder.getName());
+        return convertToTodoResponse(todo, folder.getName()); // 수정된 부분: 헬퍼 메소드 사용
     }
 
     /**
@@ -153,7 +173,7 @@ public class TodoListService {
         TodoFolder folder = todoFolderRepository.findById(todo.getFolderId())
                 .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다."));
 
-        return TodoResponse.fromEntity(todo, folder.getName());
+        return convertToTodoResponse(todo, folder.getName()); // 수정된 부분: 헬퍼 메소드 사용
     }
 
     /**
@@ -173,6 +193,11 @@ public class TodoListService {
         }
 
         todoListRepository.delete(todo);
+
+        /*
+         * Note: DB 스키마에 fk_subtodo_todo 외래 키에 ON DELETE CASCADE가 설정되어 있으므로,
+         * TodoList 삭제 시 SubTodoList도 자동으로 삭제될 것으로 예상하고 명시적 삭제 로직은 추가하지 않습니다.
+         */
     }
 
     /**
@@ -211,21 +236,4 @@ public class TodoListService {
      * @param todoId SubTitle을 삭제할 할 일 ID
      * @return 변경된 Todo 항목의 Response DTO
      */
-    @Transactional
-    public TodoResponse deleteSubTodo(String userId, Integer todoId) {
-        TodoList todo = todoListRepository.findById(todoId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Todo ID입니다."));
-
-        if (!todo.getUserId().equals(userId)) {
-            throw new SecurityException("Todo를 수정할 권한이 없습니다.");
-        }
-
-        todo.setSubTitle(null);
-
-        // 폴더 이름 조회를 위한 폴더 엔티티
-        TodoFolder folder = todoFolderRepository.findById(todo.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다."));
-
-        return TodoResponse.fromEntity(todo, folder.getName());
-    }
 }

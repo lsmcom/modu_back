@@ -82,19 +82,6 @@ public class TodoListController {
     }
 
     /**
-     * SubTodo 내용 삭제 (subTitle을 null로 설정)
-     * PATCH /api/todos/{todoId}/sub-title
-     * @param userId 요청 헤더에서 추출된 사용자 ID
-     */
-    @PatchMapping("/{todoId}/sub-title")
-    public ResponseEntity<TodoResponse> deleteSubTodo(
-            @RequestHeader("X-User-Id") String userId,
-            @PathVariable Integer todoId) {
-        TodoResponse response = todoListService.deleteSubTodo(userId, todoId);
-        return ResponseEntity.ok(response);
-    }
-
-    /**
      * Todo 항목 정렬 순서 일괄 업데이트
      * PATCH /api/todos/reorder (프론트 handleReorderTodos에 매핑)
      * @param userId 요청 헤더에서 추출된 사용자 ID

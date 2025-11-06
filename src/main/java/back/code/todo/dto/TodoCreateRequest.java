@@ -17,9 +17,6 @@ public class TodoCreateRequest {
     // WriteTodo.js의 finalFolderId에 매핑
     private Integer folderId;       // 할 일을 저장할 폴더 ID (필수)
 
-    // WriteTodo.js의 subTitleContent에 매핑 (sub_title: String)
-    private String subTitle;        // 부제 또는 상세 설명
-
     // WriteTodo.js의 dateTime.date에 매핑 (due_date: Instant)
     private Instant dueDate;        // 마감 일시 (Instant 타입 사용 권장)
 

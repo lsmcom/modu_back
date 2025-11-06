@@ -20,9 +20,6 @@ public class TodoUpdateRequest {
     // WriteTodo.js의 finalFolderId에 매핑
     private Integer folderId;       // 할 일을 저장할 폴더 ID
 
-    // WriteTodo.js의 subTitleContent에 매핑
-    private String subTitle;        // 부제 또는 상세 설명
-
     // 수정 시 기존 상태를 유지하거나 변경할 수 있음
     private Boolean tdFixed;        // 고정(핀) 상태
     private Boolean isCompleted;    // 완료 상태
