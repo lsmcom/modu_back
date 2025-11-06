@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "savings_goal")
-public class SavingsGoalEntity {
+public class AccountSavingsGoalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int goalId;
@@ -24,6 +24,6 @@ public class SavingsGoalEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
 }

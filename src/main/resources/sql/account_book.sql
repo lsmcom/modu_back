@@ -121,16 +121,15 @@ values ('급여', 'income', '#66BB6A', true),
        ('여가', 'expense', '#FFCE56', true),
        ('운동', 'expense', '#AB47BC', true);
 
--- ------------------------------------------------------------ 여기부터 추가
-ALTER TABLE account_book
-    MODIFY COLUMN type ENUM('INCOME','EXPENSE') NOT NULL;
+alter table account_book
+    modify COLUMN type ENUM('INCOME','EXPENSE') not null;
 
-ALTER TABLE account_book
-    MODIFY COLUMN method ENUM('BANK','CARD','CASH','ETC');
+alter table account_book
+    modify COLUMN method ENUM('BANK','CARD','CASH','ETC');
 
 -- 9월 데이터
-INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
-VALUES
+insert into account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+values
     ('user01', 1, NULL, 'INCOME', '2025-09-01', 'BANK', 1800000, '월급 입금'),
     ('user01', 4, NULL, 'EXPENSE', '2025-09-02', 'CARD', 25000, '점심 식사'),
     ('user01', 6, NULL, 'EXPENSE', '2025-09-05', 'CARD', 89000, '가을옷 쇼핑'),
@@ -143,8 +142,8 @@ VALUES
     ('user01', 6, NULL, 'EXPENSE', '2025-09-28', 'CARD', 45000, '책 구입');
 
 -- 10월 데이터
-INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
-VALUES
+insert into account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+values
     ('user01', 1, NULL, 'INCOME', '2025-10-01', 'BANK', 1800000, '월급 입금'),
     ('user01', 4, NULL, 'EXPENSE', '2025-10-02', 'CARD', 23000, '점심 식사'),
     ('user01', 8, NULL, 'EXPENSE', '2025-10-05', 'BANK', 61000, '클라이밍장 이용'),
@@ -157,8 +156,8 @@ VALUES
     ('user01', 6, NULL, 'EXPENSE', '2025-10-29', 'BANK', 75000, '가방 구입');
 
 -- 11월 데이터
-INSERT INTO account_book (user_id, category_id, goal_id, type, date, method, amount, content)
-VALUES
+insert into account_book (user_id, category_id, goal_id, type, date, method, amount, content)
+values
     ('user01', 1, NULL, 'INCOME', '2025-11-01', 'BANK', 1800000, '월급 입금'),
     ('user01', 4, NULL, 'EXPENSE', '2025-11-02', 'CARD', 27000, '점심 식사'),
     ('user01', 5, NULL, 'EXPENSE', '2025-11-03', 'CASH', 2400, '버스 요금'),
@@ -170,3 +169,12 @@ VALUES
     ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 45000, '영화관 데이트'),
     ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 36000, '영화관 데이트'),
     ('user01', 5, NULL, 'EXPENSE', '2025-11-25', 'CASH', 3600, '버스비');
+
+-- ------------------------------------------------------------ 여기부터 추가
+alter table category
+    modify COLUMN type ENUM('INCOME','EXPENSE') not null;
+
+insert into savings_goal (user_id, goal_name, target_amount, current_amount, start_date, end_date) values
+('user01', '비상금 통장', 1000000, 0, '2025-11-01', '2025-12-31'),
+('user01', '여행 자금', 2000000, 0, '2025-11-01', '2026-05-01'),
+('user01', '자동차 구매', 5000000, 0, '2025-11-01', '2027-11-01');

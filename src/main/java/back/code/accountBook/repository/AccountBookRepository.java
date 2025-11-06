@@ -1,5 +1,6 @@
 package back.code.accountBook.repository;
 
+import back.code.accountBook.dto.AccountProjection;
 import back.code.accountBook.entity.AccountBookEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
     @Query("""
             select a
             from AccountBookEntity a
-            where a.userId.userId = :userId
+            where a.user.userId = :userId
               and a.date between :monthStart and :monthEnd
             order by a.date desc
             """)
@@ -35,7 +36,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
             group by weekStart, weekEnd
             order by weekStart desc 
             """, nativeQuery = true)
-    List<Object[]> findWeeklyByUserIdAndDateBetween(@Param("userId") String userId,
+    List<AccountProjection> findWeeklyByUserIdAndDateBetween(@Param("userId") String userId,
                                                        @Param("startDate") LocalDate startDate,
                                                        @Param("endDate") LocalDate endDate);
 
@@ -50,20 +51,9 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
             group by yearMonth
             order by yearMonth desc
             """, nativeQuery = true)
-    List<Object[]> findMonthlyByUserId(@Param("userId") String userId);
+    List<AccountProjection> findMonthlyByUserId(@Param("userId") String userId);
 
-    // 가계부 리스트(달력) 조회
-    @Query("""
-            select 
-                COALESCE(SUM(case when a.type = 'income' then a.amount else 0 end), 0),
-                COALESCE(SUM(case when a.type = 'expense' then a.amount else 0 end), 0)
-            from AccountBookEntity a
-            where a.userId.userId = :userId
-              and a.date = :date
-            """)
-    List<Object[]> findCalendarByUserIdAndDate(@Param("userId") String userId, @Param("date") LocalDate date);
-
-    // 기간별 일자 조회(캘린더)
+    // 가계부 리스트(캘린더) 조회
     @Query(value = """
         select
             date_format(a.date, '%Y-%m-%d') as date,
@@ -75,8 +65,8 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
         group by a.date
         order by a.date
         """, nativeQuery = true)
-    List<Object[]> findDailyByUserIdAndDateRange( @Param("userId") String userId, 
-                                                  @Param("startDate") LocalDate startDate, 
-                                                  @Param("endDate") LocalDate endDate);
+    List<AccountProjection> findDailyByUserIdAndDateRange(@Param("userId") String userId,
+                                                          @Param("startDate") LocalDate startDate,
+                                                          @Param("endDate") LocalDate endDate);
 
 }
