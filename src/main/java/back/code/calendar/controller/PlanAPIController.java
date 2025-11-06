@@ -1,5 +1,6 @@
 package back.code.calendar.controller;
 
+import back.code.calendar.dto.PlanResponse;
 import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.calendar.entity.PlanEntity;
 import back.code.calendar.entity.PlanShareEntity;
@@ -37,12 +38,13 @@ public class PlanAPIController {
         return ResponseEntity.noContent().build();
     }
 
-    /** 사용자 전체 일정 */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PlanEntity>> getPlansByUser(@PathVariable String userId) {
+    public ResponseEntity<List<PlanResponse>> getPlansByUser(@PathVariable String userId) {
         UserEntity user = new UserEntity();
         user.setUserId(userId);
-        return ResponseEntity.ok(planService.getPlansByUser(user));
+        List<PlanResponse> plans = planService.getPlansByUser(user)
+                .stream().map(PlanResponse::fromEntity).toList();
+        return ResponseEntity.ok(plans);
     }
 
     /** 폴더별 일정 */

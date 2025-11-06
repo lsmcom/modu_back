@@ -1,6 +1,7 @@
 package back.code.calendar.entity;
 
 import back.code.user.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class CalendarFolderEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_calendar_folder_user"))
+    @JsonIgnore
     private UserEntity user;
 
     @Column(name = "folder_name", length = 50, nullable = false)
@@ -35,6 +37,7 @@ public class CalendarFolderEntity {
     private LocalDateTime updateDate;
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PlanEntity> plans;
 
     @PrePersist
