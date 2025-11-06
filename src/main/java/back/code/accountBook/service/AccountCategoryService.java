@@ -22,7 +22,7 @@ public class AccountCategoryService {
 
      // 카테고리 조회
     @Transactional
-    public List<AccountCategoryEntity> categoryList(String userId) throws Exception{
+    public List<AccountCategoryDTO.Response> categoryList(String userId) throws Exception{
 
         // 사용자 확인
         UserEntity user = userRepository.findById(userId)
@@ -35,28 +35,34 @@ public class AccountCategoryService {
         List<AccountCategoryEntity> allCategories = new ArrayList<>();
         allCategories.addAll(defaultCategories);
         allCategories.addAll(userCategories);
+        // dto로 변경
+        List<AccountCategoryDTO.Response> response = allCategories.stream()
+                .map(AccountCategoryDTO.Response::of)
+                .toList();
 
-        return allCategories;
+        return response;
     }
 
     // 카테고리 추가
     @Transactional
-    public AccountCategoryEntity categoryAdd(AccountCategoryDTO.Request request) throws Exception{
+    public AccountCategoryDTO.Response categoryAdd(AccountCategoryDTO.Request request) throws Exception{
 
         // 사용자 확인
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         // DTO → 엔티티
         AccountCategoryEntity category = request.to(user);
+        // dto로 변경
+        AccountCategoryDTO.Response response = AccountCategoryDTO.Response.of(category);
         // 저장
         categoryRepository.save(category);
 
-        return category;
+        return response;
     }
 
     // 카테고리 수정
     @Transactional
-    public AccountCategoryEntity categoryUpdate(AccountCategoryDTO.Request request) throws Exception{
+    public AccountCategoryDTO.Response categoryUpdate(AccountCategoryDTO.Request request) throws Exception{
 
         // 사용자 확인
         UserEntity user = userRepository.findById(request.getUserId())
@@ -67,14 +73,14 @@ public class AccountCategoryService {
             category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다."));
         } else {
-            category = new AccountCategoryEntity();
+            category = request.to(user);
         }
-        // DTO → 엔티티
-        category = request.to(user);
+        // dto로 변경
+        AccountCategoryDTO.Response response = AccountCategoryDTO.Response.of(category);
         // 저장
         categoryRepository.save(category);
 
-        return category;
+        return response;
     }
 
     // 카테고리 삭제

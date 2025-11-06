@@ -29,25 +29,25 @@ public class AccountCategoryController {
 
      // 카테고리 조회
     @GetMapping("/category")
-    public ResponseEntity<ApiResponse<List<AccountCategoryEntity>>> categoryList(
+    public ResponseEntity<ApiResponse<List<AccountCategoryDTO.Response>>> categoryList(
                                                             @RequestParam("userId") String userId) throws Exception{
-        List<AccountCategoryEntity> result = accountCategoryService.categoryList(userId);
+        List<AccountCategoryDTO.Response> result = accountCategoryService.categoryList(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     // 카테고리 추가
     @PostMapping("/category")
-    public ResponseEntity<ApiResponse<AccountCategoryEntity>> categoryAdd(
+    public ResponseEntity<ApiResponse<AccountCategoryDTO.Response>> categoryAdd(
                                                     @RequestBody AccountCategoryDTO.Request request) throws Exception{
-        AccountCategoryEntity result = accountCategoryService.categoryAdd(request);
+        AccountCategoryDTO.Response result = accountCategoryService.categoryAdd(request);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
    // 카테고리 수정
     @PutMapping("/category")
-    public ResponseEntity<ApiResponse<AccountCategoryEntity>> categoryUpdate(
+    public ResponseEntity<ApiResponse<AccountCategoryDTO.Response>> categoryUpdate(
                                                     @RequestBody AccountCategoryDTO.Request request) throws Exception{
-        AccountCategoryEntity result = accountCategoryService.categoryUpdate(request);
+        AccountCategoryDTO.Response result = accountCategoryService.categoryUpdate(request);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

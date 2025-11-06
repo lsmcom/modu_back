@@ -24,7 +24,7 @@ public class AccountCategoryDTO {
                     .categoryName(entity.getCategoryName())
                     .type(entity.getType())
                     .isDefault(entity.isDefault())
-                    .userId(entity.getUser().getUserId())
+                    .userId(entity.getUser() != null ? entity.getUser().getUserId() : null)
                     .build();
         }
     }
