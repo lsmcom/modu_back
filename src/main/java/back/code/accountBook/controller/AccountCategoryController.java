@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import back.code.accountBook.dto.AccountCategoryDTO;
-import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.service.AccountCategoryService;
 import back.code.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;

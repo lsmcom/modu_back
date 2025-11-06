@@ -17,19 +17,29 @@ public class AccountBookController {
 
     private final AccountBookService accountBookService;
 
+    
     // 가계부 작성
     @PostMapping("")
     public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> writeAccount(
-                                                        @RequestBody AccountBookDTO.Request request) throws Exception{
-        AccountBookDTO.Detail result = accountBookService.writeAccount(request);
+                                                        @ModelAttribute AccountBookDTO.Request request) throws Exception{
+                                                            AccountBookDTO.Detail result = accountBookService.writeAccount(request);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
-
+    
     // 가계부 수정
     @PutMapping("")
     public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> updateAccount(
-                                                        @RequestBody AccountBookDTO.Request request) throws Exception{
+                                                        @ModelAttribute AccountBookDTO.Request request) throws Exception{
         AccountBookDTO.Detail result = accountBookService.updateAccount(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 가계부 상세조회
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> getAccount(
+                                                        @RequestParam("userId") String userId,
+                                                        @RequestParam("accountBookId") int accountBookId) throws Exception{
+        AccountBookDTO.Detail result = accountBookService.getAccount(userId, accountBookId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

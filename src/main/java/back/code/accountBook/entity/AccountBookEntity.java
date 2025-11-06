@@ -3,7 +3,6 @@ package back.code.accountBook.entity;
 import back.code.accountBook.enums.AccountMethod;
 import back.code.accountBook.enums.AccountType;
 import back.code.common.entity.BaseTimeEntity;
-import back.code.file.entity.FileEntity;
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Getter

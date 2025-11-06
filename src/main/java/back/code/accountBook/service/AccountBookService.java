@@ -1,17 +1,13 @@
 package back.code.accountBook.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import back.code.accountBook.entity.AccountFileMappingEntity;
 import back.code.accountBook.repository.AccountFileMappingRepository;
-import back.code.common.utils.FileUtils;
 import back.code.file.dto.FileDTO;
-import back.code.file.entity.FileEntity;
-import back.code.file.repository.FileRepository;
+import back.code.file.service.FileService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +35,7 @@ public class AccountBookService {
     private final AccountBookRepository accountBookRepository;
     private final CategoryRepository categoryRepository;
     private final SavingGoalRepository savingGoalRepository;
-    private final FileUtils fileUtils;
-    private final FileRepository fileRepository;
+    private final FileService fileService;
     private final AccountFileMappingRepository mappingRepository;
 
     // 가계부 작성
@@ -62,24 +57,15 @@ public class AccountBookService {
         // DTO → 엔티티
         AccountBookEntity account = request.to(new AccountBookEntity(), user, category, savingGoal);
         accountBookRepository.save(account);
-
+        // 파일 업로드
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
             for (MultipartFile multipartFile : request.getFiles()) {
-                Map<String, Object> uploaded = fileUtils.uploadFile(multipartFile, filePath, "ACCOUNT");
+                FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
 
-                FileEntity fileEntity = new FileEntity();
-                fileEntity.setFileId(UUID.randomUUID().toString());
-                fileEntity.setUser(user);
-                fileEntity.setFileType("ACCOUNT");
-                fileEntity.setFileName((String) uploaded.get("originalName"));
-                fileEntity.setStoredName((String) uploaded.get("storedFileName"));
-                fileEntity.setFilePath((String) uploaded.get("filePath"));
-                fileEntity.setFileSize((Long) uploaded.get("fileSize"));
-                fileRepository.save(fileEntity);
-
+                // 매핑 테이블 저장
                 AccountFileMappingEntity mapping = new AccountFileMappingEntity();
                 mapping.setAccount(account);
-                mapping.setFile(fileEntity);
+                mapping.setFile(fileService.getFileById(fileDTO.getFileId()));
                 mappingRepository.save(mapping);
 
                 account.getFiles().add(mapping);
@@ -110,26 +96,33 @@ public class AccountBookService {
             savingGoal = savingGoalRepository.findById(request.getSavingGoalId())
                     .orElseThrow(() -> new RuntimeException("저축 목표를 찾을 수 없습니다."));
         }
-        // 새 파일 업로드
+        // 새 파일 업로드가 있는 경우
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            for (MultipartFile multipartFile : request.getFiles()) {
-                Map<String, Object> uploaded = fileUtils.uploadFile(multipartFile, filePath, "ACCOUNT");
+            // 기존 파일 정보 백업
+            List<AccountFileMappingEntity> oldMappings = new ArrayList<>(account.getFiles());
 
-                FileEntity fileEntity = new FileEntity();
-                fileEntity.setFileId(UUID.randomUUID().toString());
-                fileEntity.setUser(user);
-                fileEntity.setFileType("ACCOUNT");
-                fileEntity.setFileName((String) uploaded.get("originalName"));
-                fileEntity.setStoredName((String) uploaded.get("storedFileName"));
-                fileEntity.setFilePath((String) uploaded.get("filePath"));
-                fileEntity.setFileSize((Long) uploaded.get("fileSize"));
-                fileRepository.save(fileEntity);
+            // 양방향관계 끊기
+            for (AccountFileMappingEntity mapping : oldMappings) {
+                mapping.setAccount(null);  // 관계 끊기
+            }
+            
+            // 컬렉션 비우기
+            account.getFiles().clear();
+            accountBookRepository.flush();
+            
+            // 물리적 파일 삭제
+            for (AccountFileMappingEntity mapping : oldMappings) {
+                fileService.deleteFileEntity(mapping.getFile());
+            }
+
+            // 새 파일 업로드
+            for (MultipartFile multipartFile : request.getFiles()) {
+                FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
 
                 AccountFileMappingEntity mapping = new AccountFileMappingEntity();
                 mapping.setAccount(account);
-                mapping.setFile(fileEntity);
-                mappingRepository.save(mapping);
-
+                mapping.setFile(fileService.getFileById(fileDTO.getFileId()));
+                
                 account.getFiles().add(mapping);
             }
         }
@@ -139,20 +132,28 @@ public class AccountBookService {
         AccountBookEntity savedAccount = accountBookRepository.save(newAccount);
         // DTO 변환
         AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(savedAccount, filePath);
-        // 기존 파일 삭제
-        if (account.getFiles() != null && !account.getFiles().isEmpty()) {
-            for (AccountFileMappingEntity mapping : account.getFiles()) {
-                FileEntity oldFile = mapping.getFile();
-                String oldFilePath = filePath + oldFile.getStoredName();
-                fileUtils.deleteFile(oldFilePath); // 서버 물리 파일 삭제
-                fileRepository.delete(oldFile);     // DB FileEntity 삭제
-            }
-            mappingRepository.deleteAll(account.getFiles()); // 매핑 테이블 삭제
-            account.getFiles().clear();
-        }
 
         return detail;
     }
+
+    // 가계부 상세조회
+    @Transactional
+    public AccountBookDTO.Detail getAccount(String userId,int accountBookId) throws Exception {
+
+        // 사용자 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        // 기존 엔티티 조회
+        AccountBookEntity account = accountBookRepository.findById(accountBookId)
+                .orElseThrow(() -> new RuntimeException("해당 가계부 내역을 찾을 수 없습니다."));
+
+        // DTO 변환
+        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath);
+
+        return detail;
+    }
+
+
 
     // 가계부 삭제
 //    @Transactional

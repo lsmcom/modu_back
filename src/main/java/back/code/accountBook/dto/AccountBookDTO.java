@@ -1,7 +1,6 @@
 package back.code.accountBook.dto;
 
 import back.code.accountBook.entity.AccountBookEntity;
-import back.code.accountBook.entity.AccountFileMappingEntity;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.enums.AccountMethod;
@@ -27,7 +26,7 @@ public class AccountBookDTO {
         private int accountBookId;
         private AccountType type;
         private LocalDate date;
-        private String method;
+        private AccountMethod method;
         private int amount;
         private String userId;
         private  int categoryId;
@@ -41,7 +40,7 @@ public class AccountBookDTO {
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
-                    .method(entity.getMethod().getLabel())
+                    .method(entity.getMethod())
                     .amount(entity.getAmount())
                     .userId(entity.getUser().getUserId())
                     .categoryId(entity.getCategory().getCategoryId())
@@ -63,7 +62,7 @@ public class AccountBookDTO {
         private int accountBookId;
         private AccountType type;
         private LocalDate date;
-        private String method;
+        private AccountMethod method;
         private int amount;
         private String content;
         private String userId;
@@ -81,7 +80,7 @@ public class AccountBookDTO {
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
-                    .method(entity.getMethod().getLabel())
+                    .method(entity.getMethod())
                     .amount(entity.getAmount())
                     .content(entity.getContent())
                     .userId(entity.getUser().getUserId())
