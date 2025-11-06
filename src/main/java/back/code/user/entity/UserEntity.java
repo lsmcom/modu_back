@@ -1,12 +1,15 @@
 package back.code.user.entity;
 
 import back.code.common.entity.BaseTimeEntity;
+import back.code.file.entity.FileEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -46,5 +49,8 @@ public class UserEntity extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "user_role")
     private UserRoleEntity userRole; //회원 권한
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<FileEntity> files = new ArrayList<>();
 
 }
