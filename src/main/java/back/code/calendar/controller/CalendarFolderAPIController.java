@@ -1,5 +1,6 @@
 package back.code.calendar.controller;
 
+import back.code.calendar.dto.CalendarFolderRequest;
 import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.calendar.service.CalendarFolderService;
 import back.code.user.entity.UserEntity;
@@ -18,8 +19,9 @@ public class CalendarFolderAPIController {
 
     /** 폴더 생성 */
     @PostMapping
-    public ResponseEntity<CalendarFolderEntity> createFolder(@RequestBody CalendarFolderEntity folder) {
-        return ResponseEntity.ok(folderService.createFolder(folder));
+    public ResponseEntity<?> createFolder(@RequestBody CalendarFolderRequest req) {
+        folderService.createFolder(req);
+        return ResponseEntity.ok("폴더 생성 성공");
     }
 
     /** 사용자 폴더 목록 조회 */

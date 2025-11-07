@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class PlanResponse {
-    private String planId;
+    private Long planId;
     private String planTitle;
     private String planContent;
     private LocalDateTime startTime;
@@ -19,7 +19,7 @@ public class PlanResponse {
     private String color;
     private String repeatType;
     private String reminder;
-    private String folderId;
+    private Long folderId;
     private String folderName;
 
     public static PlanResponse fromEntity(PlanEntity e) {

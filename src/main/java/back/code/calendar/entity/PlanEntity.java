@@ -19,20 +19,21 @@ import java.util.List;
 public class PlanEntity {
 
     @Id
-    @Column(name = "plan_id", length = 100)
-    private String planId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_plan_user"))
-    @JsonIgnore
-    private UserEntity user;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "plan_id")
+    private Long planId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_plan_calendar_folder"))
     @JsonIgnore
     private CalendarFolderEntity folder;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_plan_user"))
+    @JsonIgnore
+    private UserEntity user;
 
     @Column(name = "plan_title", length = 100, nullable = false)
     private String planTitle;

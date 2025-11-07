@@ -12,7 +12,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class PlanSharedUserMapId implements Serializable {
 
-    private String planId;
+    private Long planId;
     private String sharedUserId;
 }
 
