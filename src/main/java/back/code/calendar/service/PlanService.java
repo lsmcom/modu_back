@@ -54,8 +54,9 @@ public class PlanService {
     /** 사용자별 일정 전체 목록 */
     @Transactional(readOnly = true)
     public List<PlanEntity> getPlansByUser(UserEntity user) {
-        return planRepository.findByUser(user);
+        return planRepository.findByUserWithFolder(user);
     }
+
 
     /** 공유 사용자 추가 */
     public void addSharedUser(PlanEntity plan, UserEntity sharedUser) {
