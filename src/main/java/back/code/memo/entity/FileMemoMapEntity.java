@@ -26,6 +26,6 @@ public class FileMemoMapEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
-    private FileEntity file;
+    private FileEntity memoFile;
 }
 
