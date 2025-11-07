@@ -3,21 +3,23 @@ package back.code.community.entity;
 import back.code.common.entity.BaseTimeEntity;
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "community_post")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class CommunityPostEntity extends BaseTimeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer postId; // 게시글 번호
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "board_id", nullable = true)
     private CommunityBoardEntity board; // 게시판 테이블 조인
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,4 +35,18 @@ public class CommunityPostEntity extends BaseTimeEntity {
     private Integer likeCount; // 게시글 추천수
 
     private Character isTemporary; // 게시글 임시저장 여부
+
+    // 생성 전용 팩토리
+    public static CommunityPostEntity create(CommunityBoardEntity board, UserEntity user,
+            String title, String contents, Character isTemporary) {
+        return CommunityPostEntity.builder()
+                .board(board)
+                .user(user)
+                .title(title)
+                .contents(contents)
+                .readCount(0)
+                .likeCount(0)
+                .isTemporary(isTemporary == null ? 'N' : isTemporary)
+                .build();
+    }
 }

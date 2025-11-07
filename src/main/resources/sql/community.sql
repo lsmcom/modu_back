@@ -130,6 +130,20 @@ create table user_block (
 ) comment '회원 차단 관계';
 
 
+/* 11.06 수정사항 */
+ALTER TABLE community_post DROP FOREIGN KEY fk_post_board;
+
+ALTER TABLE community_post
+  MODIFY COLUMN board_id INT NULL;
+
+ALTER TABLE community_post
+  ADD CONSTRAINT fk_post_board
+  FOREIGN KEY (board_id)
+  REFERENCES community_board(board_id)
+  ON DELETE SET NULL
+  ON UPDATE CASCADE;
+
+
 
 
 

@@ -179,4 +179,15 @@ public class FileService {
     public FileEntity getFileById(String fileId) {
         return fileRepository.findById(fileId).orElse(null);
     }
+
+    //파일 업로드 후, DB 저장된 FileEntity 객체를 바로 반환하는 메서드.
+    @Transactional
+    public FileEntity uploadFileAndReturnEntity(MultipartFile multipartFile, String userId, String type) throws IOException {
+        // 파일 업로드 후 저장된 FileEntity의 ID를 반환하는 uploadFile() 호출
+        FileDTO dto = uploadFile(multipartFile, userId, type);
+
+        // 이미 저장된 파일을 DB에서 조회하여 반환
+        return fileRepository.findById(dto.getFileId())
+                .orElseThrow(() -> new RuntimeException("파일 업로드 후 조회 실패"));
+    }
 }
