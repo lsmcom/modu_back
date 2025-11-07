@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,5 +40,9 @@ public class AccountBookEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     private AccountSavingsGoalEntity goal;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountFileMappingEntity> files = new ArrayList<>();
+
 
 }

@@ -1,16 +1,18 @@
 package back.code.accountBook.dto;
 
 import back.code.accountBook.entity.AccountBookEntity;
-import back.code.accountBook.entity.AccountFileMappingEntity;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.enums.AccountMethod;
 import back.code.accountBook.enums.AccountType;
+import back.code.file.dto.FileDTO;
 import back.code.user.entity.UserEntity;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AccountBookDTO {
 
@@ -24,10 +26,13 @@ public class AccountBookDTO {
         private int accountBookId;
         private AccountType type;
         private LocalDate date;
-        private String method;
+        private AccountMethod method;
         private int amount;
         private String userId;
+        private  int categoryId;
         private String categoryName;
+        private Integer savingsGoalId;
+        private String savingsGoalName;
         private String content;
 
         public static Response of (AccountBookEntity entity){
@@ -35,10 +40,13 @@ public class AccountBookDTO {
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
-                    .method(entity.getMethod().getLabel())
+                    .method(entity.getMethod())
                     .amount(entity.getAmount())
                     .userId(entity.getUser().getUserId())
+                    .categoryId(entity.getCategory().getCategoryId())
                     .categoryName(entity.getCategory().getCategoryName())
+                    .savingsGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
+                    .savingsGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .content(entity.getContent())
                     .build();
         }
@@ -54,28 +62,31 @@ public class AccountBookDTO {
         private int accountBookId;
         private AccountType type;
         private LocalDate date;
-        private String method;
+        private AccountMethod method;
         private int amount;
         private String content;
         private String userId;
         private String categoryName;
         private String savingGoalName;
-        private List<AccountFileMappingEntity> fileList;
+        private List<FileDTO> files;
 
-        public static Detail of (AccountBookEntity entity){
+        public static Detail of (AccountBookEntity entity,String filePath){
 
-
+            List<FileDTO> files = entity.getFiles().stream()
+                    .map(fm -> FileDTO.from(fm.getFile(), filePath))
+                    .collect(Collectors.toList());
 
             return Detail.builder()
                     .accountBookId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
-                    .method(entity.getMethod().getLabel())
+                    .method(entity.getMethod())
                     .amount(entity.getAmount())
                     .content(entity.getContent())
                     .userId(entity.getUser().getUserId())
                     .categoryName(entity.getCategory().getCategoryName())
                     .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
+                    .files(files)
                     .build();
         }
     }
@@ -162,23 +173,23 @@ public class AccountBookDTO {
         private String userId;
         private int categoryId;
         private Integer savingGoalId;
+        private List<MultipartFile> files;
 
-        public AccountBookEntity to(List<AccountFileMappingEntity> fileEntities,
+        public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,
                                     AccountCategoryEntity category,
                                     AccountSavingsGoalEntity savingsGoal) {
-            AccountBookEntity accountBook = new AccountBookEntity();
-            accountBook.setAccountId(this.accountBookId);
-            accountBook.setType(this.type);
-            accountBook.setDate(this.date);
-            accountBook.setMethod(this.method);
-            accountBook.setAmount(this.amount);
-            accountBook.setContent(this.content);
-            accountBook.setUser(user);
-            accountBook.setCategory(category);
-            accountBook.setGoal(savingsGoal);
+            account.setAccountId(this.accountBookId);
+            account.setType(this.type);
+            account.setDate(this.date);
+            account.setMethod(this.method);
+            account.setAmount(this.amount);
+            account.setContent(this.content);
+            account.setUser(user);
+            account.setCategory(category);
+            account.setGoal(savingsGoal);
 
-            return accountBook;
+            return account;
         }
     }
 
