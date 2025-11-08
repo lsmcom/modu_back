@@ -28,6 +28,6 @@ public class SubTodoList {
     private Integer todoListId; // 상위 할 일 항목 ID (FK)
 
     // title (VARCHAR(255) NOT NULL)
-    @Column(name = "title", length = 255, nullable = false)
+    @Column(name = "title", nullable = false)
     private String title; // 하위 할 일 내용
 }

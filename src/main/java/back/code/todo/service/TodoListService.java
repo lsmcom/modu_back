@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -88,15 +91,23 @@ public class TodoListService {
         Optional<Integer> maxOrderIndex = todoListRepository.findMaxOrderIndexByUserId(userId);
         int newOrderIndex = maxOrderIndex.map(index -> index + 1).orElse(0);
 
+        ZoneId kstZone = ZoneId.of("Asia/Seoul");
+        LocalDateTime nowKst = LocalDateTime.now(kstZone);
+
+        LocalDateTime finalDueDate = request.getDueDate();
+        if (finalDueDate == null) {
+            finalDueDate = nowKst.with(LocalTime.of(23, 59, 0));
+        }
+
         TodoList newTodo = new TodoList();
         newTodo.setUserId(userId);
         newTodo.setFolderId(request.getFolderId());
         newTodo.setTitle(request.getTitle());
         newTodo.setTdFixed(request.getTdFixed() != null ? request.getTdFixed() : false);
         newTodo.setIsCompleted(false); // 새로 생성되는 항목은 항상 미완료
-        newTodo.setDueDate(request.getDueDate());
+        newTodo.setDueDate(finalDueDate);
         newTodo.setOrderIndex(newOrderIndex); // 새 항목을 목록 끝에 추가
-        newTodo.setCreateDate(Instant.now());
+        newTodo.setCreateDate(LocalDateTime.now());
         newTodo.setRepeatDays(request.getRepeatDays());
         newTodo.setAutoMigrate(request.getAutoMigrate());
 

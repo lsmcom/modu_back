@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "todolist")
@@ -46,7 +47,7 @@ public class TodoList {
 
     // due_date (DATETIME NULL)
     @Column(name = "due_date")
-    private Instant dueDate; // 마감일
+    private LocalDateTime dueDate; // 마감일
 
     // order_index (INT NOT NULL)
     @Column(name = "order_index", nullable = false)
@@ -54,7 +55,7 @@ public class TodoList {
 
     // create_date (DATETIME NOT NULL)
     @Column(name = "create_date", nullable = false)
-    private Instant createDate; // 생성 일시
+    private LocalDateTime createDate; // 생성 일시
 
     // repeat_days (VARCHAR(255) NULL)
     @Column(name = "repeat_days")

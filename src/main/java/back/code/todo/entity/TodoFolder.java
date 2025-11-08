@@ -23,11 +23,11 @@ public class TodoFolder {
     private Integer folderId; // 폴더 고유 ID
 
     // user_id (VARCHAR(255) NOT NULL) - Foreign Key
-    @Column(name = "user_id", length = 255, nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId; // 사용자 ID (FK)
 
     // name (VARCHAR(255) NOT NULL)
-    @Column(name = "name", length = 255, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name; // 폴더 이름
 
     /*

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class TodoUpdateRequest {
     private Boolean isCompleted;    // 완료 상태
 
     // WriteTodo.js의 dateTime.date에 매핑
-    private Instant dueDate;        // 마감 일시
+    private LocalDateTime dueDate;        // 마감 일시
 
     // WriteTodo.js의 autoMigrate에 매핑
     private Boolean autoMigrate;    // 익일 자동 이월 여부

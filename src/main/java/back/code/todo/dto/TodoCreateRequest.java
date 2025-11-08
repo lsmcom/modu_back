@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,7 +19,7 @@ public class TodoCreateRequest {
     private Integer folderId;       // 할 일을 저장할 폴더 ID (필수)
 
     // WriteTodo.js의 dateTime.date에 매핑 (due_date: Instant)
-    private Instant dueDate;        // 마감 일시 (Instant 타입 사용 권장)
+    private LocalDateTime dueDate;        // 마감 일시 (Instant 타입 사용 권장)
 
     // WriteTodo.js의 td_fixed에 매핑
     private Boolean tdFixed = false; // 고정(핀) 상태 (기본값 false)

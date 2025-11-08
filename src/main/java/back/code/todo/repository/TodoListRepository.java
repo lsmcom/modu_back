@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Repository
 public interface TodoListRepository extends JpaRepository<TodoList, Integer> {
@@ -56,7 +57,7 @@ public interface TodoListRepository extends JpaRepository<TodoList, Integer> {
      * @param now 현재 시간 기준
      * @return 기한 초과 TodoList 목록
      */
-    List<TodoList> findByUserIdAndIsCompletedAndDueDateBefore(String userId, Boolean isCompleted, Instant now);
+    List<TodoList> findByUserIdAndIsCompletedAndDueDateBefore(String userId, Boolean isCompleted, LocalDateTime now);
 
     /**
      * 특정 사용자가 가진 Todo 항목 중 가장 큰 orderIndex를 조회합니다.
