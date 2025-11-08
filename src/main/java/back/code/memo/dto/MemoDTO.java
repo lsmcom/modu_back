@@ -51,7 +51,7 @@ public class MemoDTO {
         // 첨부파일 매핑 변환
         if (entity.getMemoFiles() != null && !entity.getMemoFiles().isEmpty()) {
             List<String> fileIds = entity.getMemoFiles().stream()
-                    .map(fm -> fm.getFile().getFileId())
+                    .map(fm -> fm.getMemoFile().getFileId())
                     .collect(Collectors.toList());
             dto.setFileIds(fileIds);
 

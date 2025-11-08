@@ -2,6 +2,7 @@ package back.code.file.repository;
 
 import back.code.file.entity.FileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,4 +22,9 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     // 해당 유저가 특정 타입의 파일을 가지고 있는지 검사
     @Query(value = "SELECT EXISTS(SELECT 1 FROM file WHERE user_id = :userId AND file_type = :fileType)", nativeQuery = true)
     int existsProfileFile(@Param("userId") String userId, @Param("fileType") String fileType);
+
+    @Modifying
+    @Query(value = "DELETE FROM file WHERE file_id = :fileId", nativeQuery = true)
+    void deletePhysicalFile(@Param("fileId") String fileId);
+
 }

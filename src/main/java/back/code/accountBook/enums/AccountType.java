@@ -11,5 +11,4 @@ public enum AccountType {
         if (value == null) return null;
         return AccountType.valueOf(value.toUpperCase());
     }
-
 }

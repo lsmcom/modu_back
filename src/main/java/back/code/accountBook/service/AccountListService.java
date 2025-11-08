@@ -4,11 +4,17 @@ import back.code.accountBook.dto.AccountBookDTO;
 import back.code.accountBook.dto.AccountProjection;
 import back.code.accountBook.entity.AccountBookEntity;
 import back.code.accountBook.repository.AccountBookRepository;
+import back.code.user.entity.UserEntity;
+import back.code.user.entity.UserSettingEntity;
+import back.code.user.repository.UserRepository;
+import back.code.user.repository.UserSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +23,8 @@ import java.util.List;
 public class AccountListService {
 
     private final AccountBookRepository accountBookRepository;
+    private final UserSettingRepository userSettingRepository;
+    private final UserRepository userRepository;
 
     // 가계부 리스트(일별) 조회
     @Transactional
@@ -45,12 +53,28 @@ public class AccountListService {
         if (userId == null || date == null) {
             throw new IllegalArgumentException("userId와 date는 필수값입니다.");
         }
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        UserSettingEntity userSetting = userSettingRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("사용자 설정을 찾을 수 없습니다."));
+
+        // 주 시작일 매핑
+        DayOfWeek startDayOfWeek =
+                userSetting.getTheDayOfWeek().equalsIgnoreCase("S") ? DayOfWeek.SUNDAY : DayOfWeek.MONDAY;
+
+        int weekStartNumber = startDayOfWeek == DayOfWeek.SUNDAY ? 1 : 2;
 
         // 해당 달의 시작일과 마지막일
         LocalDate startOfMonth = date.withDayOfMonth(1);
         LocalDate endOfMonth = date.withDayOfMonth(date.lengthOfMonth());
 
-        List<AccountProjection> projections  = accountBookRepository.findWeeklyByUserIdAndDateBetween(userId, startOfMonth, endOfMonth);
+        // 해당 월 1일이 속한 주의 시작일
+        LocalDate weekStartDate = startOfMonth.with(TemporalAdjusters.previousOrSame(startDayOfWeek));
+        // 해당 월 마지막 날이 속한 주의 종료일
+        LocalDate weekEndDate = endOfMonth.with(TemporalAdjusters.nextOrSame(startDayOfWeek)).plusDays(6);
+
+        List<AccountProjection> projections  =
+                accountBookRepository.findWeeklyByUserIdAndDateBetween(userId, weekStartDate, weekEndDate, weekStartNumber);
 
         List<AccountBookDTO.WeekResponse> result = new ArrayList<>();
         for (AccountProjection projection : projections ) {

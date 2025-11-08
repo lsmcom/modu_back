@@ -25,20 +25,22 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
 
     // 가계부 리스트(주별) 조회
     @Query(value = """
-            select 
-                date_format(date_add(a.date, interval (1 - DAYOFWEEK(a.date)) day), '%Y-%m-%d') as weekStart,
-                date_format(date_add(a.date, interval(7 - DAYOFWEEK(a.date)) day), '%Y-%m-%d') as weekEnd,
-                coalesce(sum(case when a.type = 'INCOME' then a.amount else 0 end), 0) as income,
-                coalesce(sum(case when a.type = 'EXPENSE' then a.amount else 0 end), 0) as expense
-            from account_book a
-            where a.user_id = :userId
-              and a.date between :startDate and :endDate
-            group by weekStart, weekEnd
-            order by weekStart desc 
+                select 
+                    date_add(a.date, interval -((dayofweek(a.date) + 7 - :weekStartNumber) % 7) day) as week_start,
+            		date_add(a.date, interval (6 - (dayofweek(a.date) + 7 - :weekStartNumber) % 7) day) as week_end,
+                    coalesce(sum(case when a.type = 'INCOME' then a.amount else 0 end), 0) as income,
+                    coalesce(sum(case when a.type = 'EXPENSE' then a.amount else 0 end), 0) as expense
+                from account_book a
+                where a.user_id = :userId
+                  and a.date between :startDate and :endDate
+                group by weekstart, weekend
+                order by weekstart desc
             """, nativeQuery = true)
     List<AccountProjection> findWeeklyByUserIdAndDateBetween(@Param("userId") String userId,
                                                        @Param("startDate") LocalDate startDate,
-                                                       @Param("endDate") LocalDate endDate);
+                                                       @Param("endDate") LocalDate endDate,
+                                                       @Param("weekStartNumber") int weekStartNumber);
+
 
     // 가계부 리스트(월별) 조회
     @Query(value = """

@@ -44,5 +44,4 @@ public class AccountBookEntity extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountFileMappingEntity> files = new ArrayList<>();
 
-
 }

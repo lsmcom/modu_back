@@ -39,7 +39,7 @@ public class FileEntity extends BaseTimeEntity {
 
     private String fileThumbName; // 썸네일 파일명(이미지일 경우)
 
-    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "memoFile")
     private List<FileMemoMapEntity> memoFiles = new ArrayList<>();
 
 }

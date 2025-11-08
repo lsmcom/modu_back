@@ -66,7 +66,9 @@ public class AccountBookDTO {
         private int amount;
         private String content;
         private String userId;
+        private int categoryId;
         private String categoryName;
+        private Integer savingsGoalId;
         private String savingGoalName;
         private List<FileDTO> files;
 
@@ -84,7 +86,9 @@ public class AccountBookDTO {
                     .amount(entity.getAmount())
                     .content(entity.getContent())
                     .userId(entity.getUser().getUserId())
+                    .categoryId(entity.getCategory().getCategoryId())
                     .categoryName(entity.getCategory().getCategoryName())
+                    .savingsGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
                     .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .files(files)
                     .build();
@@ -174,6 +178,7 @@ public class AccountBookDTO {
         private int categoryId;
         private Integer savingGoalId;
         private List<MultipartFile> files;
+        private List<String> existingFileIds;
 
         public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,

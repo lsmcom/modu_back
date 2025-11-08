@@ -164,10 +164,12 @@ public class FileService {
         }
 
         String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+        String thumbPath = Paths.get(Paths.get(file.getFilePath(), "thumb").toString(),  file.getFileThumbName()).toString();
 
         try {
             fileUtils.deleteFile(path);
-            fileRepository.delete(file);
+            fileUtils.deleteFile(thumbPath);
+            fileRepository.deletePhysicalFile(file.getFileId());
             log.info("[FILE] 삭제 완료: {}", path);
         } catch (IOException e) {
             log.error("[FILE] 파일 삭제 실패: {}", path, e);

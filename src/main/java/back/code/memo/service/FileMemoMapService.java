@@ -36,7 +36,7 @@ public class FileMemoMapService {
         FileMemoMapEntity map = FileMemoMapEntity.builder()
                 .id(new FileMemoMapId(memoId, fileId))
                 .memo(memo)
-                .file(file)
+                .memoFile(file)
                 .build();
 
         fileMemoMapRepository.save(map);
