@@ -2,6 +2,7 @@ package back.code.community.repository;
 
 import back.code.community.entity.CommunityPostFileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,15 @@ public interface CommunityPostFileRepository extends JpaRepository<CommunityPost
 
     @Query("select coalesce(max(pf.fileOrder),0) from CommunityPostFileEntity pf where pf.post.postId = :postId")
     int findMaxOrder(@Param("postId") Integer postId);
+
+    long countByFile_FileId(String fileId);
+
+    // 벌크 매핑 삭제 (락/버전체크 없이 한 방에)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from CommunityPostFileEntity cpf where cpf.post.postId = :postId")
+    int deleteByPostId(@Param("postId") Integer postId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from CommunityPostFileEntity cpf where cpf.post.postId = :postId and cpf.file.fileId = :fileId")
+    int deleteByPostIdAndFileIdDirect(@Param("postId") Integer postId, @Param("fileId") String fileId);
 }

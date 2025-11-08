@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommunityPostRepository extends JpaRepository<CommunityPostEntity, Integer> {
@@ -40,4 +41,38 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
     ORDER BY p.createAt DESC
 """)
     List<CommunityPostDTO> findPostDTOsByBoardId(@Param("boardId") Integer boardId);
+
+    // 임시저장 게시글 조회
+    @Query("""
+    SELECT new back.code.community.dto.CommunityPostDTO(
+        p.postId, 
+        b.boardId, 
+        b.boardName, 
+        u.userId, 
+        u.userNick, 
+        f.filePath,
+        f.storedName, 
+        p.title, 
+        p.contents, 
+        p.readCount, 
+        p.likeCount, 
+        p.isTemporary, 
+        p.createAt
+    )
+    FROM CommunityPostEntity p
+    LEFT JOIN p.board b
+    JOIN p.user u
+    LEFT JOIN u.files f ON f.fileType = 'PROFILE'
+    WHERE p.isTemporary = 'Y' 
+    AND u.userId = :userId
+    ORDER BY p.createAt DESC
+    """)
+    List<CommunityPostDTO> findTempPostsByUserId(@Param("userId") String userId);
+
+    // 60일 지난 임시글 자동 삭제
+    @Query("""
+    SELECT p.postId FROM CommunityPostEntity p
+    WHERE p.isTemporary = 'Y' AND p.createAt < :cutoff
+    """)
+    List<Integer> findOldTemporaryPostIds(@Param("cutoff") LocalDateTime cutoff);
 }

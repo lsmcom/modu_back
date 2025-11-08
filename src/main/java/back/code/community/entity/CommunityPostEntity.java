@@ -5,6 +5,9 @@ import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "community_post")
 @Getter
@@ -35,6 +38,9 @@ public class CommunityPostEntity extends BaseTimeEntity {
     private Integer likeCount; // 게시글 추천수
 
     private Character isTemporary; // 게시글 임시저장 여부
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommunityPostFileEntity> postFiles = new ArrayList<>();
 
     // 생성 전용 팩토리
     public static CommunityPostEntity create(CommunityBoardEntity board, UserEntity user,

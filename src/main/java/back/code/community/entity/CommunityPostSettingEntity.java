@@ -8,6 +8,7 @@ import lombok.*;
 @Entity
 @Table(name = "community_post_setting")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder

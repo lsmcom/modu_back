@@ -50,20 +50,34 @@ public class CommunityPostController {
         return ResponseEntity.ok(ApiResponse.ok(postId));
     }
 
+    /** 사용자별 임시저장 게시글 조회 */
+    @GetMapping("/posts/temp/{userId}")
+    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getTempPosts(@PathVariable String userId) {
+        List<CommunityPostDTO> temps = communityPostService.getTempPosts(userId);
+        return ResponseEntity.ok(ApiResponse.ok(temps));
+    }
+
     /** 게시글 첨부파일 조회 */
-    @GetMapping("/{postId}/files")
+    @GetMapping("/posts/{postId}/files")
     public ResponseEntity<ApiResponse<List<CommunityPostFileDTO>>> getPostFiles(@PathVariable Integer postId) {
         List<CommunityPostFileDTO> files = communityPostService.getPostFiles(postId);
         return ResponseEntity.ok(ApiResponse.ok(files));
     }
 
     /** 게시글 첨부파일 삭제 */
-    @DeleteMapping("/{postId}/files/{fileId}")
+    @DeleteMapping("/posts/{postId}/files/{fileId}")
     public ResponseEntity<ApiResponse<String>> deletePostFile(
             @PathVariable Integer postId,
             @PathVariable String fileId) throws IOException {
 
         communityPostService.deletePostFile(postId, fileId);
+        return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
+    }
+
+    /** 게시글 삭제 (임시글 포함) */
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Integer postId) throws IOException {
+        communityPostService.deletePost(postId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
     }
 }

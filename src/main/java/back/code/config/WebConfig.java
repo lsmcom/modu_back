@@ -47,6 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
         // React에서 접근하는 실제 URL 패턴
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:///" + filePath.replace("\\", "/"))
+                .addResourceLocations("file:///C:/files/")
                 .setCachePeriod(0)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
