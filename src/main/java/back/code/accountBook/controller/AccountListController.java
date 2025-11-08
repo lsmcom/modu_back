@@ -56,4 +56,14 @@ public class AccountListController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    // 할부내역 리스트
+    @GetMapping("/installments")
+    public ResponseEntity<ApiResponse<List<AccountBookDTO.InstallmentListResponse>>> getInstallmentList(
+                                                                    @RequestParam("userId") String userId) throws Exception{
+        List<AccountBookDTO.InstallmentListResponse> result = 
+                                    accountListService.getInstallmentList(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+
+    }
+
 }

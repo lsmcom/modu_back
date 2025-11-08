@@ -3,6 +3,9 @@ package back.code.accountBook.dto;
 import back.code.accountBook.entity.AccountBookEntity;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
+import back.code.accountBook.entity.InstallmentSettingEntity;
+import back.code.accountBook.entity.RecurringSettingEntity;
+import back.code.accountBook.enums.AccountCycle;
 import back.code.accountBook.enums.AccountMethod;
 import back.code.accountBook.enums.AccountType;
 import back.code.file.dto.FileDTO;
@@ -165,6 +168,51 @@ public class AccountBookDTO {
         }
     }
 
+    // 할부내역 리스트
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class InstallmentListResponse {
+        private int accountBookId;
+        private int installmentId;
+        private String content;
+        private String categoryName;
+        private AccountMethod method;
+        private int totalAmount;
+        private int totalMonths;
+        private int currentMonth;
+        private int monthlyAmount;
+        private LocalDate startDate;
+        private boolean isCompleted;
+        private int remainingAmount;
+
+        public static InstallmentListResponse of(AccountBookEntity account,
+                                                 InstallmentSettingEntity installment,
+                                                 int currentMonth,
+                                                 boolean isCompleted, 
+                                                 int remainingAmount) {
+            return InstallmentListResponse.builder()
+                            .accountBookId(account.getAccountId())
+                            .installmentId(installment.getInstallmentId())
+                            .content(account.getContent())
+                            .categoryName(account.getCategory().getCategoryName())
+                            .method(account.getMethod())
+                            .totalAmount(installment.getTotalAmount())
+                            .totalMonths(installment.getTotalMonths())
+                            .currentMonth(currentMonth)
+                            .monthlyAmount(installment.getMonthlyAmount())
+                            .startDate(installment.getStartDate())
+                            .isCompleted(isCompleted)
+                            .remainingAmount(remainingAmount)
+                            .build(); 
+
+
+
+        }
+
+    }
+
     // 클라이언트 -> 서버
     @Data
     public static class Request {
@@ -179,6 +227,8 @@ public class AccountBookDTO {
         private Integer savingGoalId;
         private List<MultipartFile> files;
         private List<String> existingFileIds;
+        private List<RecurringDTO> recurring;
+        private List<InstallmentDTO> installment;
 
         public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,
@@ -195,6 +245,83 @@ public class AccountBookDTO {
             account.setGoal(savingsGoal);
 
             return account;
+        }
+    }
+
+    // 반복설정
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RecurringDTO {
+
+        private Integer recurringId; 
+        private AccountCycle cycle; 
+        private LocalDate startDate; 
+        private LocalDate endDate; 
+        private boolean isActive;
+        private String daysOfWeek;
+        private LocalDate nextDate; 
+
+        // 응답
+        public static RecurringDTO of(RecurringSettingEntity entity) {
+            return RecurringDTO.builder()
+                    .recurringId(entity.getRecurringId())
+                    .cycle(entity.getCycle())
+                    .startDate(entity.getStartDate())
+                    .endDate(entity.getEndDate())
+                    .isActive(entity.isActive())
+                    .daysOfWeek(entity.getDaysOfWeek())
+                    .nextDate(entity.getNextDate())
+                    .build();
+        }
+
+        // 요청
+        public RecurringSettingEntity to(RecurringSettingEntity entity) {
+            entity.setCycle(this.cycle);
+            entity.setStartDate(this.startDate);
+            entity.setEndDate(this.endDate);
+            entity.setActive(true);
+            entity.setDaysOfWeek(this.daysOfWeek);
+            entity.setNextDate(this.nextDate); 
+            return entity;
+        }
+    }
+
+    // 할부설정
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class InstallmentDTO {
+
+        private Integer installmentId;
+        private int totalAmount;
+        private int totalMonths;
+        private int currentMonth;
+        private int monthlyAmount;
+        private LocalDate startDate;
+
+        // 응답용
+        public static InstallmentDTO of(InstallmentSettingEntity entity) {
+            return InstallmentDTO.builder()
+                    .installmentId(entity.getInstallmentId())
+                    .totalAmount(entity.getTotalAmount())
+                    .totalMonths(entity.getTotalMonths())
+                    .currentMonth(entity.getCurrentMonth())
+                    .monthlyAmount(entity.getMonthlyAmount())
+                    .startDate(entity.getStartDate())
+                    .build();
+        }
+
+        // 요청용
+        public InstallmentSettingEntity to(InstallmentSettingEntity entity) {
+            entity.setTotalAmount(this.totalAmount);
+            entity.setTotalMonths(this.totalMonths);
+            entity.setCurrentMonth(this.currentMonth);
+            entity.setMonthlyAmount(this.monthlyAmount);
+            entity.setStartDate(this.startDate);
+            return entity;
         }
     }
 

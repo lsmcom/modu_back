@@ -3,6 +3,7 @@ package back.code.accountBook.service;
 import back.code.accountBook.dto.AccountBookDTO;
 import back.code.accountBook.dto.AccountProjection;
 import back.code.accountBook.entity.AccountBookEntity;
+import back.code.accountBook.entity.InstallmentSettingEntity;
 import back.code.accountBook.repository.AccountBookRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.entity.UserSettingEntity;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -140,6 +142,63 @@ public class AccountListService {
                 .build();
 
         return result;
+    }
+
+    // 할부내역 리스트
+    @Transactional
+    public List<AccountBookDTO.InstallmentListResponse> getInstallmentList(String userId) throws Exception{
+
+        if (userId == null) {
+           throw new IllegalArgumentException("userId는 필수값입니다.");
+        }
+
+        List<InstallmentSettingEntity> installments = 
+                            accountBookRepository.findAllByUserIdWithAccount(userId);
+
+        List<AccountBookDTO.InstallmentListResponse> result = installments.stream()
+                        .map(installment -> {
+                            AccountBookEntity account = installment.getAccount();
+
+                            // 현재 회차 계산
+                            int currentMonth = calculateCurrentMonth(installment);
+                            // 완료 여부 계산
+                            boolean isCompleted = currentMonth >= installment.getTotalMonths();
+                            // 잔여 금액 계산
+                            int remainingAmount = calculateRemainingAmount(installment, currentMonth);
+                            
+                            return AccountBookDTO.InstallmentListResponse.of(
+                                account, 
+                                installment,
+                                currentMonth, 
+                                isCompleted, 
+                                remainingAmount
+                            );
+                        })
+                        .collect(Collectors.toList());
+
+        return result;
+    }
+
+    // 현재 회차 계산
+    private int calculateCurrentMonth(InstallmentSettingEntity installment) {
+        LocalDate start = installment.getStartDate();
+        LocalDate now = LocalDate.now();
+
+        // 시작일 이후 지난 개월 수 + 1 (시작월을 1회차로)
+        int currentMonth = now.getMonthValue() - start.getMonthValue() + 
+                        (now.getYear() - start.getYear()) * 12 + 1;
+
+        // 음수면 0, 총 개월수보다 크면 총 개월수
+        if (currentMonth < 0) currentMonth = 0;
+        if (currentMonth > installment.getTotalMonths()) currentMonth = installment.getTotalMonths();
+
+        return currentMonth;
+    }
+
+    // 잔여 금액 계산
+    private int calculateRemainingAmount(InstallmentSettingEntity installment, int currentMonth) {
+        int paidAmount = currentMonth * installment.getMonthlyAmount();
+        return installment.getTotalAmount() - paidAmount;
     }
 
 }

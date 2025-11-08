@@ -170,7 +170,6 @@ values
     ('user01', 7, NULL, 'EXPENSE', '2025-11-22', 'CARD', 36000, '영화관 데이트'),
     ('user01', 5, NULL, 'EXPENSE', '2025-11-25', 'CASH', 3600, '버스비');
 
--- ------------------------------------------------------------ 여기부터 추가
 alter table category
     modify COLUMN type ENUM('INCOME','EXPENSE') not null;
 
@@ -178,3 +177,15 @@ insert into savings_goal (user_id, goal_name, target_amount, current_amount, sta
 ('user01', '비상금 통장', 1000000, 0, '2025-11-01', '2025-12-31'),
 ('user01', '여행 자금', 2000000, 0, '2025-11-01', '2026-05-01'),
 ('user01', '자동차 구매', 5000000, 0, '2025-11-01', '2027-11-01');
+
+-- ------------------------------------------------------------ 여기부터 추가
+ALTER TABLE account_file_mapping
+MODIFY COLUMN file_id VARCHAR(255) NULL;
+
+insert into installment_setting (account_id, total_amount, total_months, current_month, monthly_amount, start_date)
+values
+(1, 120000, 6, 0, 20000, '2025-09-01'),
+(2, 60000, 3, 0, 20000, '2025-12-01'),
+(3, 180000, 6, 0, 30000, '2025-10-01'),
+(4, 90000, 3, 0, 30000, '2025-07-01'),
+(5, 45000, 3, 0, 15000, '2025-11-01');
