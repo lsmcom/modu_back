@@ -1,6 +1,7 @@
 package back.code.file.service;
 
 import back.code.common.utils.FileUtils;
+import back.code.community.repository.CommunityPostFileRepository;
 import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
 import back.code.file.repository.FileRepository;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +29,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FileService {
+
+    // 다른 도메인 레포지토리 주입
+    private final CommunityPostFileRepository communityPostFileRepository;
+    // private final MemoFileRepository memoFileRepository; // 나중에 필요하면 추가
 
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
@@ -157,7 +163,7 @@ public class FileService {
     }
 
     // 파일 삭제
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteFileEntity(FileEntity file) throws IOException {
         if (file == null) {
             throw new IllegalArgumentException("삭제할 파일 정보가 없습니다.");
@@ -173,8 +179,38 @@ public class FileService {
             log.info("[FILE] 삭제 완료: {}", path);
         } catch (IOException e) {
             log.error("[FILE] 파일 삭제 실패: {}", path, e);
-            throw e; // CommonExceptionHandler가 처리
+            throw e;
         }
+    }
+
+    // 고아 파일 삭제
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteFileIfOrphan(String fileId) {
+        long refs = communityPostFileRepository.countByFile_FileId(fileId);
+        if (refs > 0) {
+            log.debug("[CLEANUP] 참조 남음 — 삭제 스킵 fileId={}", fileId);
+            return;
+        }
+
+        fileRepository.findById(fileId).ifPresent(file -> {
+            try {
+                // DB 삭제 먼저
+                fileRepository.delete(file);
+                log.info("[CLEANUP] DB 파일 삭제 완료 fileId={}", fileId);
+
+                // 물리 파일 삭제
+                String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+                fileUtils.deleteFile(path);
+
+                if (file.getFileThumbName() != null) {
+                    String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+                    fileUtils.deleteFile(thumbPath);
+                }
+
+            } catch (IOException e) {
+                log.warn("[CLEANUP] 물리 파일 삭제 실패 fileId={}", fileId, e);
+            }
+        });
     }
 
     //파일 아이디로 가져오기

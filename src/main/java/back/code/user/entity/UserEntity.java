@@ -2,6 +2,7 @@ package back.code.user.entity;
 
 import back.code.common.entity.BaseTimeEntity;
 import back.code.file.entity.FileEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,6 +52,7 @@ public class UserEntity extends BaseTimeEntity {
     private UserRoleEntity userRole; //회원 권한
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<FileEntity> files = new ArrayList<>();
 
 }

@@ -92,6 +92,19 @@ create table user_setting(
 )comment '사용자 설정 테이블';
 
 
+/* 11.07 추가 sql */
+/* 사용자 설정 테이블 기본 데이터 삽입 */
+-- user_setting 기본 데이터 추가
+INSERT INTO user_setting (setting_id, user_id, the_day_of_week, theme_mode, alarm_allowed,
+	personal_info_agreed, location_info_agreed, marketing_info_agreed, marketing_reject_date)VALUES
+(UUID(), 'user01', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
+(UUID(), 'user02', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
+(UUID(), 'user03', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
+(UUID(), 'user04', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
+(UUID(), 'user05', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+
+
+
 
 
 

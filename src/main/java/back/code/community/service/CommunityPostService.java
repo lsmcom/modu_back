@@ -10,20 +10,26 @@ import back.code.community.entity.CommunityPostSettingEntity;
 import back.code.community.entity.enum_.FileRole;
 import back.code.community.repository.*;
 import back.code.file.entity.FileEntity;
+import back.code.file.event.OrphanFileCleanupEvent;
 import back.code.file.service.FileService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommunityPostService {
 
     private final CommunityPostRepository communityPostRepository;
@@ -34,6 +40,7 @@ public class CommunityPostService {
     private final UserRepository userRepository;
     private final FileService fileService;
     private final CommunityBoardRepository communityBoardRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 게시글 전체 목록 조회 */
     @Transactional(readOnly = true)
@@ -65,13 +72,13 @@ public class CommunityPostService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 게시판입니다."))
                 : null;
 
-        // 공지 권한 체크는 동일
+        // 공지 권한 체크
         if (dto.getBoardId() != null && "공지사항".equals(board.getBoardName())
                 && !"ROLE_ADMIN".equals(user.getUserRole().getRoleId())) {
             throw new RuntimeException("공지사항은 관리자만 작성 가능합니다.");
         }
 
-        // 유효성
+        // 유효성 검사
         if (dto.getIsTemporary() == 'Y') {
             if ((dto.getTitle() == null || dto.getTitle().isBlank()) &&
                     (dto.getContents() == null || dto.getContents().isBlank())) {
@@ -91,112 +98,117 @@ public class CommunityPostService {
 
         CommunityPostEntity post;
 
+        // UPDATE 모드 (임시글 수정 or 최종 등록)
         if (dto.getPostId() != null) {
-            // 업데이트 모드 (임시/최종 모두)
             post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
-            // 소유자 체크 등 필요 시 추가
 
             // 제목/내용/게시판/임시여부 갱신
             if (dto.getTitle() != null) post.setTitle(dto.getTitle());
             if (dto.getContents() != null) post.setContents(dto.getContents());
-            if (!isTemp) { // 최종 등록이면 게시판 필수
-                if (dto.getBoardId() == null) throw new RuntimeException("게시판 선택은 필수입니다.");
-                post.setBoard(board);
-            } else {
-                // 임시저장은 board null 허용
-                post.setBoard(board); // null 가능
-            }
             post.setIsTemporary(isTemp ? 'Y' : 'N');
+            post.setBoard(board);
 
-            // 첨부 갱신 정책 적용
+            // 파일 갱신 로직
+            List<String> keepIds = dto.getKeepFileIds() != null ? dto.getKeepFileIds() : new ArrayList<>();
+
             List<CommunityPostFileEntity> current = postFileRepository.findByPost_PostId(post.getPostId());
 
-            if (Boolean.TRUE.equals(dto.getReplaceAll())) {
-                // 전부 삭제 후 새로 매핑
+            // keep 목록에 없는 매핑 삭제
+            if (keepIds.isEmpty()) {
                 postFileRepository.deleteByPost_PostId(post.getPostId());
                 current.clear();
-            } else if (dto.getKeepFileIds() != null) {
-                // keep 외 매핑 삭제
-                if (dto.getKeepFileIds().isEmpty()) {
-                    postFileRepository.deleteByPost_PostId(post.getPostId());
-                    current.clear();
-                } else {
-                    postFileRepository.deleteByPost_PostIdAndFile_FileIdNotIn(post.getPostId(), dto.getKeepFileIds());
-                    // current는 굳이 재조회 안 해도 순번 계산만 주의
-                    current = postFileRepository.findByPost_PostId(post.getPostId());
-                }
+            } else {
+                postFileRepository.deleteByPost_PostIdAndFile_FileIdNotIn(post.getPostId(), keepIds);
+                current = postFileRepository.findByPost_PostId(post.getPostId());
             }
 
-            // 새로 올라온 파일만 업로드/매핑
+            // 새 파일 업로드
             if (files != null && !files.isEmpty()) {
                 int order = current.size() + 1;
-                List<CommunityPostFileEntity> mappings = new ArrayList<>();
                 for (MultipartFile f : files) {
                     FileEntity fe = fileService.uploadFileAndReturnEntity(f, user.getUserId(), "POST");
-                    mappings.add(CommunityPostFileEntity.builder()
+
+                    CommunityPostFileEntity mapping = CommunityPostFileEntity.builder()
                             .post(post)
                             .file(fe)
                             .fileOrder(order++)
                             .fileRole(FileRole.ATTACHMENT)
-                            .build());
+                            .build();
+
+                    postFileRepository.save(mapping);
                 }
-                postFileRepository.saveAll(mappings);
             }
 
-            // 설정 upsert
-            if (dto.getSetting() != null) {
-                postSettingRepository.save(
-                        CommunityPostSettingEntity.builder()
-                                .post(post).user(user)
-                                .isPublic(dto.getSetting().getIsPublic())
-                                .isSearch(dto.getSetting().getIsSearch())
-                                .isComment(dto.getSetting().getIsComment())
-                                .isInShare(dto.getSetting().getIsInShare())
-                                .isCopy(dto.getSetting().getIsCopy())
-                                .isOutShare(dto.getSetting().getIsOutShare())
-                                .imageSizeType(dto.getSetting().getImageSizeType())
-                                .build()
-                );
-            }
-            return post.getPostId();
-        } else {
-            // 최초 생성 모드
+            postRepository.save(post);
+        }
+
+        // CREATE 모드 (최초 저장)
+        else {
             post = postRepository.save(
                     CommunityPostEntity.create(board, user, dto.getTitle(), dto.getContents(), dto.getIsTemporary())
             );
 
+            // 파일 업로드
             if (files != null && !files.isEmpty()) {
                 int order = 1;
-                List<CommunityPostFileEntity> mappings = new ArrayList<>();
                 for (MultipartFile f : files) {
                     FileEntity fe = fileService.uploadFileAndReturnEntity(f, user.getUserId(), "POST");
-                    mappings.add(CommunityPostFileEntity.builder()
+
+                    CommunityPostFileEntity mapping = CommunityPostFileEntity.builder()
                             .post(post)
                             .file(fe)
                             .fileOrder(order++)
                             .fileRole(FileRole.ATTACHMENT)
-                            .build());
-                }
-                postFileRepository.saveAll(mappings);
-            }
+                            .build();
 
-            if (dto.getSetting() != null) {
-                postSettingRepository.save(
-                        CommunityPostSettingEntity.builder()
-                                .post(post).user(user)
-                                .isPublic(dto.getSetting().getIsPublic())
-                                .isSearch(dto.getSetting().getIsSearch())
-                                .isComment(dto.getSetting().getIsComment())
-                                .isInShare(dto.getSetting().getIsInShare())
-                                .isCopy(dto.getSetting().getIsCopy())
-                                .isOutShare(dto.getSetting().getIsOutShare())
-                                .imageSizeType(dto.getSetting().getImageSizeType())
-                                .build()
-                );
+                    postFileRepository.save(mapping);
+                }
             }
-            return post.getPostId();
         }
+
+        // 공통 설정 저장 (Upsert)
+        saveOrUpdateSetting(dto, user, post);
+
+        return post.getPostId();
+    }
+
+    /** 게시글 설정 Upsert (기존 있으면 수정, 없으면 새로 추가) */
+    private void saveOrUpdateSetting(CommunityPostCreateDTO dto, UserEntity user, CommunityPostEntity post) {
+        if (dto.getSetting() == null) return;
+
+        var existing = postSettingRepository.findByPost_PostId(post.getPostId()).orElse(null);
+
+        if (existing != null) {
+            existing.setIsPublic(dto.getSetting().getIsPublic());
+            existing.setIsSearch(dto.getSetting().getIsSearch());
+            existing.setIsComment(dto.getSetting().getIsComment());
+            existing.setIsInShare(dto.getSetting().getIsInShare());
+            existing.setIsCopy(dto.getSetting().getIsCopy());
+            existing.setIsOutShare(dto.getSetting().getIsOutShare());
+            existing.setImageSizeType(dto.getSetting().getImageSizeType());
+            postSettingRepository.save(existing);
+        } else {
+            postSettingRepository.save(
+                    CommunityPostSettingEntity.builder()
+                            .post(post)
+                            .user(user)
+                            .isPublic(dto.getSetting().getIsPublic())
+                            .isSearch(dto.getSetting().getIsSearch())
+                            .isComment(dto.getSetting().getIsComment())
+                            .isInShare(dto.getSetting().getIsInShare())
+                            .isCopy(dto.getSetting().getIsCopy())
+                            .isOutShare(dto.getSetting().getIsOutShare())
+                            .imageSizeType(dto.getSetting().getImageSizeType())
+                            .build()
+            );
+        }
+    }
+
+    /** 사용자별 임시저장 게시글 조회 */
+    @Transactional(readOnly = true)
+    public List<CommunityPostDTO> getTempPosts(String userId) {
+        return communityPostRepository.findTempPostsByUserId(userId);
     }
 
     /** 게시글 첨부파일 조회 */
@@ -222,15 +234,69 @@ public class CommunityPostService {
 
     /** 게시글 첨부파일 삭제 */
     @Transactional
-    public void deletePostFile(Integer postId, String fileId) throws IOException {
-        CommunityPostFileEntity mapping = postFileRepository
-                .findByPost_PostIdAndFile_FileId(postId, fileId)
-                .orElseThrow(() -> new RuntimeException("첨부파일 매핑이 존재하지 않습니다."));
+    public void deletePostFile(Integer postId, String fileId) {
+        try {
+            // 매핑 삭제
+            int deleted = postFileRepository.deleteByPostIdAndFileIdDirect(postId, fileId);
+            if (deleted == 0) {
+                log.warn("매핑이 존재하지 않거나 이미 삭제된 상태입니다. postId={}, fileId={}", postId, fileId);
+                return;
+            }
 
-        // 매핑 삭제
-        postFileRepository.delete(mapping);
+            // 파일이 다른 게시글에서도 참조 중인지 확인
+            long stillUsed = postFileRepository.countByFile_FileId(fileId);
+            if (stillUsed == 0) {
+                // 참조 끊겼으면 고아 파일 정리 이벤트 발행
+                eventPublisher.publishEvent(new OrphanFileCleanupEvent(List.of(fileId)));
+                log.info("게시글 파일 매핑 + 고아 파일 정리 완료 postId={}, fileId={}", postId, fileId);
+            } else {
+                log.info("게시글 파일 매핑만 삭제 (다른 참조 남음) postId={}, fileId={}", postId, fileId);
+            }
 
-        // 실제 파일도 삭제
-        fileService.deleteFileEntity(mapping.getFile());
+        } catch (Exception e) {
+            log.error("게시글 파일 매핑 삭제 중 오류 발생", e);
+            throw new RuntimeException("파일 매핑 삭제 실패", e);
+        }
+    }
+
+    // 게시글 삭제(파일 포함)
+    @Transactional
+    public void deletePost(Integer postId) {
+        // 삭제 후보 파일ID 모으기
+        var mappings = postFileRepository.findByPost_PostId(postId);
+        var candidateFileIds = mappings.stream()
+                .map(m -> m.getFile().getFileId())
+                .distinct()
+                .toList();
+
+        // 매핑 벌크 삭제
+        postFileRepository.deleteByPostId(postId);
+
+        // 설정 벌크 삭제
+        postSettingRepository.deleteByPost_PostId(postId);
+
+        // 게시글 삭제
+        communityPostRepository.deleteById(postId);
+
+        // 커밋 후 파일 고아 정리 이벤트 발행
+        eventPublisher.publishEvent(new OrphanFileCleanupEvent(candidateFileIds));
+    }
+
+    /** 60일 지난 임시글 자동 삭제 */
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void deleteOldTemporaryPosts() throws IOException {
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(60);
+        List<Integer> oldPostIds = communityPostRepository.findOldTemporaryPostIds(cutoff);
+        if (oldPostIds.isEmpty()) return;
+
+        for (Integer postId : oldPostIds) {
+            try {
+                deletePost(postId);
+            } catch (Exception e) {
+                log.warn("[AUTO CLEANUP] 임시글 삭제 실패 postId={}", postId, e);
+            }
+        }
+        log.info("[AUTO CLEANUP] {}개의 오래된 임시글 자동 삭제 완료", oldPostIds.size());
     }
 }
