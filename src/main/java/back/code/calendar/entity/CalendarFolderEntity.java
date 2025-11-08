@@ -18,8 +18,9 @@ import java.util.List;
 public class CalendarFolderEntity {
 
     @Id
-    @Column(name = "folder_id", length = 100)
-    private String folderId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "folder_id")
+    private Long folderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false,

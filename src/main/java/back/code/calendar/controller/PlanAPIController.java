@@ -49,7 +49,7 @@ public class PlanAPIController {
 
     /** 폴더별 일정 */
     @GetMapping("/folder/{folderId}")
-    public ResponseEntity<List<PlanEntity>> getPlansByFolder(@PathVariable String folderId) {
+    public ResponseEntity<List<PlanEntity>> getPlansByFolder(@PathVariable Long folderId) {
         CalendarFolderEntity folder = new CalendarFolderEntity();
         folder.setFolderId(folderId);
         return ResponseEntity.ok(planService.getPlansByFolder(folder));
@@ -57,7 +57,7 @@ public class PlanAPIController {
 
     /** 일정 공유자 목록 */
     @GetMapping("/{planId}/share")
-    public ResponseEntity<List<PlanShareEntity>> getSharedUsers(@PathVariable String planId) {
+    public ResponseEntity<List<PlanShareEntity>> getSharedUsers(@PathVariable Long planId) {
         PlanEntity plan = new PlanEntity();
         plan.setPlanId(planId);
         return ResponseEntity.ok(planService.getSharedUsers(plan));
@@ -65,7 +65,7 @@ public class PlanAPIController {
 
     /** 일정 공유자 추가 */
     @PostMapping("/{planId}/share/{sharedUserId}")
-    public ResponseEntity<Void> addSharedUser(@PathVariable String planId, @PathVariable String sharedUserId) {
+    public ResponseEntity<Void> addSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
         PlanEntity plan = new PlanEntity();
         plan.setPlanId(planId);
         UserEntity user = new UserEntity();
@@ -76,7 +76,7 @@ public class PlanAPIController {
 
     /** 일정 공유자 삭제 */
     @DeleteMapping("/{planId}/share/{sharedUserId}")
-    public ResponseEntity<Void> removeSharedUser(@PathVariable String planId, @PathVariable String sharedUserId) {
+    public ResponseEntity<Void> removeSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
         PlanEntity plan = new PlanEntity();
         plan.setPlanId(planId);
         UserEntity user = new UserEntity();
