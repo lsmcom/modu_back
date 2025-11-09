@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CalendarFolderRepository extends JpaRepository<CalendarFolderEntity, String> {
+public interface CalendarFolderRepository extends JpaRepository<CalendarFolderEntity, Long> {
 
     // 특정 사용자의 모든 폴더 조회
     List<CalendarFolderEntity> findByUser(UserEntity user);

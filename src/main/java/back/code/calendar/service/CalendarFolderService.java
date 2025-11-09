@@ -44,12 +44,12 @@ public class CalendarFolderService {
 
     /** 폴더 단건 조회 */
     @Transactional(readOnly = true)
-    public Optional<CalendarFolderEntity> getFolder(String folderId) {
+    public Optional<CalendarFolderEntity> getFolder(Long folderId) {
         return folderRepository.findById(folderId);
     }
 
     /** 폴더명 수정 */
-    public CalendarFolderEntity updateFolder(String folderId, String newName) {
+    public CalendarFolderEntity updateFolder(Long folderId, String newName) {
         CalendarFolderEntity folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더입니다."));
         folder.setFolderName(newName);
@@ -57,7 +57,7 @@ public class CalendarFolderService {
     }
 
     /** 폴더 삭제 */
-    public void deleteFolder(String folderId) {
+    public void deleteFolder(Long folderId) {
         folderRepository.deleteById(folderId);
     }
 }

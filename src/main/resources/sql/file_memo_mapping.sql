@@ -17,5 +17,3 @@ CREATE TABLE file_memo_mapping (
         REFERENCES file (file_id)
         ON DELETE CASCADE
 ) COMMENT='메모-파일 매핑 테이블';
-
-select * from file_memo_mapping;
