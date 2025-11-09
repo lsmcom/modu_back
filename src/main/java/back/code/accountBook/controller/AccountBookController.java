@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import back.code.accountBook.dto.AccountBookDTO;
+import back.code.accountBook.dto.AccountSearchDTO;
 import back.code.accountBook.service.AccountBookService;
 import back.code.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,4 +57,12 @@ public class AccountBookController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    // 가계부 검색
+    @PostMapping("/search")
+    public ResponseEntity<ApiResponse<List<AccountSearchDTO.AccountSearchResultDTO>>> searchAccountBook(
+                                       @RequestBody AccountSearchDTO.Request search)throws Exception {
+
+        List<AccountSearchDTO.AccountSearchResultDTO> result = accountBookService.searchAccountBook(search);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
 }

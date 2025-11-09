@@ -2,9 +2,12 @@ package back.code.accountBook.service;
 
 import back.code.accountBook.entity.AccountFileMappingEntity;
 import back.code.accountBook.repository.AccountFileMappingRepository;
+import back.code.accountBook.repository.AccountSearchRepository;
+import back.code.accountBook.repository.AccountSearchSpecification;
 import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
 import back.code.file.service.FileService;
+import back.code.recentsearch.service.RecentSearchService;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -14,10 +17,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import back.code.accountBook.dto.AccountBookDTO;
+import back.code.accountBook.dto.AccountSearchDTO;
 import back.code.accountBook.entity.AccountBookEntity;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
@@ -37,9 +42,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AccountBookService {
 
+    
     @Value("${server.file.upload.path}")
     private String filePath;
-
+    
     private final UserRepository userRepository;
     private final AccountBookRepository accountBookRepository;
     private final CategoryRepository categoryRepository;
@@ -48,6 +54,9 @@ public class AccountBookService {
     private final AccountFileMappingRepository mappingRepository;
     private final RecurringSettingRepository recurringRepository;
     private final InstallmentSettingRepository installmentRepository;
+    private final AccountSearchRepository searchRepository;
+    private final RecentSearchService recentSearchService;
+    private static final String SEARCH_TYPE = "ACCOUNT";
 
     // 가계부 작성
     @Transactional
@@ -288,6 +297,32 @@ public class AccountBookService {
         accountBookRepository.delete(account);
 
         return detail;
+    }
+
+    // 가계부 검색
+    @Transactional
+    public List<AccountSearchDTO.AccountSearchResultDTO> searchAccountBook(AccountSearchDTO.Request search) {
+        
+        // 검색어가 있으면 최근 검색어에 저장
+        if (search.getKeyword() != null && !search.getKeyword().trim().isEmpty()) {
+            recentSearchService.saveRecentSearch(
+                search.getUserId(), 
+                SEARCH_TYPE, 
+                search.getKeyword().trim()
+            );
+        }
+
+        Specification<AccountBookEntity> spec = new AccountSearchSpecification(search);
+
+        // 검색 실행
+        List<AccountBookEntity> result = searchRepository.findAll(spec);
+
+        // DTO 변환
+        List<AccountSearchDTO.AccountSearchResultDTO> searchResult = result.stream()
+                                        .map(AccountSearchDTO.AccountSearchResultDTO::of)
+                                        .collect(Collectors.toList());
+
+        return searchResult;
     }
 
     // 다음 반복일 계산
