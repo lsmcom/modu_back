@@ -38,7 +38,7 @@ spring:
           starttls:
             enable: true
 
-#Database 설정
+  #Database 설정
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url : jdbc:mariadb://localhost:3306/modu

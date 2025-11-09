@@ -4,8 +4,10 @@ import back.code.calendar.dto.PlanResponse;
 import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.calendar.entity.PlanEntity;
 import back.code.calendar.entity.PlanShareEntity;
+import back.code.calendar.repository.CalendarFolderRepository;
 import back.code.calendar.service.PlanService;
 import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +19,35 @@ import java.util.List;
 public class PlanAPIController {
 
     private final PlanService planService;
+    private final CalendarFolderRepository calendarFolderRepository;
+    private final UserRepository userRepository;
 
     /** 일정 등록 */
     @PostMapping
     public ResponseEntity<PlanEntity> createPlan(@RequestBody PlanEntity plan) {
-        return ResponseEntity.ok(planService.createPlan(plan));
+        // folderId 유효성 확인 및 실제 엔티티로 교체
+        if (plan.getFolder() != null && plan.getFolder().getFolderId() != null) {
+            Long folderId = plan.getFolder().getFolderId();
+            CalendarFolderEntity folder = calendarFolderRepository.findById(folderId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID: " + folderId));
+            plan.setFolder(folder);
+        } else {
+            throw new IllegalArgumentException("폴더 ID가 누락되었습니다.");
+        }
+
+        // userId 유효성 확인 및 실제 엔티티로 교체
+        if (plan.getUser() != null && plan.getUser().getUserId() != null) {
+            String userId = plan.getUser().getUserId();
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 ID: " + userId));
+            plan.setUser(user);
+        } else {
+            throw new IllegalArgumentException("사용자 ID가 누락되었습니다.");
+        }
+
+        // Plan 저장
+        PlanEntity savedPlan = planService.createPlan(plan);
+        return ResponseEntity.ok(savedPlan);
     }
 
     /** 일정 수정 */

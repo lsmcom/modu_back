@@ -35,13 +35,13 @@ public class CalendarFolderAPIController {
     /** 폴더명 수정 */
     @PatchMapping("/{folderId}")
     public ResponseEntity<CalendarFolderEntity> updateFolder(
-            @PathVariable String folderId, @RequestParam String newName) {
+            @PathVariable Long folderId, @RequestParam String newName) {
         return ResponseEntity.ok(folderService.updateFolder(folderId, newName));
     }
 
     /** 폴더 삭제 */
     @DeleteMapping("/{folderId}")
-    public ResponseEntity<Void> deleteFolder(@PathVariable String folderId) {
+    public ResponseEntity<Void> deleteFolder(@PathVariable Long folderId) {
         folderService.deleteFolder(folderId);
         return ResponseEntity.noContent().build();
     }

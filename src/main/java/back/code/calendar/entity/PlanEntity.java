@@ -3,6 +3,7 @@ package back.code.calendar.entity;
 import back.code.user.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -26,13 +27,13 @@ public class PlanEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_plan_calendar_folder"))
-    @JsonIgnore
+    @JsonProperty("folder")
     private CalendarFolderEntity folder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_plan_user"))
-    @JsonIgnore
+    @JsonProperty("user")
     private UserEntity user;
 
     @Column(name = "plan_title", length = 100, nullable = false)
