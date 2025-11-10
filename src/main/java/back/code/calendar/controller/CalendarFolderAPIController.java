@@ -27,9 +27,7 @@ public class CalendarFolderAPIController {
     /** 사용자 폴더 목록 조회 */
     @GetMapping("/{userId}")
     public ResponseEntity<List<CalendarFolderEntity>> getFolders(@PathVariable String userId) {
-        UserEntity user = new UserEntity();
-        user.setUserId(userId);
-        return ResponseEntity.ok(folderService.getFoldersByUser(user));
+        return ResponseEntity.ok(folderService.getFoldersByUser(userId));
     }
 
     /** 폴더명 수정 */

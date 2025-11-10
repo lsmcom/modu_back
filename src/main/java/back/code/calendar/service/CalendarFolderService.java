@@ -38,8 +38,8 @@ public class CalendarFolderService {
 
     /** 사용자별 폴더 목록 조회 */
     @Transactional(readOnly = true)
-    public List<CalendarFolderEntity> getFoldersByUser(UserEntity user) {
-        return folderRepository.findByUser(user);
+    public List<CalendarFolderEntity> getFoldersByUser(String userId) {
+        return folderRepository.findByUser_UserId(userId);
     }
 
     /** 폴더 단건 조회 */
@@ -50,14 +50,25 @@ public class CalendarFolderService {
 
     /** 폴더명 수정 */
     public CalendarFolderEntity updateFolder(Long folderId, String newName) {
+
         CalendarFolderEntity folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더입니다."));
+        if ("SHARED".equalsIgnoreCase(folder.getFolderType())) {
+            throw new IllegalArgumentException("공유 폴더는 이름을 변경할 수 없습니다.");
+        }
         folder.setFolderName(newName);
         return folderRepository.save(folder);
     }
 
     /** 폴더 삭제 */
     public void deleteFolder(Long folderId) {
-        folderRepository.deleteById(folderId);
+        CalendarFolderEntity folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다."));
+
+        if ("SHARED".equalsIgnoreCase(folder.getFolderType())) {
+            throw new IllegalArgumentException("공유 폴더는 삭제할 수 없습니다.");
+        }
+
+        folderRepository.delete(folder);
     }
 }

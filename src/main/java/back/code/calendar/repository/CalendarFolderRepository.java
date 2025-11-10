@@ -12,4 +12,9 @@ public interface CalendarFolderRepository extends JpaRepository<CalendarFolderEn
 
     // 특정 사용자의 모든 폴더 조회
     List<CalendarFolderEntity> findByUser(UserEntity user);
+
+    List<CalendarFolderEntity> findByUser_UserId(String userId);
+
+    List<CalendarFolderEntity> findByUserAndFolderType(UserEntity user, String folderType);
+
 }
