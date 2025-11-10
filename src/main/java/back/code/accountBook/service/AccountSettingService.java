@@ -49,6 +49,87 @@ public class AccountSettingService {
         return result;            
     }
 
+    // 저축목표 조회
+    @Transactional
+    public List<AccountSavingGoalDTO.Response> getGoals(String userId) throws Exception{
+
+        // 사용자 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        // 사용자의 저축 목표 조회
+        List<AccountSavingsGoalEntity> goals = savingGoalRepository.findAllByUser(user);
+        // DTO 변환
+        List<AccountSavingGoalDTO.Response> result = new ArrayList<>();
+        for (AccountSavingsGoalEntity goal : goals) {
+            result.add(AccountSavingGoalDTO.Response.of(goal));
+        }
+
+        return result;
+    }
+
+    // 저축목표 추가
+    @Transactional
+    public AccountSavingGoalDTO.Response writeGoals(AccountSavingGoalDTO.Request request) throws Exception{
+
+        // 사용자 확인
+        UserEntity user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        // DTO → 엔티티
+        AccountSavingsGoalEntity goals = request.to(user);
+        // DTO로 변경
+        AccountSavingGoalDTO.Response result = AccountSavingGoalDTO.Response.of(goals);
+        // 저장
+        savingGoalRepository.save(goals);
+
+        return result;
+    }
+
+    // 저축목표 수정
+    @Transactional
+    public AccountSavingGoalDTO.Response updateGoals(AccountSavingGoalDTO.Request request) throws Exception{
+
+        // 사용자 확인
+        UserEntity user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        AccountSavingsGoalEntity goals;
+        // 기존 저축목표 수정 및 새 저축목표 생성
+        if(request.getGoalId() != null) {
+            goals = savingGoalRepository.findById(request.getGoalId())
+                    .orElseThrow(() -> new RuntimeException("저축목표를 찾을 수 없습니다."));
+            goals.setGoalName(request.getGoalName());
+            goals.setTargetAmount(request.getTargetAmount());
+            goals.setStartDate(request.getStartDate());
+            goals.setEndDate(request.getEndDate());
+        } else {
+            goals = request.to(user);
+        }
+        // DTO로 변경
+        AccountSavingGoalDTO.Response result = AccountSavingGoalDTO.Response.of(goals);
+        // 저장
+        savingGoalRepository.save(goals);
+
+        return result;
+    }
+
+    // 저축목표 삭제
+    @Transactional
+    public AccountSavingGoalDTO.Response deleteGoals(String userId,int goalId) throws Exception{
+
+        // 저축목표 확인
+        AccountSavingsGoalEntity goals =  savingGoalRepository.findById(goalId)
+                .orElseThrow(() -> new RuntimeException("저축목표를 찾을 수 없습니다."));
+        // 해당 저축목표가 사용자의 것인지 확인
+        if (!goals.getUser().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("해당 저축목표에 대한 권한이 없습니다.");
+        }
+        // DTO로 변경
+        AccountSavingGoalDTO.Response result = AccountSavingGoalDTO.Response.of(goals);
+        // 저장
+        savingGoalRepository.delete(goals);
+
+        return result;
+    }
+
     // 월별 예산 조회
     @Transactional
     public BudgetDTO.BudgetSettingResponse getBudgetSetting(String userId, String yearMonth) throws Exception{

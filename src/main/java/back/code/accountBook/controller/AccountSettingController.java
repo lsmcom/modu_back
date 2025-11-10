@@ -3,12 +3,7 @@ package back.code.accountBook.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import back.code.accountBook.dto.AccountSavingGoalDTO;
 import back.code.accountBook.dto.BudgetDTO;
@@ -30,6 +25,43 @@ public class AccountSettingController {
     public ResponseEntity<ApiResponse<List<AccountSavingGoalDTO.writeGoals>>> getWriteGoals(
                                                     @RequestParam("userId") String userId) throws Exception{
         List<AccountSavingGoalDTO.writeGoals> result = accountSettingService.getWriteGoals(userId);
+
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 저축목표 조회
+    @GetMapping("/goalList")
+    public ResponseEntity<ApiResponse<List<AccountSavingGoalDTO.Response>>> getGoals(
+                                                    @RequestParam("userId") String userId) throws Exception{
+        List<AccountSavingGoalDTO.Response> result = accountSettingService.getGoals(userId);
+
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 저축목표 추가
+    @PostMapping("/goalList")
+    public ResponseEntity<ApiResponse<AccountSavingGoalDTO.Response>> writeGoals(
+                                                    @RequestBody AccountSavingGoalDTO.Request request) throws Exception{
+        AccountSavingGoalDTO.Response result = accountSettingService.writeGoals(request);
+
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 저축목표 수정
+    @PutMapping("/goalList")
+    public ResponseEntity<ApiResponse<AccountSavingGoalDTO.Response>>updateGoals(
+                                                    @RequestBody AccountSavingGoalDTO.Request request) throws Exception{
+        AccountSavingGoalDTO.Response result = accountSettingService.updateGoals(request);
+
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 저축목표 삭제
+    @DeleteMapping("/goalList")
+    public ResponseEntity<ApiResponse<AccountSavingGoalDTO.Response>>deleteGoals(
+                                                                    @RequestParam("userId") String userId,
+                                                                    @RequestParam("goalId") int goalId) throws Exception{
+        AccountSavingGoalDTO.Response result = accountSettingService.deleteGoals(userId,goalId);
 
         return ResponseEntity.ok(ApiResponse.ok(result));
     }

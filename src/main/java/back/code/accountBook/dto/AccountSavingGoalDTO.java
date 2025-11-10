@@ -27,7 +27,7 @@ public class AccountSavingGoalDTO {
 
         // 달성률 계산
         public double getProgress() {
-            if (targetAmount == 0) return 0;
+            if (currentAmount == null || targetAmount == null || targetAmount == 0) return 0;
             return (double) currentAmount / targetAmount * 100;
         }
 
@@ -60,8 +60,6 @@ public class AccountSavingGoalDTO {
                         .build();
         }
     }
-
-
 
     // 클라이언트 -> 서버
     @Data

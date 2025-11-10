@@ -1,6 +1,7 @@
 package back.code.accountBook.service;
 
 import back.code.accountBook.entity.AccountFileMappingEntity;
+import back.code.accountBook.enums.AccountType;
 import back.code.accountBook.repository.AccountFileMappingRepository;
 import back.code.accountBook.repository.AccountSearchRepository;
 import back.code.accountBook.repository.AccountSearchSpecification;
@@ -73,6 +74,11 @@ public class AccountBookService {
         if (request.getSavingGoalId() != null) {
             savingGoal = savingGoalRepository.findById(request.getSavingGoalId())
                     .orElseThrow(() -> new RuntimeException("저축 목표를 찾을 수 없습니다."));
+            if (AccountType.INCOME.equals(request.getType())) {
+                int currentAmount = savingGoal.getCurrentAmount() != null ? savingGoal.getCurrentAmount() : 0;
+                savingGoal.setCurrentAmount(currentAmount + request.getAmount());
+                savingGoalRepository.save(savingGoal);
+            }
         }
         // DTO → 엔티티
         AccountBookEntity account = request.to(new AccountBookEntity(), user, category, savingGoal);
@@ -153,10 +159,28 @@ public class AccountBookService {
         AccountCategoryEntity category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다."));
         // 저축 목표 확인
-        AccountSavingsGoalEntity savingGoal = account.getGoal();
+        AccountSavingsGoalEntity oldGoal = account.getGoal();  // 기존 저축 목표
+        Integer oldAmount = account.getAmount();  // 기존 금액
+
+        // 기존 저축 목표가 있고 수입이었다면 기존 금액 차감
+        if (oldGoal != null && AccountType.INCOME.equals(account.getType())) {
+            int currentAmount = oldGoal.getCurrentAmount() != null ? oldGoal.getCurrentAmount() : 0;
+            oldGoal.setCurrentAmount(currentAmount - oldAmount);
+            savingGoalRepository.save(oldGoal);
+        }
+
+        // 새로운 저축 목표 처리
+        AccountSavingsGoalEntity savingGoal = null;
         if (request.getSavingGoalId() != null) {
             savingGoal = savingGoalRepository.findById(request.getSavingGoalId())
                     .orElseThrow(() -> new RuntimeException("저축 목표를 찾을 수 없습니다."));
+
+            // 수입일 때만 새로운 금액 추가
+            if (AccountType.INCOME.equals(request.getType())) {
+                int currentAmount = savingGoal.getCurrentAmount() != null ? savingGoal.getCurrentAmount() : 0;
+                savingGoal.setCurrentAmount(currentAmount + request.getAmount());
+                savingGoalRepository.save(savingGoal);
+            }
         }
 
         // 현재 파일 매핑 복사

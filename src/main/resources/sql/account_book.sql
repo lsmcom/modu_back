@@ -178,7 +178,6 @@ insert into savings_goal (user_id, goal_name, target_amount, current_amount, sta
 ('user01', '여행 자금', 2000000, 0, '2025-11-01', '2026-05-01'),
 ('user01', '자동차 구매', 5000000, 0, '2025-11-01', '2027-11-01');
 
--- ------------------------------------------------------------ 여기부터 추가
 ALTER TABLE account_file_mapping
 MODIFY COLUMN file_id VARCHAR(255) NULL;
 
@@ -189,3 +188,7 @@ values
 (3, 180000, 6, 0, 30000, '2025-10-01'),
 (4, 90000, 3, 0, 30000, '2025-07-01'),
 (5, 45000, 3, 0, 15000, '2025-11-01');
+
+-- ------------------------------------------------------------ 여기부터 추가
+alter table budget
+add column threshold int default 80 comment '알림 임계값 (%)';
