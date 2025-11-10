@@ -19,14 +19,14 @@ import java.util.List;
 public class AccountBookEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int accountId;
+    private Integer accountId;
 
     @Enumerated(EnumType.STRING)
     private AccountType type;
     private LocalDate date;
     @Enumerated(EnumType.STRING)
     private AccountMethod method;
-    private int amount;
+    private Integer amount;
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

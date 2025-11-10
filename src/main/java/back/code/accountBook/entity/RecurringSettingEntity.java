@@ -23,12 +23,12 @@ import lombok.Setter;
 public class RecurringSettingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int recurringId;
+    private Integer recurringId;
     @Enumerated(EnumType.STRING)
     private AccountCycle cycle;
     private LocalDate startDate;
     private LocalDate endDate;
-    private boolean isActive;
+    private Boolean isActive;
     private String daysOfWeek;
     private LocalDate nextDate;
     

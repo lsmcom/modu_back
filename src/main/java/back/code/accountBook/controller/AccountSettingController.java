@@ -46,18 +46,44 @@ public class AccountSettingController {
 
     // 전체 예산 저장
     @PostMapping("/budget/total")
-    public ResponseEntity<ApiResponse<String>> saveTotalBudget(@RequestBody BudgetDTO.TotalBudgetRequest request) {
+    public ResponseEntity<ApiResponse<String>> saveTotalBudget(
+                                                    @RequestBody BudgetDTO.TotalBudgetRequest request) throws Exception{
         accountSettingService.saveTotalBudget(request.getUserId(), request.getYearMonth(), request.getTotalBudget());
         return ResponseEntity.ok(ApiResponse.ok("전체 예산이 저장되었습니다."));
     }
 
     // 카테고리별 예산 저장
     @PostMapping("/budget/category")
-    public ResponseEntity<ApiResponse<String>> saveCategoryBudgets(@RequestBody BudgetDTO.BudgetSettingRequest request) {
+    public ResponseEntity<ApiResponse<String>> saveCategoryBudgets(
+                                                @RequestBody BudgetDTO.BudgetSettingRequest request) throws Exception{
         accountSettingService.saveCategoryBudgets(request.getUserId(), request.getYearMonth(), request.getCategoryBudgets());
         return ResponseEntity.ok(ApiResponse.ok("카테고리별 예산이 저장되었습니다."));
     }
 
+    // 임계값 조회
+    @GetMapping("/threshold")
+    public ResponseEntity<ApiResponse<BudgetDTO.ThresholdResponse>> getThreshold(
+                                                        @RequestParam("userId") String userId,
+                                                        @RequestParam("yearMonth") String yearMonth) throws Exception {
+        BudgetDTO.ThresholdResponse result = accountSettingService.getThreshold(userId, yearMonth);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    // 전체 임계값 저장
+    @PostMapping("/threshold")
+    public ResponseEntity<ApiResponse<String>> updateThreshold(
+                                                    @RequestBody BudgetDTO.ThresholdRequest request) throws Exception {
+        accountSettingService.updateThreshold(request);
+        return ResponseEntity.ok(ApiResponse.ok("전체 예산 한도 알림이 설정되었습니다."));
+    }
+
+    // 카테고리 임계값 저장
+    @PostMapping("/threshold/category")
+    public ResponseEntity<ApiResponse<String>> updateCategoryThreshold(
+                                                    @RequestBody BudgetDTO.ThresholdRequest request) throws Exception {
+        accountSettingService.updateCategoryThreshold(request);
+        return ResponseEntity.ok(ApiResponse.ok("카테고리 예산 한도 알림이 설정되었습니다."));
+    }
 
 
 

@@ -17,10 +17,10 @@ public class AccountSavingGoalDTO {
     @NoArgsConstructor
     @Getter
     public static class Response {
-        private int goalId;
+        private Integer goalId;
         private String goalName;
-        private int targetAmount;
-        private int currentAmount;
+        private Integer targetAmount;
+        private Integer currentAmount;
         private LocalDate startDate;
         private LocalDate endDate;
         private String userId; 
@@ -50,7 +50,7 @@ public class AccountSavingGoalDTO {
     @NoArgsConstructor
     @Getter
     public static class writeGoals {
-        private int goalId;
+        private Integer goalId;
         private String goalName;
 
         public static writeGoals of(AccountSavingsGoalEntity entity) {
@@ -66,9 +66,9 @@ public class AccountSavingGoalDTO {
     // 클라이언트 -> 서버
     @Data
     public static class Request {
-        private int goalId;
+        private Integer goalId;
         private String goalName;
-        private int targetAmount;
+        private Integer targetAmount;
         private LocalDate startDate;
         private LocalDate endDate;
         private String userId;

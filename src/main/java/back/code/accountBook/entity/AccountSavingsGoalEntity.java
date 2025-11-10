@@ -14,11 +14,11 @@ import java.time.LocalDate;
 public class AccountSavingsGoalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int goalId;
+    private Integer goalId;
 
     private String goalName;
-    private int targetAmount;
-    private int currentAmount;
+    private Integer targetAmount;
+    private Integer currentAmount;
     private LocalDate startDate;
     private LocalDate endDate;
 

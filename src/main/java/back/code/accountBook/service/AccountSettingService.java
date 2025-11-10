@@ -2,6 +2,7 @@ package back.code.accountBook.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class AccountSettingService {
     @Transactional
     public BudgetDTO.BudgetSettingResponse getBudgetSetting(String userId, String yearMonth) throws Exception{
 
-        List<BudgetEntity> budgets = budgetRepository.findAllByUserAndYearMonth(userId, yearMonth);
+        List<BudgetEntity> budgets = budgetRepository.findAllByUser_UserIdAndYearMonth(userId, yearMonth);
 
         // 전체 예산
         Integer totalBudget = budgets.stream()
@@ -71,13 +72,14 @@ public class AccountSettingService {
                                         .build())
                                 .collect(Collectors.toList());
 
-        return BudgetDTO.BudgetSettingResponse.builder()
+        BudgetDTO.BudgetSettingResponse result = BudgetDTO.BudgetSettingResponse.builder()
                 .userId(userId)
                 .yearMonth(yearMonth)
                 .totalBudget(totalBudget)
                 .categoryBudgets(categoryBudgets)
-                .build();    
+                .build();
 
+        return result;
     }
 
     // 전체 예산 저장
@@ -86,7 +88,7 @@ public class AccountSettingService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        BudgetEntity budget = budgetRepository.findTotalBudget(user.getUserId(), yearMonth)
+        BudgetEntity budget = budgetRepository.findByUser_UserIdAndYearMonthAndCategoryIsNull(user.getUserId(), yearMonth)
                 .orElseGet(() -> {
                     BudgetEntity b = new BudgetEntity();
                     b.setUser(user);
@@ -125,5 +127,59 @@ public class AccountSettingService {
             budget.setBudgetAmount(cb.getBudgetAmount());
             budgetRepository.save(budget);
         }
+    }
+
+    // 임계값 조회
+    @Transactional
+    public BudgetDTO.ThresholdResponse getThreshold(String userId, String yearMonth) throws Exception {
+        // 전체 예산의 임계값 조회
+        Optional<BudgetEntity> totalBudget =
+                budgetRepository.findByUser_UserIdAndYearMonthAndCategoryIsNull(userId, yearMonth);
+
+        // 카테고리 예산 임계값 조회
+        Optional<BudgetEntity> categoryBudget =
+                budgetRepository.findFirstByUser_UserIdAndYearMonthAndCategoryIsNotNull(userId, yearMonth);
+
+        return BudgetDTO.ThresholdResponse.builder()
+                .totalBudgetThreshold(totalBudget.map(BudgetEntity::getThreshold).orElse(80))
+                .categoryBudgetThreshold(categoryBudget.map(BudgetEntity::getThreshold).orElse(80))
+                .build();
+    }
+
+    // 전체 임계값 저장
+    @Transactional
+    public void updateThreshold(BudgetDTO.ThresholdRequest request) throws Exception{
+
+        Integer totalThreshold = request.getTotalBudgetThreshold();
+
+        if (totalThreshold == null) totalThreshold = 80;
+        if(totalThreshold > 100) {
+            throw new RuntimeException("한도 알림률은 100%를 넘길 수 없습니다.");
+        }
+        // 전체 예산 임계값 업데이트
+        budgetRepository.updateTotalBudgetThreshold(
+                request.getUserId(),
+                request.getYearMonth(),
+                totalThreshold
+        );
+
+    }
+
+    // 임계값 저장
+    @Transactional
+    public void updateCategoryThreshold(BudgetDTO.ThresholdRequest request) throws Exception{
+
+        Integer categoryThreshold = request.getCategoryBudgetThreshold();
+
+        if (categoryThreshold == null) categoryThreshold = 80;
+        if(categoryThreshold > 100) {
+            throw new RuntimeException("한도 알림률은 100%를 넘길 수 없습니다.");
+        }
+        // 모든 카테고리별 예산 임계값 일괄 업데이트
+        budgetRepository.updateCategoryBudgetThreshold(
+                request.getUserId(),
+                request.getYearMonth(),
+                categoryThreshold
+        );
     }
 }

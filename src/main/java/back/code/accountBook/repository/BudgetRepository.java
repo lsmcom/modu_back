@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,24 +13,42 @@ import back.code.accountBook.entity.BudgetEntity;
 public interface BudgetRepository extends JpaRepository<BudgetEntity, Integer>{
 
     // 전체 조회
-    @Query(value = """
-            select b 
-            from BudgetEntity b
-            where b.user.userId = :userId
-            and b.yearMonth = :yearMonth
-        """)
-    List<BudgetEntity> findAllByUserAndYearMonth(@Param("userId") String userId, @Param("yearMonth") String yearMonth);
+    List<BudgetEntity> findAllByUser_UserIdAndYearMonth(String userId, String yearMonth);
 
-    // 카테고리 없는 전체 조회
-    @Query(value = """
-            select b 
-            from BudgetEntity b 
-            where b.user.userId = :userId 
-                and b.category is null 
-                and b.yearMonth = :yearMonth
-        """)
-    Optional<BudgetEntity> findTotalBudget(@Param("userId") String userId, @Param("yearMonth") String yearMonth);
-    
-    // 카테고리별 조회
-    Optional<BudgetEntity> findByUser_UserIdAndCategory_CategoryIdAndYearMonth(String userId, Integer categoryId, String yearMonth);
+    // 전체 예산 조회 (category_id IS NULL)
+    Optional<BudgetEntity> findByUser_UserIdAndYearMonthAndCategoryIsNull(String userId, String yearMonth);
+
+    // 카테고리별 예산 조회
+    Optional<BudgetEntity> findByUser_UserIdAndCategory_CategoryIdAndYearMonth(
+                                                                 String userId, Integer categoryId, String yearMonth);
+
+    // 카테고리별 예산 중 첫 번째 조회 (임계값 확인용)
+    Optional<BudgetEntity> findFirstByUser_UserIdAndYearMonthAndCategoryIsNotNull(String userId, String yearMonth);
+
+    // 전체 예산 임계값 수정
+    @Modifying
+    @Query("""
+        update BudgetEntity b 
+        set b.threshold = :threshold 
+        where b.user.userId = :userId 
+            and b.yearMonth = :yearMonth 
+            and b.category is null
+    """)
+    void updateTotalBudgetThreshold(@Param("userId") String userId,
+                                    @Param("yearMonth") String yearMonth,
+                                    @Param("threshold") Integer threshold);
+
+    // 모든 카테고리별 예산 임계값 수정
+    @Modifying
+    @Query("""
+        update BudgetEntity b 
+        set b.threshold = :threshold 
+        where b.user.userId = :userId 
+            and b.yearMonth = :yearMonth 
+            and b.category is not null
+    """)
+    void updateCategoryBudgetThreshold(@Param("userId") String userId,
+                                       @Param("yearMonth") String yearMonth,
+                                       @Param("threshold") Integer threshold);
+
 }

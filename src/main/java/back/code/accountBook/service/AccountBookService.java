@@ -120,8 +120,8 @@ public class AccountBookService {
         }
 
         // 파일 업로드
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            for (MultipartFile multipartFile : request.getFiles()) {
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile multipartFile : files) {
                 FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
 
                 // 매핑 테이블 저장
@@ -184,8 +184,8 @@ public class AccountBookService {
             mapping.setAccount(null); // 참조끊기
         }
         // 새 파일 추가
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            for (MultipartFile multipartFile : request.getFiles()) {
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile multipartFile : files) {
                 FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
 
                 AccountFileMappingEntity mapping = new AccountFileMappingEntity();
@@ -373,7 +373,7 @@ public class AccountBookService {
     @Transactional
     public void checkRecurring(RecurringSettingEntity recurring) {
         if (recurring.getEndDate() != null && LocalDate.now().isAfter(recurring.getEndDate())) {
-            recurring.setActive(false);
+            recurring.setIsActive(false);
             recurringRepository.save(recurring);
         }
     }

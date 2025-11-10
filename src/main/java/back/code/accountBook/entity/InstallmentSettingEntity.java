@@ -20,11 +20,11 @@ import lombok.Setter;
 public class InstallmentSettingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int installmentId;
-    private int totalAmount;
-    private int totalMonths;
-    private int currentMonth;
-    private int monthlyAmount;
+    private Integer installmentId;
+    private Integer totalAmount;
+    private Integer totalMonths;
+    private Integer currentMonth;
+    private Integer monthlyAmount;
     private LocalDate startDate;
     
     @ManyToOne(fetch = FetchType.LAZY)

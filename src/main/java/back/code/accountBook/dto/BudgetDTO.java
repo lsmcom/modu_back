@@ -1,5 +1,6 @@
 package back.code.accountBook.dto;
 
+import back.code.accountBook.entity.BudgetEntity;
 import lombok.*;
 
 import java.util.List;
@@ -29,6 +30,16 @@ public class BudgetDTO {
         private Integer budgetAmount;
     }
 
+    // 임계값 응답
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ThresholdResponse {
+        private Integer totalBudgetThreshold;      // 전체 예산 임계값
+        private Integer categoryBudgetThreshold;   // 카테고리별 예산 임계값 (공통)
+    }
+
     // 월별 예산 설정 요청
     @Data
     public static class BudgetSettingRequest {
@@ -52,4 +63,14 @@ public class BudgetDTO {
         private String yearMonth;
         private Integer totalBudget;
     }
+
+    // 임계값 요청
+    @Data
+    public static class ThresholdRequest {
+        private String userId;
+        private String yearMonth;
+        private Integer totalBudgetThreshold;      // 전체 예산 임계값
+        private Integer categoryBudgetThreshold;   // 카테고리별 예산 임계값 (공통)
+    }
+
 }
