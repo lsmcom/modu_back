@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
+import java.time.DayOfWeek;
 
 @Service
 @RequiredArgsConstructor
@@ -69,6 +71,7 @@ public class TodoListService {
      * @param userId 사용자 ID
      * @return TodoDataResponse (todos 및 folders 포함)
      */
+    @Transactional
     public TodoDataResponse getInitialData(String userId) {
         // 1. 모든 TodoFolder 조회
         List<TodoFolder> folders = todoFolderRepository.findByUserId(userId);
@@ -82,27 +85,94 @@ public class TodoListService {
         // 2. 모든 TodoList 조회 (order_index 순으로 정렬되어 조회)
         List<TodoList> todos = todoListRepository.findByUserIdOrderByOrderIndexAsc(userId);
 
-        // 💡 [추가] 초기 데이터 로드 시에도 이월이 필요한 항목을 즉시 이월 처리합니다.
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZoneId kstZone = ZoneId.of("Asia/Seoul"); // 💡 [추가] ZoneId 정의
+        LocalDateTime now = LocalDateTime.now(kstZone);
+        DayOfWeek today = now.getDayOfWeek(); // 💡 [추가] 오늘 요일
 
-        List<TodoList> updatedTodos = todos.stream()
+        // ====================================================================
+        // 💡 [추가] 반복 Todo 및 이월 Todo 처리 로직
+        // ====================================================================
+
+        List<TodoList> newTodosToAdd = new java.util.ArrayList<>();
+
+        // 💡 [추가] titlesDueToday 변수 정의 및 초기화 (오류 해결)
+        Set<String> titlesDueToday = todos.stream()
+                .filter(todo -> todo.getDueDate() != null && todo.getDueDate().toLocalDate().isEqual(now.toLocalDate()))
+                .map(TodoList::getTitle)
+                .collect(Collectors.toSet());
+
+        List<TodoList> updatedTodos = todos.stream() // 💡 [수정] updatedTodos 리스트를 활용
                 .peek(todo -> {
+                    // --- 1. 익일 자동 이월 처리 (이전 단계 수정 로직) ---
                     if (todo.getDueDate() != null &&
                             (todo.getAutoMigrate() != null && todo.getAutoMigrate()) &&
-                            !todo.getIsCompleted() // 미완료된 항목만 이월
+                            !todo.getIsCompleted()
                     ) {
                         LocalDateTime migratedDate = processAutoMigrate(todo.getDueDate(), todo.getAutoMigrate(), now);
                         if (!migratedDate.equals(todo.getDueDate())) {
                             todo.setDueDate(migratedDate);
-                            // 💡 [추가] DB에 즉시 반영 (Dirty Checking)
-                            // todoListRepository.save(todo); // @Transactional이므로 명시적 save는 선택 사항이지만, 안전을 위해 호출 가능
+                            // Dirty Checking에 의해 저장됨
+                        }
+                    }
+
+                    // --- 2. 요일별 반복 생성 처리 ---
+                    if (todo.getRepeatDays() != null && !todo.getRepeatDays().isEmpty() && !todo.getIsCompleted()) {
+
+                        Set<Integer> repeatDays = java.util.Arrays.stream(todo.getRepeatDays().split(","))
+                                .map(Integer::valueOf)
+                                .collect(Collectors.toSet());
+
+                        int clientDayIndex = today.getValue() - 1;
+
+                        boolean isRepeatDay = repeatDays.contains(clientDayIndex);
+                        boolean isDueToday = todo.getDueDate() != null && todo.getDueDate().toLocalDate().isEqual(now.toLocalDate());
+                        boolean alreadyCreatedToday = titlesDueToday.contains(todo.getTitle());
+                        // 💡 [수정] 중복 생성 방지 로직 강화
+                        if (isRepeatDay && !isDueToday && !alreadyCreatedToday) {
+
+                            // Todo 복제 및 마감일 설정
+                            TodoList newTodo = new TodoList();
+                            newTodo.setUserId(userId);
+                            newTodo.setFolderId(todo.getFolderId());
+                            newTodo.setTitle(todo.getTitle());
+                            newTodo.setTdFixed(false);
+                            newTodo.setIsCompleted(false);
+
+                            // 💡 [수정 시작] LocalTime 호환성 오류 해결 로직
+                            LocalDateTime originalDateTime = todo.getDueDate();
+                            LocalTime originalTime;
+
+                            if (originalDateTime != null) {
+                                originalTime = originalDateTime.toLocalTime();
+                            } else {
+                                originalTime = LocalTime.of(23, 59, 0);
+                            }
+
+                            LocalDateTime newDueDate = now.with(originalTime); // 💡 [수정] now를 기준으로 originalTime을 적용
+                            newTodo.setDueDate(newDueDate);
+                            // 💡 [수정 끝]
+
+                            Optional<Integer> maxOrderIndex = todoListRepository.findMaxOrderIndexByUserId(userId);
+                            int newOrderIndex = maxOrderIndex.map(index -> index + 1).orElse(0);
+                            newTodo.setOrderIndex(newOrderIndex);
+
+                            newTodo.setCreateDate(LocalDateTime.now(kstZone));
+                            newTodo.setRepeatDays(todo.getRepeatDays());
+                            newTodo.setAutoMigrate(todo.getAutoMigrate());
+
+                            newTodosToAdd.add(newTodo);
+                            titlesDueToday.add(newTodo.getTitle());
                         }
                     }
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // 💡 [수정] 이월 처리된 항목을 포함한 리스트
+
+        // 💡 [수정] 새로 생성된 Todo 항목 저장 및 목록에 추가
+        List<TodoList> savedNewTodos = todoListRepository.saveAll(newTodosToAdd);
+        todos.addAll(savedNewTodos); // 💡 [수정] 원본 리스트(todos)에 추가하여 최종 리스트 구성
 
         // 3. TodoList를 TodoResponse로 변환 (SubTodo 정보 포함)
-        List<TodoResponse> todoResponses = updatedTodos.stream()
+        List<TodoResponse> todoResponses = todos.stream() // 💡 [수정] 최종 리스트인 todos 사용
                 .map(todo -> convertToTodoResponse(todo, folderNameMap.getOrDefault(todo.getFolderId(), "알 수 없음")))
                 .collect(Collectors.toList());
 
@@ -112,13 +182,6 @@ public class TodoListService {
                 .build();
     }
 
-    /**
-     * 새로운 할 일 항목을 생성하고 저장합니다.
-     *
-     * @param userId 사용자 ID
-     * @param request Todo 생성 요청 DTO
-     * @return 생성된 Todo 항목의 Response DTO
-     */
     @Transactional
     public TodoResponse createTodo(String userId, TodoCreateRequest request) {
         // 1. 폴더 존재 여부 확인
@@ -136,35 +199,25 @@ public class TodoListService {
             finalDueDate = nowKst.with(LocalTime.of(23, 59, 0));
         }
 
-        // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
-        finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst);
+        finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst); // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
 
         TodoList newTodo = new TodoList();
         newTodo.setUserId(userId);
         newTodo.setFolderId(request.getFolderId());
         newTodo.setTitle(request.getTitle());
         newTodo.setTdFixed(request.getTdFixed() != null ? request.getTdFixed() : false);
-        newTodo.setIsCompleted(false); // 새로 생성되는 항목은 항상 미완료
+        newTodo.setIsCompleted(false);
         newTodo.setDueDate(finalDueDate);
-        newTodo.setOrderIndex(newOrderIndex); // 새 항목을 목록 끝에 추가
+        newTodo.setOrderIndex(newOrderIndex);
         newTodo.setCreateDate(LocalDateTime.now());
         newTodo.setRepeatDays(request.getRepeatDays());
         newTodo.setAutoMigrate(request.getAutoMigrate());
 
         TodoList savedTodo = todoListRepository.save(newTodo);
 
-        // 생성 시점에는 하위 할 일이 없으므로 빈 리스트 반환
         return TodoResponse.fromEntity(savedTodo, folder.getName(), Collections.emptyList());
     }
 
-    /**
-     * 기존 할 일 항목을 수정합니다.
-     *
-     * @param userId 사용자 ID (권한 확인용)
-     * @param todoId 수정할 할 일 ID
-     * @param request Todo 수정 요청 DTO
-     * @return 수정된 Todo 항목의 Response DTO
-     */
     @Transactional
     public TodoResponse updateTodo(String userId, Integer todoId, TodoUpdateRequest request) {
         TodoList todo = todoListRepository.findById(todoId)
@@ -174,9 +227,8 @@ public class TodoListService {
             throw new SecurityException("Todo를 수정할 권한이 없습니다.");
         }
 
-        // 💡 [추가] nowKst 변수 정의
         ZoneId kstZone = ZoneId.of("Asia/Seoul");
-        LocalDateTime nowKst = LocalDateTime.now(kstZone);
+        LocalDateTime nowKst = LocalDateTime.now(kstZone); // 💡 [추가] nowKst 변수 정의
 
         // 1. 폴더 존재 여부 확인 및 폴더 이름 조회
         TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
@@ -211,18 +263,9 @@ public class TodoListService {
         todo.setRepeatDays(request.getRepeatDays());
         todo.setAutoMigrate(request.getAutoMigrate());
 
-        // save() 호출 없이 @Transactional에 의해 자동 업데이트
-        return convertToTodoResponse(todo, folder.getName()); // 수정된 부분: 헬퍼 메소드 사용
+        return convertToTodoResponse(todo, folder.getName());
     }
 
-    /**
-     * Todo 항목의 고정 상태(tdFixed)를 토글합니다.
-     * (프론트엔드 handleToggleFixed에 매핑)
-     *
-     * @param userId 사용자 ID
-     * @param todoId 고정 상태를 변경할 할 일 ID
-     * @return 변경된 Todo 항목의 Response DTO
-     */
     @Transactional
     public TodoResponse toggleFixed(String userId, Integer todoId) {
         TodoList todo = todoListRepository.findById(todoId)
@@ -238,16 +281,9 @@ public class TodoListService {
         TodoFolder folder = todoFolderRepository.findById(todo.getFolderId())
                 .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다."));
 
-        return convertToTodoResponse(todo, folder.getName()); // 수정된 부분: 헬퍼 메소드 사용
+        return convertToTodoResponse(todo, folder.getName());
     }
 
-    /**
-     * Todo 항목을 삭제합니다.
-     * (프론트엔드 handleToggleComplete에 매핑 - 프론트에서 완료 시 DB에서 바로 삭제하는 로직)
-     *
-     * @param userId 사용자 ID
-     * @param todoId 삭제할 할 일 ID
-     */
     @Transactional
     public void deleteTodo(String userId, Integer todoId) {
         TodoList todo = todoListRepository.findById(todoId)
@@ -259,19 +295,9 @@ public class TodoListService {
 
         todoListRepository.delete(todo);
 
-        /*
-         * Note: DB 스키마에 fk_subtodo_todo 외래 키에 ON DELETE CASCADE가 설정되어 있으므로,
-         * TodoList 삭제 시 SubTodoList도 자동으로 삭제될 것으로 예상하고 명시적 삭제 로직은 추가하지 않습니다.
-         */
+        /* Note: 외래 키 제약조건으로 인해 SubTodoList도 자동 삭제 예상 */
     }
 
-    /**
-     * Todo 항목의 순서를 업데이트합니다.
-     * (프론트엔드 handleReorderTodos에 매핑)
-     *
-     * @param userId 사용자 ID
-     * @param requests 순서가 변경된 Todo 목록 DTO
-     */
     @Transactional
     public void reorderTodos(String userId, List<TodoReorderRequest> requests) {
         if (requests == null || requests.isEmpty()) {
@@ -286,19 +312,7 @@ public class TodoListService {
                 throw new SecurityException("Todo를 수정할 권한이 없습니다: " + request.getTodoId());
             }
 
-            // 요청된 새로운 순서 인덱스로 업데이트
             todo.setOrderIndex(request.getOrderIndex());
         }
-        // JpaRepository.saveAll(iterable)을 사용하여 일괄 업데이트도 가능하지만,
-        // @Transactional 내부에서 엔티티를 로드하여 변경하면 자동 Dirty Checking을 통해 업데이트됩니다.
     }
-
-    /**
-     * SubTodo (부제/상세 내용)를 삭제합니다.
-     * (프론트엔드 handleDeleteSubTodo에 매핑)
-     *
-     * @param userId 사용자 ID
-     * @param todoId SubTitle을 삭제할 할 일 ID
-     * @return 변경된 Todo 항목의 Response DTO
-     */
 }
