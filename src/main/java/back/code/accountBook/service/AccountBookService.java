@@ -85,44 +85,82 @@ public class AccountBookService {
         accountBookRepository.save(account);
 
         // 반복설정 저장
+        // if (request.getRecurring() != null) {
+        //     for (AccountBookDTO.RecurringDTO recurringDTO : request.getRecurring()) {
+
+        //         // 기존 엔티티 찾거나 새로 생성
+        //         RecurringSettingEntity recurringEntity = recurringRepository.findByAccount(account)
+        //             .orElseGet(() -> {
+        //                 RecurringSettingEntity r = new RecurringSettingEntity();
+        //                 r.setAccount(account);
+        //                 return r;
+        //             });
+
+        //         // 작성일을 반복 시작일로 설정
+        //         recurringDTO.setStartDate(account.getDate());
+
+        //         // 다음 반복일 계산
+        //         LocalDate nextDate = calculateNextRecurringDate(recurringDTO.getStartDate(), recurringDTO);
+        //         recurringDTO.setNextDate(nextDate);
+
+        //         // DTO 값을 기존 Entity에 적용
+        //         recurringDTO.to(recurringEntity);
+
+        //         // 저장
+        //         recurringRepository.save(recurringEntity);
+        //     }
+        // }
+
         if (request.getRecurring() != null) {
-            for (AccountBookDTO.RecurringDTO recurringDTO : request.getRecurring()) {
+            AccountBookDTO.RecurringDTO recurringDTO = request.getRecurring();
 
-                // 기존 엔티티 찾거나 새로 생성
-                RecurringSettingEntity recurringEntity = recurringRepository.findByAccount(account)
-                    .orElseGet(() -> {
-                        RecurringSettingEntity r = new RecurringSettingEntity();
-                        r.setAccount(account);
-                        return r;
-                    });
+            // 기존 엔티티 찾거나 새로 생성
+            RecurringSettingEntity recurringEntity = recurringRepository.findByAccount(account)
+                .orElseGet(() -> {
+                    RecurringSettingEntity r = new RecurringSettingEntity();
+                    r.setAccount(account);
+                    return r;
+                });
 
-                // 작성일을 반복 시작일로 설정
-                recurringDTO.setStartDate(account.getDate());
+            // 작성일을 반복 시작일로 설정
+            recurringDTO.setStartDate(account.getDate());
 
-                // 다음 반복일 계산
-                LocalDate nextDate = calculateNextRecurringDate(recurringDTO.getStartDate(), recurringDTO);
-                recurringDTO.setNextDate(nextDate);
+            // 다음 반복일 계산
+            LocalDate nextDate = calculateNextRecurringDate(recurringDTO.getStartDate(), recurringDTO);
+            recurringDTO.setNextDate(nextDate);
 
-                // DTO 값을 기존 Entity에 적용
-                recurringDTO.to(recurringEntity);
+            // DTO 값을 기존 Entity에 적용
+            recurringDTO.to(recurringEntity);
 
-                // 저장
-                recurringRepository.save(recurringEntity);
-            }
+            // 저장
+            recurringRepository.save(recurringEntity);
         }
 
         // 할부설정 저장
-        if (request.getInstallment() != null) {
-            for (AccountBookDTO.InstallmentDTO installmentDTO : request.getInstallment()) {
-                if (installmentDTO.getStartDate() == null) {
-                    installmentDTO.setStartDate(account.getDate());
-                }
+        // if (request.getInstallment() != null) {
+        //     for (AccountBookDTO.InstallmentDTO installmentDTO : request.getInstallment()) {
+        //         if (installmentDTO.getStartDate() == null) {
+        //             installmentDTO.setStartDate(account.getDate());
+        //         }
 
-                InstallmentSettingEntity installmentEntity = new InstallmentSettingEntity();
-                installmentEntity.setAccount(account);
-                installmentDTO.to(installmentEntity);
-                installmentRepository.save(installmentEntity);
+        //         InstallmentSettingEntity installmentEntity = new InstallmentSettingEntity();
+        //         installmentEntity.setAccount(account);
+        //         installmentDTO.to(installmentEntity);
+        //         installmentRepository.save(installmentEntity);
+        //     }
+        // }
+
+        if (request.getInstallment() != null) {
+            AccountBookDTO.InstallmentDTO installmentDTO = request.getInstallment();
+
+            if (installmentDTO.getStartDate() == null) {
+                installmentDTO.setStartDate(account.getDate());
             }
+
+            InstallmentSettingEntity installmentEntity = new InstallmentSettingEntity();
+            installmentEntity.setAccount(account);
+            installmentDTO.to(installmentEntity);
+            installmentRepository.save(installmentEntity);
         }
 
         // 파일 업로드
@@ -223,38 +261,71 @@ public class AccountBookService {
         AccountBookEntity newAccount = request.to(account, user, category, savingGoal);
 
         // 반복 설정
+        // if (request.getRecurring() != null) {
+        //     for (AccountBookDTO.RecurringDTO recurringDTO : request.getRecurring()) {
+        //         RecurringSettingEntity recurring = recurringRepository.findByAccount(account)
+        //             .orElseGet(() -> {
+        //                 RecurringSettingEntity r = recurringDTO.to(new RecurringSettingEntity());
+        //                 r.setAccount(account);
+        //                 return recurringRepository.save(r);
+        //             });
+
+        //         // DTO -> Entity
+        //         recurringDTO.to(recurring);
+        //         // 반복종료 체크
+        //         checkRecurring(recurring);
+
+        //         recurringRepository.save(recurring);
+        //     }
+        // }
+
         if (request.getRecurring() != null) {
-            for (AccountBookDTO.RecurringDTO recurringDTO : request.getRecurring()) {
-                RecurringSettingEntity recurring = recurringRepository.findByAccount(account)
-                    .orElseGet(() -> {
-                        RecurringSettingEntity r = recurringDTO.to(new RecurringSettingEntity());
-                        r.setAccount(account);
-                        return recurringRepository.save(r);
-                    });
+            AccountBookDTO.RecurringDTO recurringDTO = request.getRecurring();
 
-                // DTO -> Entity
-                recurringDTO.to(recurring);
-                // 반복종료 체크
-                checkRecurring(recurring);
+            RecurringSettingEntity recurring = recurringRepository.findByAccount(account)
+                .orElseGet(() -> {
+                    RecurringSettingEntity r = recurringDTO.to(new RecurringSettingEntity());
+                    r.setAccount(account);
+                    return recurringRepository.save(r);
+                });
 
-                recurringRepository.save(recurring);
-            }
+            // DTO -> Entity
+            recurringDTO.to(recurring);
+            // 반복종료 체크
+            checkRecurring(recurring);
+
+            recurringRepository.save(recurring);
         }
 
         // 할부 설정 처리
-        if (request.getInstallment() != null) {
-            for (AccountBookDTO.InstallmentDTO installmentDTO : request.getInstallment()) {
-                InstallmentSettingEntity installment = installmentRepository.findByAccount(account)
-                    .orElseGet(() -> {
-                        InstallmentSettingEntity i = installmentDTO.to(new InstallmentSettingEntity());
-                        i.setAccount(account);
-                        return installmentRepository.save(i);
-                    });
+        // if (request.getInstallment() != null) {
+        //     for (AccountBookDTO.InstallmentDTO installmentDTO : request.getInstallment()) {
+        //         InstallmentSettingEntity installment = installmentRepository.findByAccount(account)
+        //             .orElseGet(() -> {
+        //                 InstallmentSettingEntity i = installmentDTO.to(new InstallmentSettingEntity());
+        //                 i.setAccount(account);
+        //                 return installmentRepository.save(i);
+        //             });
 
-                // DTO -> Entity
-                installmentDTO.to(installment);
-                installmentRepository.save(installment);
-            }
+        //         // DTO -> Entity
+        //         installmentDTO.to(installment);
+        //         installmentRepository.save(installment);
+        //     }
+        // }
+
+        if (request.getInstallment() != null) {
+            AccountBookDTO.InstallmentDTO installmentDTO = request.getInstallment();
+
+            InstallmentSettingEntity installment = installmentRepository.findByAccount(account)
+                .orElseGet(() -> {
+                    InstallmentSettingEntity i = installmentDTO.to(new InstallmentSettingEntity());
+                    i.setAccount(account);
+                    return installmentRepository.save(i);
+                });
+
+            // DTO -> Entity
+            installmentDTO.to(installment);
+            installmentRepository.save(installment);
         }
 
         // 저장

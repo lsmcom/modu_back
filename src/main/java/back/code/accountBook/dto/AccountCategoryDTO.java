@@ -17,6 +17,7 @@ public class AccountCategoryDTO {
         private AccountType type;
         private Boolean isDefault;
         private String userId;
+        private String color;
 
         public static Response of(AccountCategoryEntity entity) {
             return Response.builder()
@@ -25,6 +26,7 @@ public class AccountCategoryDTO {
                     .type(entity.getType())
                     .isDefault(entity.getIsDefault())
                     .userId(entity.getUser() != null ? entity.getUser().getUserId() : null)
+                    .color(entity.getColor())
                     .build();
         }
     }

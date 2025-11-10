@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 
 import back.code.accountBook.dto.AccountSavingGoalDTO;
 import back.code.accountBook.dto.BudgetDTO;
+import back.code.accountBook.entity.AccountBookEntity;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.entity.BudgetEntity;
+import back.code.accountBook.repository.AccountBookRepository;
 import back.code.accountBook.repository.BudgetRepository;
 import back.code.accountBook.repository.CategoryRepository;
 import back.code.accountBook.repository.SavingGoalRepository;
@@ -30,6 +32,7 @@ public class AccountSettingService {
     private final SavingGoalRepository savingGoalRepository;
     private final BudgetRepository budgetRepository;
     private final CategoryRepository categoryRepository;
+    private final AccountBookRepository accountBookRepository;
 
     // 작성창용 저축목표
     @Transactional
@@ -122,6 +125,14 @@ public class AccountSettingService {
         if (!goals.getUser().getUserId().equals(userId)) {
             throw new IllegalArgumentException("해당 저축목표에 대한 권한이 없습니다.");
         }
+        // 해당 목표를 참조 중인 가계부 내역 가져오기
+        List<AccountBookEntity> relatedBooks = accountBookRepository.findByGoal(goals);
+        // 참조 해제
+        for (AccountBookEntity book : relatedBooks) {
+            book.setGoal(null);
+        }
+        // 저장
+        accountBookRepository.saveAll(relatedBooks);
         // DTO로 변경
         AccountSavingGoalDTO.Response result = AccountSavingGoalDTO.Response.of(goals);
         // 저장
@@ -177,7 +188,7 @@ public class AccountSettingService {
                     return b;
                 });
 
-        budget.setBudgetAmount(totalBudget);
+        budget.setBudgetAmount(totalBudget != null ? totalBudget : 0);
         budgetRepository.save(budget);
     }
 
@@ -205,7 +216,7 @@ public class AccountSettingService {
                         return b;
                     });
 
-            budget.setBudgetAmount(cb.getBudgetAmount());
+            budget.setBudgetAmount(cb.getBudgetAmount() != null ? cb.getBudgetAmount() : 0);
             budgetRepository.save(budget);
         }
     }

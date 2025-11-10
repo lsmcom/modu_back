@@ -225,8 +225,8 @@ public class AccountBookDTO {
         private Integer categoryId;
         private Integer savingGoalId;
         private List<String> existingFileIds;
-        private List<RecurringDTO> recurring;
-        private List<InstallmentDTO> installment;
+        private RecurringDTO recurring;
+        private InstallmentDTO installment;
 
         public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,
@@ -322,5 +322,9 @@ public class AccountBookDTO {
             return entity;
         }
     }
+
+
+
+
 
 }

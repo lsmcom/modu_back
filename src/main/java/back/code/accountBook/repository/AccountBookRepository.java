@@ -2,6 +2,7 @@ package back.code.accountBook.repository;
 
 import back.code.accountBook.dto.AccountProjection;
 import back.code.accountBook.entity.AccountBookEntity;
+import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.entity.InstallmentSettingEntity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -83,5 +84,8 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
           order by i.startDate DESC
         """)
     List<InstallmentSettingEntity> findAllByUserIdWithAccount(@Param("userId") String userId);
+
+    // 가계부의 특정목표 찾기
+    List<AccountBookEntity> findByGoal(AccountSavingsGoalEntity goal);
 
 }
