@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,23 @@ public class TodoListService {
         return TodoResponse.fromEntity(todo, folderName, subTodoResponses);
     }
 
+    // 💡 [추가] 익일 자동 이월 처리 헬퍼 함수
+    private LocalDateTime processAutoMigrate(LocalDateTime dueDate, Boolean autoMigrate, LocalDateTime now) {
+        if (dueDate != null && autoMigrate != null && autoMigrate) {
+
+            // dueDate를 날짜만 비교하기 위해 시간 부분을 0으로 설정
+            LocalDateTime dueDateOnly = dueDate.with(LocalTime.MIN);
+            LocalDateTime nowOnly = now.with(LocalTime.MIN);
+
+            // 마감일이 현재 날짜보다 과거이고, 완료되지 않은 항목일 경우 이월
+            if (dueDateOnly.isBefore(nowOnly)) {
+                // 이월 로직: 마감일을 현재 날짜의 다음 날로 변경
+                return dueDateOnly.plusDays(1).with(dueDate.toLocalTime());
+            }
+        }
+        return dueDate;
+    }
+
     /**
      * 애플리케이션 초기 로드를 위한 전체 Todo와 폴더 목록을 조회합니다.
      *
@@ -64,8 +82,27 @@ public class TodoListService {
         // 2. 모든 TodoList 조회 (order_index 순으로 정렬되어 조회)
         List<TodoList> todos = todoListRepository.findByUserIdOrderByOrderIndexAsc(userId);
 
+        // 💡 [추가] 초기 데이터 로드 시에도 이월이 필요한 항목을 즉시 이월 처리합니다.
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        List<TodoList> updatedTodos = todos.stream()
+                .peek(todo -> {
+                    if (todo.getDueDate() != null &&
+                            (todo.getAutoMigrate() != null && todo.getAutoMigrate()) &&
+                            !todo.getIsCompleted() // 미완료된 항목만 이월
+                    ) {
+                        LocalDateTime migratedDate = processAutoMigrate(todo.getDueDate(), todo.getAutoMigrate(), now);
+                        if (!migratedDate.equals(todo.getDueDate())) {
+                            todo.setDueDate(migratedDate);
+                            // 💡 [추가] DB에 즉시 반영 (Dirty Checking)
+                            // todoListRepository.save(todo); // @Transactional이므로 명시적 save는 선택 사항이지만, 안전을 위해 호출 가능
+                        }
+                    }
+                })
+                .collect(Collectors.toList());
+
         // 3. TodoList를 TodoResponse로 변환 (SubTodo 정보 포함)
-        List<TodoResponse> todoResponses = todos.stream()
+        List<TodoResponse> todoResponses = updatedTodos.stream()
                 .map(todo -> convertToTodoResponse(todo, folderNameMap.getOrDefault(todo.getFolderId(), "알 수 없음")))
                 .collect(Collectors.toList());
 
@@ -98,6 +135,9 @@ public class TodoListService {
         if (finalDueDate == null) {
             finalDueDate = nowKst.with(LocalTime.of(23, 59, 0));
         }
+
+        // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
+        finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst);
 
         TodoList newTodo = new TodoList();
         newTodo.setUserId(userId);
@@ -134,6 +174,10 @@ public class TodoListService {
             throw new SecurityException("Todo를 수정할 권한이 없습니다.");
         }
 
+        // 💡 [추가] nowKst 변수 정의
+        ZoneId kstZone = ZoneId.of("Asia/Seoul");
+        LocalDateTime nowKst = LocalDateTime.now(kstZone);
+
         // 1. 폴더 존재 여부 확인 및 폴더 이름 조회
         TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다."));
@@ -153,7 +197,17 @@ public class TodoListService {
             todo.setTdFixed(request.getTdFixed());
         }
 
-        todo.setDueDate(request.getDueDate());
+        LocalDateTime newDueDate = request.getDueDate();
+
+        // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (수정 시점 체크)
+        if (newDueDate != null) {
+            // 이월 로직: isCompleted가 false인 경우에만 이월 처리
+            if (!todo.getIsCompleted()) { // 💡 [추가] 미완료 상태인 경우에만 이월 로직을 태웁니다.
+                newDueDate = processAutoMigrate(newDueDate, request.getAutoMigrate(), nowKst);
+            }
+        }
+
+        todo.setDueDate(newDueDate); // 💡 [수정] 이월 처리된 newDueDate 사용
         todo.setRepeatDays(request.getRepeatDays());
         todo.setAutoMigrate(request.getAutoMigrate());
 
