@@ -77,4 +77,13 @@ public class FileRestController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    /**
+     * 파일 다운로드 API
+     */
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) throws IOException {
+        log.info("[FileController] Download request: {}", fileId);
+        return fileService.downloadFile(fileId);
+    }
 }

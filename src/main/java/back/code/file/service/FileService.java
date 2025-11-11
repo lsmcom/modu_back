@@ -10,6 +10,11 @@ import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +24,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -227,5 +236,40 @@ public class FileService {
         // 이미 저장된 파일을 DB에서 조회하여 반환
         return fileRepository.findById(dto.getFileId())
                 .orElseThrow(() -> new RuntimeException("파일 업로드 후 조회 실패"));
+    }
+
+    /**
+     * 파일 다운로드용 ResponseEntity<Resource> 생성
+     */
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> downloadFile(String fileId) throws IOException {
+
+        // DB에서 파일 정보 조회
+        FileEntity file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 파일입니다."));
+
+        // 실제 파일 경로
+        Path filePath = Paths.get(file.getFilePath(), file.getStoredName());
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new RuntimeException("파일을 찾을 수 없거나 읽을 수 없습니다.");
+        }
+
+        // 한글 및 공백 파일명 인코딩
+        String originalName = file.getFileName() != null ? file.getFileName() : file.getStoredName();
+        String encodedName = URLEncoder.encode(originalName, StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20"); // 공백 -> %20
+
+        // MIME 타입 자동 감지
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        log.info("[FileService] 파일 다운로드 요청 fileId={}, name={}", fileId, originalName);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedName)
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(resource);
     }
 }

@@ -7,11 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CommunityPostSettingDTO {
-    private Character isPublic;
-    private Character isSearch;
-    private Character isComment;
-    private Character isInShare;
-    private Character isCopy;
-    private Character isOutShare;
+    private String isPublic;
+    private String isSearch;
+    private String isComment;
+    private String isInShare;
+    private String isCopy;
+    private String isOutShare;
     private ImageSizeType imageSizeType;
 }
