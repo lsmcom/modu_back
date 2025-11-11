@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -108,8 +109,21 @@ public class PlanService {
 
     /** 사용자별 일정 전체 목록 */
     @Transactional(readOnly = true)
-    public List<PlanEntity> getPlansByUser(UserEntity user) {
-        return planRepository.findByUserWithFolder(user);
+    public List<PlanResponse> getPlansByUser(UserEntity user) {
+        // 본인 일정
+        List<PlanEntity> ownPlans = planRepository.findByUserWithFolder(user);
+
+        // 공유받은 일정 (fetch join으로 계획까지 즉시 로딩)
+        List<PlanShareEntity> shared = planShareRepository.findBySharedUserWithPlan(user);
+        List<PlanEntity> receivedPlans = shared.stream()
+                .map(PlanShareEntity::getPlan)
+                .toList();
+
+        // 두 목록 병합
+        return Stream.concat(ownPlans.stream(), receivedPlans.stream())
+                .distinct()
+                .map(PlanResponse::fromEntity)
+                .toList();
     }
 
     /** 공유 사용자 추가 */

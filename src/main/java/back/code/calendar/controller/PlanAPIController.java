@@ -50,11 +50,13 @@ public class PlanAPIController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PlanResponse>> getPlansByUser(@PathVariable String userId) {
-        UserEntity user = new UserEntity();
-        user.setUserId(userId);
-        List<PlanResponse> plans = planService.getPlansByUser(user)
-                .stream().map(PlanResponse::fromEntity).toList();
-        plans.forEach(p -> System.out.println("[DEBUG] planId=" + p.getPlanId() + ", folderType=" + p.getFolderType()));
+        // 트랜지언트 객체 대신 레퍼런스/조회 권장
+        UserEntity user = userRepository.getReferenceById(userId); // 또는 findById(...).orElseThrow(...)
+
+        List<PlanResponse> plans = planService.getPlansByUser(user);
+        plans.forEach(p ->
+                System.out.println("[DEBUG] planId=" + p.getPlanId() + ", folderType=" + p.getFolderType())
+        );
         return ResponseEntity.ok(plans);
     }
 
