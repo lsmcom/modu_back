@@ -38,17 +38,10 @@ public class RecurringAccountScheduler {
             List<RecurringSettingEntity> recurringList =
                     recurringRepository.findByNextDateAndIsActiveTrue(today);
 
-            int successCount = 0;
-            int failCount = 0;
-
             for (RecurringSettingEntity recurring : recurringList) {
-                try {
                     // 1. 원본 가계부 조회
                     AccountBookEntity originalAccount = recurring.getAccount();
-
                     if (originalAccount == null) {
-                        log.warn("원본 가계부를 찾을 수 없음: recurringId={}", recurring.getRecurringId());
-                        failCount++;
                         continue;
                     }
 
@@ -70,18 +63,12 @@ public class RecurringAccountScheduler {
                     }
 
                     recurringRepository.save(recurring);
-                    successCount++;
 
-                } catch (Exception e) {
-                    failCount++;
                 }
-            }
-
-        } catch (Exception e) {
-            log.error("반복 가계부 스케줄러 실행 중 오류 발생", e);
+            } catch (Exception e) {
+            log.error("가계부 스케줄러 실행 중 오류 발생", e);
         }
     }
-
 
     // 원본 가계부를 복사하여 새로운 반복 내역 생성
     private AccountBookEntity createRecurringAccount(AccountBookEntity original, LocalDate newDate) {

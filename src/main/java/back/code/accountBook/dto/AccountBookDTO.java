@@ -33,8 +33,8 @@ public class AccountBookDTO {
         private String userId;
         private  Integer categoryId;
         private String categoryName;
-        private Integer savingsGoalId;
-        private String savingsGoalName;
+        private Integer savingGoalId;
+        private String savingGoalName;
         private String content;
 
         public static Response of (AccountBookEntity entity){
@@ -47,8 +47,8 @@ public class AccountBookDTO {
                     .userId(entity.getUser().getUserId())
                     .categoryId(entity.getCategory().getCategoryId())
                     .categoryName(entity.getCategory().getCategoryName())
-                    .savingsGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
-                    .savingsGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
+                    .savingGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
+                    .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .content(entity.getContent())
                     .build();
         }
@@ -70,7 +70,7 @@ public class AccountBookDTO {
         private String userId;
         private Integer categoryId;
         private String categoryName;
-        private Integer savingsGoalId;
+        private Integer savingGoalId;
         private String savingGoalName;
         private List<FileDTO> files;
         private RecurringDTO recurring;
@@ -95,7 +95,7 @@ public class AccountBookDTO {
                     .userId(entity.getUser().getUserId())
                     .categoryId(entity.getCategory().getCategoryId())
                     .categoryName(entity.getCategory().getCategoryName())
-                    .savingsGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
+                    .savingGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
                     .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .files(files)
                     .recurring(recurring != null ? RecurringDTO.of(recurring) : null)
@@ -238,7 +238,7 @@ public class AccountBookDTO {
         public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,
                                     AccountCategoryEntity category,
-                                    AccountSavingsGoalEntity savingsGoal) {
+                                    AccountSavingsGoalEntity savingGoal) {
             account.setAccountId(this.accountBookId);
             account.setType(this.type);
             account.setDate(this.date);
@@ -247,7 +247,7 @@ public class AccountBookDTO {
             account.setContent(this.content);
             account.setUser(user);
             account.setCategory(category);
-            account.setGoal(savingsGoal);
+            account.setGoal(savingGoal);
 
             return account;
         }

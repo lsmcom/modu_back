@@ -37,6 +37,7 @@ public class AccountBookController {
                                             @RequestPart("request") AccountBookDTO.Request request,
                                             @RequestPart(value = "files", required = false) List<MultipartFile> files) throws Exception{
         AccountBookDTO.Detail result = accountBookService.updateAccount(request,files);
+        System.out.println("request22" + request);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
