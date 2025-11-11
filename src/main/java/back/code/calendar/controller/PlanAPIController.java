@@ -1,6 +1,8 @@
 package back.code.calendar.controller;
 
+import back.code.calendar.dto.PlanCreateRequestDTO;
 import back.code.calendar.dto.PlanResponse;
+import back.code.calendar.dto.PlanUpdateRequestDTO;
 import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.calendar.entity.PlanEntity;
 import back.code.calendar.entity.PlanShareEntity;
@@ -24,42 +26,24 @@ public class PlanAPIController {
 
     /** 일정 등록 */
     @PostMapping
-    public ResponseEntity<PlanEntity> createPlan(@RequestBody PlanEntity plan) {
-        // folderId 유효성 확인 및 실제 엔티티로 교체
-        if (plan.getFolder() != null && plan.getFolder().getFolderId() != null) {
-            Long folderId = plan.getFolder().getFolderId();
-            CalendarFolderEntity folder = calendarFolderRepository.findById(folderId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID: " + folderId));
-            plan.setFolder(folder);
-        } else {
-            throw new IllegalArgumentException("폴더 ID가 누락되었습니다.");
-        }
-
-        // userId 유효성 확인 및 실제 엔티티로 교체
-        if (plan.getUser() != null && plan.getUser().getUserId() != null) {
-            String userId = plan.getUser().getUserId();
-            UserEntity user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 ID: " + userId));
-            plan.setUser(user);
-        } else {
-            throw new IllegalArgumentException("사용자 ID가 누락되었습니다.");
-        }
-
-        // Plan 저장
-        PlanEntity savedPlan = planService.createPlan(plan);
-        return ResponseEntity.ok(savedPlan);
+    public ResponseEntity<PlanResponse> createPlan(@RequestBody PlanCreateRequestDTO request) {
+        return ResponseEntity.ok(planService.createPlan(request));
     }
 
     /** 일정 수정 */
     @PutMapping("/{planId}")
-    public ResponseEntity<PlanEntity> updatePlan(
-            @PathVariable String planId, @RequestBody PlanEntity updated) {
-        return ResponseEntity.ok(planService.updatePlan(planId, updated));
+    public ResponseEntity<PlanResponse> updatePlan(
+            @PathVariable Long planId,
+            @RequestBody PlanUpdateRequestDTO request) {
+
+        PlanEntity updated = planService.updatePlan(planId, request);
+        return ResponseEntity.ok(PlanResponse.fromEntity(updated));
     }
+
 
     /** 일정 삭제 */
     @DeleteMapping("/{planId}")
-    public ResponseEntity<Void> deletePlan(@PathVariable String planId) {
+    public ResponseEntity<Void> deletePlan(@PathVariable Long planId) {
         planService.deletePlan(planId);
         return ResponseEntity.noContent().build();
     }
@@ -70,15 +54,15 @@ public class PlanAPIController {
         user.setUserId(userId);
         List<PlanResponse> plans = planService.getPlansByUser(user)
                 .stream().map(PlanResponse::fromEntity).toList();
+        plans.forEach(p -> System.out.println("[DEBUG] planId=" + p.getPlanId() + ", folderType=" + p.getFolderType()));
         return ResponseEntity.ok(plans);
     }
 
     /** 폴더별 일정 */
     @GetMapping("/folder/{folderId}")
-    public ResponseEntity<List<PlanEntity>> getPlansByFolder(@PathVariable Long folderId) {
-        CalendarFolderEntity folder = new CalendarFolderEntity();
-        folder.setFolderId(folderId);
-        return ResponseEntity.ok(planService.getPlansByFolder(folder));
+    public ResponseEntity<List<PlanResponse>> getPlansByFolder(@PathVariable Long folderId) {
+        List<PlanResponse> response = planService.getPlansByFolder(folderId);
+        return ResponseEntity.ok(response);
     }
 
     /** 일정 공유자 목록 */
@@ -109,6 +93,16 @@ public class PlanAPIController {
         user.setUserId(sharedUserId);
         planService.removeSharedUser(plan, user);
         return ResponseEntity.noContent().build();
+    }
+
+    // 공유 일정 색상 변경
+    @PutMapping("/shared/color")
+    public ResponseEntity<String> updateSharedPlanColors(
+            @RequestParam String userId,
+            @RequestParam String color
+    ) {
+        planService.updateSharedPlanColors(userId, color);
+        return ResponseEntity.ok("공유 일정 색상 변경 완료");
     }
 }
 

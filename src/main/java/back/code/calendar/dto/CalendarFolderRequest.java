@@ -13,4 +13,5 @@ public class CalendarFolderRequest {
 
     private String userId;      // user01
     private String folderName;  // 폴더명
+    private String folderType;  // 폴더타입(일반, 공유)
 }

@@ -78,3 +78,10 @@ VALUES
 -- 폴더4 일정
 ('user01', 4, '폴더4일정1', '클라이언트 미팅', '2025-11-11 11:00:00', '2025-11-11 12:00:00', '없음', '#20B2AA', '없음'),
 ('user01', 4, '폴더4일정2', '개발 리뷰', '2025-11-12 16:00:00', '2025-11-12 18:00:00', '없음', '#FF6347', '없음');
+
+ALTER TABLE calendar_folder
+    ADD COLUMN folder_type VARCHAR(20) DEFAULT 'PERSONAL' COMMENT '폴더 유형 (PERSONAL, SHARED)';
+
+INSERT INTO calendar_folder (user_id, folder_name, folder_type)
+VALUES
+    ('user01', '공유 폴더', 'SHARED');

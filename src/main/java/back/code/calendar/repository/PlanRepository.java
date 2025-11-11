@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PlanRepository extends JpaRepository<PlanEntity, String> {
+public interface PlanRepository extends JpaRepository<PlanEntity, Long> {
 
     /* 특정 사용자 전체 일정 (folder까지 즉시 로딩) */
     @Query("SELECT p FROM PlanEntity p JOIN FETCH p.folder WHERE p.user = :user")
@@ -22,5 +22,10 @@ public interface PlanRepository extends JpaRepository<PlanEntity, String> {
 
     // 특정 폴더의 일정
     List<PlanEntity> findByFolder(CalendarFolderEntity folder);
+
+    // folderId로 직접 조회 + folder 즉시 로딩
+    @Query("SELECT p FROM PlanEntity p JOIN FETCH p.folder WHERE p.folder.folderId = :folderId")
+    List<PlanEntity> findByFolder_FolderId(@Param("folderId") Long folderId);
+
 }
 

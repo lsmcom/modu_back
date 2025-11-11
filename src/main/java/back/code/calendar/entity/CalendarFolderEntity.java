@@ -37,6 +37,9 @@ public class CalendarFolderEntity {
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
+    @Column(name = "folder_type", length = 20, nullable = false)
+    private String folderType = "PERSONAL";
+
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<PlanEntity> plans;
