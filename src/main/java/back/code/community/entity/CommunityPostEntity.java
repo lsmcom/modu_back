@@ -55,4 +55,10 @@ public class CommunityPostEntity extends BaseTimeEntity {
                 .isTemporary(isTemporary == null ? 'N' : isTemporary)
                 .build();
     }
+
+    // 조회수 증가 메서드
+    public void increaseReadCount() {
+        if (readCount == null) readCount = 0;
+        this.readCount++;
+    }
 }

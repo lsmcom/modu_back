@@ -3,6 +3,7 @@ package back.code.community.controller;
 import back.code.common.dto.ApiResponse;
 import back.code.community.dto.CommunityPostCreateDTO;
 import back.code.community.dto.CommunityPostDTO;
+import back.code.community.dto.CommunityPostDetailDTO;
 import back.code.community.dto.CommunityPostFileDTO;
 import back.code.community.service.CommunityPostService;
 import lombok.RequiredArgsConstructor;
@@ -79,5 +80,12 @@ public class CommunityPostController {
     public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Integer postId) throws IOException {
         communityPostService.deletePost(postId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
+    }
+
+    /** 게시글 상세조회 */
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<CommunityPostDetailDTO>> getPostDetail(@PathVariable Integer postId) {
+        CommunityPostDetailDTO dto = communityPostService.getPostDetail(postId);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 }

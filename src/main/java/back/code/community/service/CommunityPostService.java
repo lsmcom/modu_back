@@ -1,7 +1,9 @@
 package back.code.community.service;
 
+import back.code.common.utils.FileUtils;
 import back.code.community.dto.CommunityPostCreateDTO;
 import back.code.community.dto.CommunityPostDTO;
+import back.code.community.dto.CommunityPostDetailDTO;
 import back.code.community.dto.CommunityPostFileDTO;
 import back.code.community.entity.CommunityBoardEntity;
 import back.code.community.entity.CommunityPostEntity;
@@ -11,6 +13,7 @@ import back.code.community.entity.enum_.FileRole;
 import back.code.community.repository.*;
 import back.code.file.entity.FileEntity;
 import back.code.file.event.OrphanFileCleanupEvent;
+import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,8 @@ public class CommunityPostService {
     private final FileService fileService;
     private final CommunityBoardRepository communityBoardRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final FileUtils fileUtils;
+    private final FileRepository fileRepository;
 
     /** 게시글 전체 목록 조회 */
     @Transactional(readOnly = true)
@@ -60,7 +66,7 @@ public class CommunityPostService {
         return communityFixedNoticeRepository.findFixedNotices();
     }
 
-    /** 게시글 등록 (임시저장, 파일 업로드 포함) */
+    /** 게시글 등록, 수정 (임시저장, 파일 업로드 포함) */
     @Transactional
     public Integer createPost(CommunityPostCreateDTO dto, List<MultipartFile> files) throws IOException {
 
@@ -94,8 +100,6 @@ public class CommunityPostService {
             }
         }
 
-        final boolean isTemp = Character.valueOf('Y').equals(dto.getIsTemporary());
-
         CommunityPostEntity post;
 
         // UPDATE 모드 (임시글 수정 or 최종 등록)
@@ -106,15 +110,13 @@ public class CommunityPostService {
             // 제목/내용/게시판/임시여부 갱신
             if (dto.getTitle() != null) post.setTitle(dto.getTitle());
             if (dto.getContents() != null) post.setContents(dto.getContents());
-            post.setIsTemporary(isTemp ? 'Y' : 'N');
+            post.setIsTemporary(Character.valueOf('Y').equals(dto.getIsTemporary()) ? 'Y' : 'N');
             post.setBoard(board);
 
             // 파일 갱신 로직
             List<String> keepIds = dto.getKeepFileIds() != null ? dto.getKeepFileIds() : new ArrayList<>();
-
             List<CommunityPostFileEntity> current = postFileRepository.findByPost_PostId(post.getPostId());
 
-            // keep 목록에 없는 매핑 삭제
             if (keepIds.isEmpty()) {
                 postFileRepository.deleteByPost_PostId(post.getPostId());
                 current.clear();
@@ -128,14 +130,12 @@ public class CommunityPostService {
                 int order = current.size() + 1;
                 for (MultipartFile f : files) {
                     FileEntity fe = fileService.uploadFileAndReturnEntity(f, user.getUserId(), "POST");
-
                     CommunityPostFileEntity mapping = CommunityPostFileEntity.builder()
                             .post(post)
                             .file(fe)
                             .fileOrder(order++)
                             .fileRole(FileRole.ATTACHMENT)
                             .build();
-
                     postFileRepository.save(mapping);
                 }
             }
@@ -154,14 +154,12 @@ public class CommunityPostService {
                 int order = 1;
                 for (MultipartFile f : files) {
                     FileEntity fe = fileService.uploadFileAndReturnEntity(f, user.getUserId(), "POST");
-
                     CommunityPostFileEntity mapping = CommunityPostFileEntity.builder()
                             .post(post)
                             .file(fe)
                             .fileOrder(order++)
                             .fileRole(FileRole.ATTACHMENT)
                             .build();
-
                     postFileRepository.save(mapping);
                 }
             }
@@ -177,29 +175,30 @@ public class CommunityPostService {
     private void saveOrUpdateSetting(CommunityPostCreateDTO dto, UserEntity user, CommunityPostEntity post) {
         if (dto.getSetting() == null) return;
 
+        var s = dto.getSetting();
         var existing = postSettingRepository.findByPost_PostId(post.getPostId()).orElse(null);
 
         if (existing != null) {
-            existing.setIsPublic(dto.getSetting().getIsPublic());
-            existing.setIsSearch(dto.getSetting().getIsSearch());
-            existing.setIsComment(dto.getSetting().getIsComment());
-            existing.setIsInShare(dto.getSetting().getIsInShare());
-            existing.setIsCopy(dto.getSetting().getIsCopy());
-            existing.setIsOutShare(dto.getSetting().getIsOutShare());
-            existing.setImageSizeType(dto.getSetting().getImageSizeType());
+            if (s.getIsPublic() != null) existing.setIsPublic(s.getIsPublic().charAt(0));
+            if (s.getIsSearch() != null) existing.setIsSearch(s.getIsSearch().charAt(0));
+            if (s.getIsComment() != null) existing.setIsComment(s.getIsComment().charAt(0));
+            if (s.getIsInShare() != null) existing.setIsInShare(s.getIsInShare().charAt(0));
+            if (s.getIsCopy() != null) existing.setIsCopy(s.getIsCopy().charAt(0));
+            if (s.getIsOutShare() != null) existing.setIsOutShare(s.getIsOutShare().charAt(0));
+            if (s.getImageSizeType() != null) existing.setImageSizeType(s.getImageSizeType());
             postSettingRepository.save(existing);
         } else {
             postSettingRepository.save(
                     CommunityPostSettingEntity.builder()
                             .post(post)
                             .user(user)
-                            .isPublic(dto.getSetting().getIsPublic())
-                            .isSearch(dto.getSetting().getIsSearch())
-                            .isComment(dto.getSetting().getIsComment())
-                            .isInShare(dto.getSetting().getIsInShare())
-                            .isCopy(dto.getSetting().getIsCopy())
-                            .isOutShare(dto.getSetting().getIsOutShare())
-                            .imageSizeType(dto.getSetting().getImageSizeType())
+                            .isPublic(s.getIsPublic() != null ? s.getIsPublic().charAt(0) : null)
+                            .isSearch(s.getIsSearch() != null ? s.getIsSearch().charAt(0) : null)
+                            .isComment(s.getIsComment() != null ? s.getIsComment().charAt(0) : null)
+                            .isInShare(s.getIsInShare() != null ? s.getIsInShare().charAt(0) : null)
+                            .isCopy(s.getIsCopy() != null ? s.getIsCopy().charAt(0) : null)
+                            .isOutShare(s.getIsOutShare() != null ? s.getIsOutShare().charAt(0) : null)
+                            .imageSizeType(s.getImageSizeType())
                             .build()
             );
         }
@@ -214,21 +213,11 @@ public class CommunityPostService {
     /** 게시글 첨부파일 조회 */
     @Transactional(readOnly = true)
     public List<CommunityPostFileDTO> getPostFiles(Integer postId) {
-        List<CommunityPostFileEntity> entities = postFileRepository.findByPost_PostIdOrderByFileOrderAsc(postId);
+        List<CommunityPostFileEntity> entities =
+                postFileRepository.findByPost_PostIdOrderByFileOrderAsc(postId);
 
         return entities.stream()
-                .map(e -> {
-                    var f = e.getFile();
-                    return new CommunityPostFileDTO(
-                            f.getFileId(),
-                            f.getFileName(),
-                            f.getFileSize(),
-                            f.getFileType(),
-                            f.getFilePath(),
-                            f.getStoredName(),
-                            f.getFileThumbName()
-                    );
-                })
+                .map(e -> CommunityPostFileDTO.from(e.getFile()))
                 .toList();
     }
 
@@ -236,50 +225,79 @@ public class CommunityPostService {
     @Transactional
     public void deletePostFile(Integer postId, String fileId) {
         try {
-            // 매핑 삭제
-            int deleted = postFileRepository.deleteByPostIdAndFileIdDirect(postId, fileId);
-            if (deleted == 0) {
-                log.warn("매핑이 존재하지 않거나 이미 삭제된 상태입니다. postId={}, fileId={}", postId, fileId);
+            // 삭제 대상 파일 조회
+            var mappingOpt = postFileRepository.findByPost_PostIdAndFile_FileId(postId, fileId);
+            if (mappingOpt.isEmpty()) {
+                log.warn("삭제할 파일 매핑이 없습니다. postId={}, fileId={}", postId, fileId);
                 return;
             }
+            FileEntity file = mappingOpt.get().getFile();
 
-            // 파일이 다른 게시글에서도 참조 중인지 확인
-            long stillUsed = postFileRepository.countByFile_FileId(fileId);
-            if (stillUsed == 0) {
-                // 참조 끊겼으면 고아 파일 정리 이벤트 발행
-                eventPublisher.publishEvent(new OrphanFileCleanupEvent(List.of(fileId)));
-                log.info("게시글 파일 매핑 + 고아 파일 정리 완료 postId={}, fileId={}", postId, fileId);
+            // 매핑 삭제
+            postFileRepository.deleteByPostIdAndFileIdDirect(postId, fileId);
+
+            // 파일 물리 삭제
+            String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+            fileUtils.deleteFile(path);
+
+            if (file.getFileThumbName() != null) {
+                String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+                fileUtils.deleteFile(thumbPath);
+            }
+
+            // 파일 삭제 (다른 게시글에서 참조하지 않을 경우)
+            long refs = postFileRepository.countByFile_FileId(fileId);
+            if (refs == 0) {
+                fileRepository.deletePhysicalFile(fileId);
+                log.info("[FILE DELETE] 파일 완전 삭제 완료 fileId={}", fileId);
             } else {
-                log.info("게시글 파일 매핑만 삭제 (다른 참조 남음) postId={}, fileId={}", postId, fileId);
+                log.info("[FILE DELETE] 다른 참조 존재로 DB 삭제 스킵 fileId={}", fileId);
             }
 
         } catch (Exception e) {
-            log.error("게시글 파일 매핑 삭제 중 오류 발생", e);
-            throw new RuntimeException("파일 매핑 삭제 실패", e);
+            log.error("[FILE DELETE] 파일 삭제 중 오류 postId={}, fileId={}", postId, fileId, e);
+            throw new RuntimeException("파일 삭제 실패", e);
         }
     }
 
     // 게시글 삭제(파일 포함)
     @Transactional
     public void deletePost(Integer postId) {
-        // 삭제 후보 파일ID 모으기
+        // 삭제 대상 파일 리스트 가져오기
         var mappings = postFileRepository.findByPost_PostId(postId);
-        var candidateFileIds = mappings.stream()
-                .map(m -> m.getFile().getFileId())
+        var files = mappings.stream()
+                .map(CommunityPostFileEntity::getFile)
                 .distinct()
                 .toList();
 
-        // 매핑 벌크 삭제
+        // 매핑 및 게시글 삭제
         postFileRepository.deleteByPostId(postId);
-
-        // 설정 벌크 삭제
         postSettingRepository.deleteByPost_PostId(postId);
-
-        // 게시글 삭제
         communityPostRepository.deleteById(postId);
 
-        // 커밋 후 파일 고아 정리 이벤트 발행
-        eventPublisher.publishEvent(new OrphanFileCleanupEvent(candidateFileIds));
+        // 물리 파일 삭제 및 DB 파일 삭제
+        for (FileEntity file : files) {
+            try {
+                String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+                fileUtils.deleteFile(path);
+
+                if (file.getFileThumbName() != null) {
+                    String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+                    fileUtils.deleteFile(thumbPath);
+                }
+
+                long refs = postFileRepository.countByFile_FileId(file.getFileId());
+                if (refs == 0) {
+                    fileRepository.deletePhysicalFile(file.getFileId());
+                    log.info("[POST DELETE] 파일 완전 삭제 완료 fileId={}", file.getFileId());
+                }
+
+            } catch (IOException e) {
+                log.warn("[POST DELETE] 파일 삭제 실패 fileId={}", file.getFileId(), e);
+            }
+        }
+
+        log.info("[POST DELETE] 게시글 및 파일 삭제 완료 postId={}", postId);
     }
 
     /** 60일 지난 임시글 자동 삭제 */
@@ -298,5 +316,54 @@ public class CommunityPostService {
             }
         }
         log.info("[AUTO CLEANUP] {}개의 오래된 임시글 자동 삭제 완료", oldPostIds.size());
+    }
+
+    /** 게시글 상세조회 (조회수 증가 + 프로필 이미지 포함) */
+    @Transactional
+    public CommunityPostDetailDTO getPostDetail(Integer postId) {
+
+        // 게시글 조회
+        CommunityPostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        // 조회수 증가
+        post.increaseReadCount();
+
+        // 작성자 프로필 이미지 조회 (file_type = 'PROFILE')
+        List<FileEntity> profileFiles = fileRepository.findByUser_UserIdAndFileType(
+                post.getUser().getUserId(), "PROFILE"
+        );
+
+        String profileImagePath = null;
+        if (!profileFiles.isEmpty()) {
+            FileEntity profileFile = profileFiles.get(0);
+            profileImagePath = buildUrl(profileFile.getFilePath(), profileFile.getStoredName());
+        }
+
+        // 첨부파일 목록 조회 후 DTO 변환
+        List<CommunityPostFileDTO> fileDtos = postFileRepository.findByPost_PostId(postId).stream()
+                .map(CommunityPostFileEntity::getFile)
+                .map(file -> new CommunityPostFileDTO(
+                        file.getFileId(),
+                        file.getFileName(),
+                        file.getFileSize(),
+                        file.getFileType(),
+                        file.getFilePath(),
+                        file.getStoredName(),
+                        file.getFileThumbName(),
+                        buildUrl(file.getFilePath(), file.getStoredName())
+                ))
+                .toList();
+
+        // DTO 변환
+        return CommunityPostDetailDTO.fromEntity(post, fileDtos, profileImagePath);
+    }
+
+    /** 공용 파일 URL 생성 유틸 (CommunityPostDTO와 동일한 로직) */
+    private String buildUrl(String filePath, String storedName) {
+        if (filePath == null || storedName == null) return null;
+        String normalized = filePath.replace("\\", "/");
+        String relative = normalized.replace("C:/files/modu", "");
+        return "http://localhost:9090" + relative + "/" + storedName;
     }
 }
