@@ -13,13 +13,13 @@ import lombok.Setter;
 public class AccountCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int categoryId;
+    private Integer categoryId;
 
     private String categoryName;
     @Enumerated(EnumType.STRING)
     private AccountType type;
     private String color;
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")

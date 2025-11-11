@@ -2,6 +2,7 @@ package back.code.accountBook.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ public class AccountBookController {
     }
     
     // 가계부 수정
-    @PutMapping("")
+    @PutMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> updateAccount(
                                             @RequestPart("request") AccountBookDTO.Request request,
                                             @RequestPart(value = "files", required = false) List<MultipartFile> files) throws Exception{

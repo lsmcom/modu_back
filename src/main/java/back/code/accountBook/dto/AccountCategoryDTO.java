@@ -12,19 +12,21 @@ public class AccountCategoryDTO {
     @NoArgsConstructor
     @Getter
     public static class Response {
-        private int categoryId;
+        private Integer categoryId;
         private String categoryName;
         private AccountType type;
-        private boolean isDefault;
+        private Boolean isDefault;
         private String userId;
+        private String color;
 
         public static Response of(AccountCategoryEntity entity) {
             return Response.builder()
                     .categoryId(entity.getCategoryId())
                     .categoryName(entity.getCategoryName())
                     .type(entity.getType())
-                    .isDefault(entity.isDefault())
+                    .isDefault(entity.getIsDefault())
                     .userId(entity.getUser() != null ? entity.getUser().getUserId() : null)
+                    .color(entity.getColor())
                     .build();
         }
     }
@@ -32,10 +34,10 @@ public class AccountCategoryDTO {
     // 클라이언트 -> 서버
     @Data
     public static class Request {
-        private int categoryId;
+        private Integer categoryId;
         private String categoryName;
         private AccountType type;
-        private boolean isDefault;
+        private Boolean isDefault;
         private String userId;
 
         public AccountCategoryEntity to(UserEntity user){
@@ -43,7 +45,7 @@ public class AccountCategoryDTO {
             category.setCategoryId(this.categoryId);
             category.setCategoryName(this.categoryName);
             category.setType(this.type);
-            category.setDefault(this.isDefault);
+            category.setIsDefault(this.isDefault);
             category.setUser(user);
 
             return category;

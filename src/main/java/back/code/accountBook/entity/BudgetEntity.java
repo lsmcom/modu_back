@@ -21,11 +21,12 @@ public class BudgetEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int budgetId;
+    private Integer budgetId;
     
     @Column(name = "`year_month`")
     private String yearMonth;
-    private int budgetAmount;
+    private Integer budgetAmount;
+    private Integer threshold;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")

@@ -11,7 +11,6 @@ import back.code.accountBook.enums.AccountType;
 import back.code.file.dto.FileDTO;
 import back.code.user.entity.UserEntity;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,13 +25,13 @@ public class AccountBookDTO {
     @Getter
     public static class Response{
 
-        private int accountBookId;
+        private Integer accountBookId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
-        private int amount;
+        private Integer amount;
         private String userId;
-        private  int categoryId;
+        private  Integer categoryId;
         private String categoryName;
         private Integer savingsGoalId;
         private String savingsGoalName;
@@ -62,14 +61,14 @@ public class AccountBookDTO {
     @Getter
     public static class Detail{
 
-        private int accountBookId;
+        private Integer accountBookId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
-        private int amount;
+        private Integer amount;
         private String content;
         private String userId;
-        private int categoryId;
+        private Integer categoryId;
         private String categoryName;
         private Integer savingsGoalId;
         private String savingGoalName;
@@ -106,8 +105,8 @@ public class AccountBookDTO {
     public static class WeekResponse{
         private String weekStartDate;
         private String weekEndDate;  
-        private int income;
-        private int expense;
+        private Integer income;
+        private Integer expense;
 
         public static WeekResponse of(AccountProjection projection) {
             return WeekResponse.builder()
@@ -126,8 +125,8 @@ public class AccountBookDTO {
     @Getter
     public static class MonthResponse{
         private String month;
-        private int income;
-        private int expense;
+        private Integer income;
+        private Integer expense;
 
         public static MonthResponse of(AccountProjection projection) {
             return MonthResponse.builder()
@@ -144,8 +143,8 @@ public class AccountBookDTO {
     @NoArgsConstructor
     @Getter
     public static class CalendarAccountResponse{
-        private int totalIncome;
-        private int totalExpense;
+        private Integer totalIncome;
+        private Integer totalExpense;
         private List<DailyAccount> dailyList;
 
         // 일별 데이터
@@ -155,8 +154,8 @@ public class AccountBookDTO {
         @Getter
         public static class DailyAccount {
             private String date;
-            private int income;
-            private int expense;
+            private Integer income;
+            private Integer expense;
 
             public static DailyAccount of(AccountProjection projection) {
                 return DailyAccount.builder()
@@ -174,18 +173,18 @@ public class AccountBookDTO {
     @NoArgsConstructor
     @Getter
     public static class InstallmentListResponse {
-        private int accountBookId;
-        private int installmentId;
+        private Integer accountBookId;
+        private Integer installmentId;
         private String content;
         private String categoryName;
         private AccountMethod method;
-        private int totalAmount;
-        private int totalMonths;
-        private int currentMonth;
-        private int monthlyAmount;
+        private Integer totalAmount;
+        private Integer totalMonths;
+        private Integer currentMonth;
+        private Integer monthlyAmount;
         private LocalDate startDate;
-        private boolean isCompleted;
-        private int remainingAmount;
+        private Boolean isCompleted;
+        private Integer remainingAmount;
 
         public static InstallmentListResponse of(AccountBookEntity account,
                                                  InstallmentSettingEntity installment,
@@ -216,19 +215,18 @@ public class AccountBookDTO {
     // 클라이언트 -> 서버
     @Data
     public static class Request {
-        private int accountBookId;
+        private Integer accountBookId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
-        private int amount;
+        private Integer amount;
         private String content;
         private String userId;
-        private int categoryId;
+        private Integer categoryId;
         private Integer savingGoalId;
-        private List<MultipartFile> files;
         private List<String> existingFileIds;
-        private List<RecurringDTO> recurring;
-        private List<InstallmentDTO> installment;
+        private RecurringDTO recurring;
+        private InstallmentDTO installment;
 
         public AccountBookEntity to(AccountBookEntity account,
                                     UserEntity user,
@@ -259,7 +257,7 @@ public class AccountBookDTO {
         private AccountCycle cycle; 
         private LocalDate startDate; 
         private LocalDate endDate; 
-        private boolean isActive;
+        private Boolean isActive;
         private String daysOfWeek;
         private LocalDate nextDate; 
 
@@ -270,7 +268,7 @@ public class AccountBookDTO {
                     .cycle(entity.getCycle())
                     .startDate(entity.getStartDate())
                     .endDate(entity.getEndDate())
-                    .isActive(entity.isActive())
+                    .isActive(entity.getIsActive())
                     .daysOfWeek(entity.getDaysOfWeek())
                     .nextDate(entity.getNextDate())
                     .build();
@@ -281,7 +279,7 @@ public class AccountBookDTO {
             entity.setCycle(this.cycle);
             entity.setStartDate(this.startDate);
             entity.setEndDate(this.endDate);
-            entity.setActive(true);
+            entity.setIsActive(true);
             entity.setDaysOfWeek(this.daysOfWeek);
             entity.setNextDate(this.nextDate); 
             return entity;
@@ -296,10 +294,10 @@ public class AccountBookDTO {
     public static class InstallmentDTO {
 
         private Integer installmentId;
-        private int totalAmount;
-        private int totalMonths;
-        private int currentMonth;
-        private int monthlyAmount;
+        private Integer totalAmount;
+        private Integer totalMonths;
+        private Integer currentMonth;
+        private Integer monthlyAmount;
         private LocalDate startDate;
 
         // 응답용
@@ -324,5 +322,9 @@ public class AccountBookDTO {
             return entity;
         }
     }
+
+
+
+
 
 }

@@ -11,4 +11,5 @@ public interface SavingGoalRepository extends JpaRepository<AccountSavingsGoalEn
 
     // 특정 사용자의 모든 저축 목표
     List<AccountSavingsGoalEntity> findAllByUser(UserEntity user);
+
 }

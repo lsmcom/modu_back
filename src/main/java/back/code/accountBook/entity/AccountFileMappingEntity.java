@@ -12,7 +12,7 @@ import lombok.Setter;
 public class AccountFileMappingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int mappingId;
+    private Integer mappingId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id")
