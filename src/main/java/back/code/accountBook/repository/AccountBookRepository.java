@@ -5,6 +5,7 @@ import back.code.accountBook.entity.AccountBookEntity;
 import back.code.accountBook.entity.AccountSavingsGoalEntity;
 import back.code.accountBook.entity.InstallmentSettingEntity;
 
+import back.code.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -87,5 +88,8 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
 
     // 가계부의 특정목표 찾기
     List<AccountBookEntity> findByGoal(AccountSavingsGoalEntity goal);
+
+    // 해당 유저의 가계부내역 찾기
+    List<AccountBookEntity> findByUser(UserEntity user);
 
 }

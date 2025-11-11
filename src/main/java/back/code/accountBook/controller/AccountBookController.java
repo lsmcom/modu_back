@@ -66,4 +66,15 @@ public class AccountBookController {
         List<AccountSearchDTO.AccountSearchResultDTO> result = accountBookService.searchAccountBook(search);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
+
+    // 차트데이터
+    @GetMapping("/chart")
+    public ResponseEntity<ApiResponse<List<AccountBookDTO.chartResponse>>> getChart(
+                                                                @RequestParam("userId") String userId) throws Exception{
+        List<AccountBookDTO.chartResponse> result = accountBookService.getChart(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+
+
 }

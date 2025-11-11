@@ -73,8 +73,13 @@ public class AccountBookDTO {
         private Integer savingsGoalId;
         private String savingGoalName;
         private List<FileDTO> files;
+        private RecurringDTO recurring;
+        private InstallmentDTO installment;
 
-        public static Detail of (AccountBookEntity entity,String filePath){
+        public static Detail of (AccountBookEntity entity,
+                                 String filePath,
+                                 RecurringSettingEntity recurring,
+                                 InstallmentSettingEntity installment){
 
             List<FileDTO> files = entity.getFiles().stream()
                     .map(fm -> FileDTO.from(fm.getFile(), filePath))
@@ -93,6 +98,8 @@ public class AccountBookDTO {
                     .savingsGoalId(entity.getGoal() != null ? entity.getGoal().getGoalId() : null)
                     .savingGoalName(entity.getGoal() != null ? entity.getGoal().getGoalName() : null)
                     .files(files)
+                    .recurring(recurring != null ? RecurringDTO.of(recurring) : null)
+                    .installment(installment != null ? InstallmentDTO.of(installment) : null)
                     .build();
         }
     }
@@ -320,6 +327,40 @@ public class AccountBookDTO {
             entity.setMonthlyAmount(this.monthlyAmount);
             entity.setStartDate(this.startDate);
             return entity;
+        }
+    }
+
+    // 통계 그래프용
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class chartResponse{
+
+        private Integer accountBookId;
+        private String userId;
+        private LocalDate date;
+        private AccountType type;
+        private AccountMethod method;
+        private String content;
+        private Integer amount;
+        private  Integer categoryId;
+        private String categoryName;
+        private String categoryColor;
+
+        public static chartResponse of (AccountBookEntity entity){
+            return chartResponse.builder()
+                    .accountBookId(entity.getAccountId())
+                    .userId(entity.getUser().getUserId())
+                    .date(entity.getDate())
+                    .type(entity.getType())
+                    .method(entity.getMethod())
+                    .content(entity.getContent())
+                    .amount(entity.getAmount())
+                    .categoryId(entity.getCategory().getCategoryId())
+                    .categoryName(entity.getCategory().getCategoryName())
+                    .categoryColor(entity.getCategory().getColor())
+                    .build();
         }
     }
 
