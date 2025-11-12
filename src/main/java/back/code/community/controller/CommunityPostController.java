@@ -1,10 +1,7 @@
 package back.code.community.controller;
 
 import back.code.common.dto.ApiResponse;
-import back.code.community.dto.CommunityPostCreateDTO;
-import back.code.community.dto.CommunityPostDTO;
-import back.code.community.dto.CommunityPostDetailDTO;
-import back.code.community.dto.CommunityPostFileDTO;
+import back.code.community.dto.*;
 import back.code.community.service.CommunityPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -14,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,10 +65,8 @@ public class CommunityPostController {
 
     /** 게시글 첨부파일 삭제 */
     @DeleteMapping("/posts/{postId}/files/{fileId}")
-    public ResponseEntity<ApiResponse<String>> deletePostFile(
-            @PathVariable Integer postId,
+    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable Integer postId,
             @PathVariable String fileId) throws IOException {
-
         communityPostService.deletePostFile(postId, fileId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
     }
@@ -87,5 +83,29 @@ public class CommunityPostController {
     public ResponseEntity<ApiResponse<CommunityPostDetailDTO>> getPostDetail(@PathVariable Integer postId) {
         CommunityPostDetailDTO dto = communityPostService.getPostDetail(postId);
         return ResponseEntity.ok(ApiResponse.ok(dto));
+    }
+
+    /**
+     * 게시글 설정 조회 (postId 기준)
+     * - 수정 페이지 진입 시 기존 설정값 불러오기용
+     */
+    @GetMapping("/setting/{postId}")
+    public ResponseEntity<ApiResponse<CommunityPostSettingDTO>> getSetting(@PathVariable Integer postId) {
+        CommunityPostSettingDTO dto = communityPostService.getSettingByPostId(postId);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
+    }
+
+    /** 게시글 추천 */
+    @PatchMapping("/posts/{postId}/like")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> toggleLike(@PathVariable Integer postId) {
+        Map<String, Object> result = communityPostService.togglePostLike(postId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /** 게시글 추천 상태 확인 */
+    @GetMapping("/posts/{postId}/like-status")
+    public ResponseEntity<ApiResponse<Boolean>> checkLikeStatus(@PathVariable Integer postId) {
+        boolean liked = communityPostService.isPostLikedByUser(postId);
+        return ResponseEntity.ok(ApiResponse.ok(liked));
     }
 }
