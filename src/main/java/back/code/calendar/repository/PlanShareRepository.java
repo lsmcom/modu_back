@@ -23,5 +23,8 @@ public interface PlanShareRepository extends JpaRepository<PlanShareEntity, Plan
             "JOIN FETCH p.folder f " +
             "WHERE ps.sharedUser = :user")
     List<PlanShareEntity> findBySharedUserWithPlan(@Param("user") UserEntity user);
+
+    // 해당 유저의 내역 삭제
+    // void deleteByUser(UserEntity user);
 }
 

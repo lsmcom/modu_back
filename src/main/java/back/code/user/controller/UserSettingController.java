@@ -31,4 +31,12 @@ public class UserSettingController {
         userSettingService.updateUserSetting(userId, dto);
         return ResponseEntity.ok(ApiResponse.ok("사용자 설정이 변경되었습니다."));
     }
+
+    /** 데이터 초기화 */
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<ApiResponse<String>> resetData(@PathVariable String userId) throws Exception {
+        userSettingService.resetData(userId);
+        
+        return ResponseEntity.ok(ApiResponse.ok("데이터 초기화가 완료되었습니다."));
+    }
 }

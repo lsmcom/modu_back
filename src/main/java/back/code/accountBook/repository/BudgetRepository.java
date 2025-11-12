@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import back.code.accountBook.entity.BudgetEntity;
+import back.code.user.entity.UserEntity;
 
 public interface BudgetRepository extends JpaRepository<BudgetEntity, Integer>{
 
@@ -50,5 +51,8 @@ public interface BudgetRepository extends JpaRepository<BudgetEntity, Integer>{
     void updateCategoryBudgetThreshold(@Param("userId") String userId,
                                        @Param("yearMonth") String yearMonth,
                                        @Param("threshold") Integer threshold);
+
+    // 해당 유저의 가계부 내역 삭제
+    void deleteByUser(UserEntity user);
 
 }

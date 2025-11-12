@@ -92,4 +92,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
     // 해당 유저의 가계부내역 찾기
     List<AccountBookEntity> findByUser(UserEntity user);
 
+    // 해당 유저의 가계부 내역 삭제
+    void deleteByUser(UserEntity user);
+
 }

@@ -1,5 +1,15 @@
 package back.code.user.service;
 
+import back.code.accountBook.repository.AccountBookRepository;
+import back.code.accountBook.repository.BudgetRepository;
+import back.code.accountBook.repository.CategoryRepository;
+import back.code.accountBook.repository.SavingGoalRepository;
+import back.code.calendar.repository.CalendarFolderRepository;
+import back.code.calendar.repository.CalendarSettingRepository;
+import back.code.calendar.repository.PlanRepository;
+import back.code.calendar.repository.PlanShareRepository;
+import back.code.memo.repository.MemoRepository;
+import back.code.memo.repository.MemoFolderRepository;
 import back.code.user.dto.UserSettingUpdateDTO;
 import back.code.user.entity.UserEntity;
 import back.code.user.entity.UserSettingEntity;
@@ -10,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -17,8 +28,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserSettingService {
 
-    private final UserSettingRepository userSettingRepository;
     private final UserRepository userRepository;
+    private final UserSettingRepository userSettingRepository;
+    private final AccountBookRepository accountBookRepository;
+    private final BudgetRepository budgetRepository;
+    private final SavingGoalRepository savingGoalRepository;
+    private final CategoryRepository categoryRepository;
+    private final MemoFolderRepository memoFolderRepository;
+    private final MemoRepository memoRepository;
+    private final CalendarFolderRepository calendarFolderRepository;
+    private final PlanRepository planRepository;
+    private final CalendarSettingRepository calendarSettingRepository;
+    // private final PlanShareRepository planShareRepository;
 
     /** 회원가입시 기본 사용자 설정 생성 */
     @Transactional
@@ -68,5 +89,51 @@ public class UserSettingService {
         userSettingRepository.save(setting);
 
         log.info("[사용자 설정 변경 완료] userId={}, dto={}", userId, dto);
+    }
+
+    /** 데이터 초기화 */
+    @Transactional
+    public void resetData(String userId) throws Exception {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        UserSettingEntity setting = userSettingRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("사용자 설정이 존재하지 않습니다."));
+
+        // 사용자 설정 초기화
+        Optional<UserSettingEntity> settingOpt = userSettingRepository.findByUser(user);
+        if(settingOpt.isPresent()) {
+            setting = settingOpt.get(); 
+
+            setting.setTheDayOfWeek("M");
+            setting.setThemeMode("light");
+            setting.setAlarmAllowed("Y");
+            setting.setPersonalInfoAgreed("Y");
+            setting.setLocationInfoAgreed("Y");
+            setting.setMarketingInfoAgreed("Y");
+            setting.setMarketingRejectDate(null);
+
+            userSettingRepository.save(setting);
+        }
+            
+        // 가계부 데이터 삭제
+        budgetRepository.deleteByUser(user);
+        accountBookRepository.deleteByUser(user);
+        savingGoalRepository.deleteByUser(user);
+        categoryRepository.deleteByUserAndIsDefaultNull(user);  // 사용자 카테고리만 초기화
+
+        // 메모 데이터 삭제
+        memoRepository.deleteByUser(user);
+        memoFolderRepository.deleteByUser(user);
+
+        // 캘린더 데이터 삭제
+        calendarFolderRepository.deleteByUser(user);
+        calendarSettingRepository.deleteByUser(user);
+        planRepository.deleteByUser(user);
+        // planShareRepository.deleteByUser(user);
+
+        // 투두 데이터 삭제
+
+
     }
 }

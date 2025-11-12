@@ -13,4 +13,7 @@ public interface CategoryRepository extends JpaRepository<AccountCategoryEntity,
      // 사용자 정의 카테고리 조회
      List<AccountCategoryEntity> findAllByUser(UserEntity user);
 
+     // 해당 유저의 가계부 내역 삭제 (사용자 카테고리만 삭제)
+     void deleteByUserAndIsDefaultNull(UserEntity user);
+
 }

@@ -17,4 +17,7 @@ public interface CalendarFolderRepository extends JpaRepository<CalendarFolderEn
 
     List<CalendarFolderEntity> findByUserAndFolderType(UserEntity user, String folderType);
 
+    // 해당 유저의 내역 삭제
+    void deleteByUser(UserEntity user);
+
 }

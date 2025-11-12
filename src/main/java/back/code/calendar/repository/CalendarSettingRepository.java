@@ -10,4 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CalendarSettingRepository extends JpaRepository<CalendarSettingEntity, Long> {
     Optional<CalendarSettingEntity> findByUser(UserEntity user);
+
+    // 해당 유저의 내역 삭제
+    void deleteByUser(UserEntity user);
 }

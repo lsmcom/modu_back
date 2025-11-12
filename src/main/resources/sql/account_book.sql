@@ -189,6 +189,12 @@ values
 (4, 90000, 3, 0, 30000, '2025-07-01'),
 (5, 45000, 3, 0, 15000, '2025-11-01');
 
--- ------------------------------------------------------------ 여기부터 추가
 alter table budget
 add column threshold int default 80 comment '알림 임계값 (%)';
+
+
+-- ------------------------------------------------------------ 여기부터 추가
+
+ALTER TABLE recurring_setting
+MODIFY COLUMN cycle ENUM('DAILY','WEEKLY','MONTHLY','YEARLY') NOT NULL COMMENT '반복 주기';
+

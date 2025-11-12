@@ -5,11 +5,14 @@ import back.code.accountBook.enums.AccountType;
 import back.code.accountBook.repository.AccountFileMappingRepository;
 import back.code.accountBook.repository.AccountSearchRepository;
 import back.code.accountBook.repository.AccountSearchSpecification;
+import back.code.common.utils.FileUtils;
 import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
+import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
 import back.code.recentsearch.service.RecentSearchService;
 
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -58,6 +61,9 @@ public class AccountBookService {
     private final AccountSearchRepository searchRepository;
     private final RecentSearchService recentSearchService;
     private static final String SEARCH_TYPE = "ACCOUNT";
+    private final FileRepository fileRepository;
+    private final FileUtils fileUtils;
+
 
     // 가계부 작성
     @Transactional
@@ -202,45 +208,6 @@ public class AccountBookService {
             }
         }
 
-        // 현재 파일 매핑 복사
-        List<AccountFileMappingEntity> currentMappings = new ArrayList<>(account.getFiles());
-        // 유지파일, 삭제파일 분리
-        List<String> existingFileIds = request.getExistingFileIds();
-        List<AccountFileMappingEntity> toKeep = new ArrayList<>();
-        List<AccountFileMappingEntity> toDelete = new ArrayList<>();
-
-        for (AccountFileMappingEntity mapping : currentMappings) {
-            if (existingFileIds != null && existingFileIds.contains(mapping.getFile().getFileId())) {
-                toKeep.add(mapping);  // 유지
-            } else {
-                toDelete.add(mapping); // 삭제
-            }
-        }
-        // 삭제할 파일 DTO 리스트로 만들기 (물리파일 삭제용)
-        List<FileDTO> filesToDelete = new ArrayList<>();
-        for (AccountFileMappingEntity mapping : toDelete) {
-            filesToDelete.add(FileDTO.from(mapping.getFile(), filePath));
-        }
-        // 매핑에서 제거
-        account.getFiles().removeAll(toDelete);
-        // for (AccountFileMappingEntity mapping : toDelete) {
-        //     mapping.setAccount(null); 
-        // }
-        // 새 파일 추가
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile multipartFile : files) {
-                FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
-
-                AccountFileMappingEntity mapping = new AccountFileMappingEntity();
-                mapping.setAccount(account);
-                mapping.setFile(fileService.getFileById(fileDTO.getFileId()));
-
-                account.getFiles().add(mapping);
-            }
-        }
-        // DTO → 엔티티
-        AccountBookEntity newAccount = request.to(account, user, category, savingGoal);
-
         // 반복 설정
         RecurringSettingEntity recurring = null;
         if (request.getRecurring() != null) {
@@ -297,8 +264,43 @@ public class AccountBookService {
             installmentRepository.save(installment);
         }
 
-        // 저장
-        AccountBookEntity savedAccount = accountBookRepository.save(newAccount);
+        // 현재 파일 매핑 복사
+        List<AccountFileMappingEntity> currentMappings = new ArrayList<>(account.getFiles());
+
+        // 유지파일, 삭제파일 분리
+        List<String> existingFileIds = request.getExistingFileIds();
+        List<AccountFileMappingEntity> toKeep = new ArrayList<>();
+        List<AccountFileMappingEntity> toDelete = new ArrayList<>();
+
+        for (AccountFileMappingEntity mapping : currentMappings) {
+            if (existingFileIds != null && existingFileIds.contains(mapping.getFile().getFileId())) {
+                toKeep.add(mapping);  // 유지
+            } else {
+                toDelete.add(mapping); // 삭제
+            }
+        }
+        
+        // 삭제할 파일 DTO 리스트로 만들기 (물리파일 삭제용)
+        List<FileDTO> filesToDelete = new ArrayList<>();
+        for (AccountFileMappingEntity mapping : toDelete) {
+            filesToDelete.add(FileDTO.from(mapping.getFile(), filePath));
+        }
+
+        // 새 파일 추가
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile multipartFile : files) {
+                FileDTO fileDTO = fileService.uploadFile(multipartFile, user.getUserId(), "ACCOUNT");
+
+                AccountFileMappingEntity mapping = new AccountFileMappingEntity();
+                mapping.setAccount(account);
+                mapping.setFile(fileService.getFileById(fileDTO.getFileId()));
+
+                account.getFiles().add(mapping);
+            }
+        }
+
+        AccountBookEntity savedAccount = accountBookRepository.save(account);
+        
         // 물리파일 삭제
         for (FileDTO fileDTO : filesToDelete) {
             try {
@@ -352,16 +354,32 @@ public class AccountBookService {
 
         // dto 변경
         AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
-        // FileDB삭제, 물리적 삭제
+
+        // 물리 파일 정보
+        List<FileEntity> filesToDelete = new ArrayList<>();
         for (AccountFileMappingEntity mapping : account.getFiles()) {
-            FileEntity file = mapping.getFile();
-            if (file != null) {
-                mappingRepository.delete(mapping);  // 매핑 삭제
-                fileService.deleteFileEntity(file);  // 파일 삭제
+            filesToDelete.add(mapping.getFile());
+        }
+        
+        // 가계부 삭제
+        accountBookRepository.delete(account);
+        accountBookRepository.flush();
+        
+        // 물리 파일 삭제
+        for (FileEntity file : filesToDelete) {
+            try {
+
+                fileRepository.delete(file);
+
+                String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+                String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+                
+                fileUtils.deleteFile(path);
+                fileUtils.deleteFile(thumbPath);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        // 삭제
-        accountBookRepository.delete(account);
 
         return detail;
     }
