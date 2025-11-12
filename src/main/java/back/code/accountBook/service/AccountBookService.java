@@ -156,7 +156,7 @@ public class AccountBookService {
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         // 기존 엔티티 조회
-        AccountBookEntity account = accountBookRepository.findById(request.getAccountBookId())
+        AccountBookEntity account = accountBookRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new RuntimeException("수정할 가계부 항목을 찾을 수 없습니다."));
         // 카테고리 확인
         AccountCategoryEntity category = categoryRepository.findById(request.getCategoryId())
@@ -264,27 +264,21 @@ public class AccountBookService {
             installmentRepository.save(installment);
         }
 
-        // 현재 파일 매핑 복사
-        List<AccountFileMappingEntity> currentMappings = new ArrayList<>(account.getFiles());
-
-        // 유지파일, 삭제파일 분리
+        // 삭제할 파일 ID
         List<String> existingFileIds = request.getExistingFileIds();
-        List<AccountFileMappingEntity> toKeep = new ArrayList<>();
-        List<AccountFileMappingEntity> toDelete = new ArrayList<>();
+        if (existingFileIds == null) {
+            existingFileIds = new ArrayList<>();  // null이면 빈 리스트로 초기화
+        }
 
-        for (AccountFileMappingEntity mapping : currentMappings) {
-            if (existingFileIds != null && existingFileIds.contains(mapping.getFile().getFileId())) {
-                toKeep.add(mapping);  // 유지
-            } else {
-                toDelete.add(mapping); // 삭제
-            }
-        }
-        
-        // 삭제할 파일 DTO 리스트로 만들기 (물리파일 삭제용)
-        List<FileDTO> filesToDelete = new ArrayList<>();
-        for (AccountFileMappingEntity mapping : toDelete) {
-            filesToDelete.add(FileDTO.from(mapping.getFile(), filePath));
-        }
+        List<String> toDeleteIds = account.getFiles().stream()
+                .map(fm -> fm.getFile().getFileId())
+                .filter(id -> !request.getExistingFileIds().contains(id))
+                .toList();
+
+        // DB/물리 파일 삭제
+        for(String fileId : toDeleteIds) {
+            deleteFile(account.getAccountId(), fileId);
+        }   
 
         // 새 파일 추가
         if (files != null && !files.isEmpty()) {
@@ -299,32 +293,51 @@ public class AccountBookService {
             }
         }
 
+        // 저장
         AccountBookEntity savedAccount = accountBookRepository.save(account);
         
-        // 물리파일 삭제
-        for (FileDTO fileDTO : filesToDelete) {
-            try {
-                FileEntity fileEntity = fileService.getFileById(fileDTO.getFileId());
-                fileService.deleteFileEntity(fileEntity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         // DTO 변환
         AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(savedAccount, filePath, recurring, installment);
 
         return detail;
     }
 
+    // 파일 삭제
+    @Transactional
+    public void deleteFile(Integer accountId, String fileId) throws Exception{
+ 
+        // 삭제 대상 파일 조회
+        var mappingOpt = mappingRepository.findByAccount_AccountIdAndFile_FileId(accountId, fileId);
+        FileEntity file = mappingOpt.get().getFile();
+
+        // 매핑 삭제
+        mappingRepository.deleteByAccountIdAndFileIdDirect(accountId, fileId);
+
+        // 파일 물리 삭제
+        String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
+        fileUtils.deleteFile(path);
+
+        if (file.getFileThumbName() != null) {
+            String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+            fileUtils.deleteFile(thumbPath);
+        }
+
+        // 파일 삭제
+        long refs = mappingRepository.countByFile_FileId(fileId);
+        if (refs == 0) {
+            fileRepository.deletePhysicalFile(fileId);
+        }
+    } 
+
     // 가계부 상세조회
     @Transactional
-    public AccountBookDTO.Detail getAccount(String userId,int accountBookId) throws Exception {
+    public AccountBookDTO.Detail getAccount(String userId,int accountId) throws Exception {
 
         // 사용자 확인
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         // 기존 엔티티 조회
-        AccountBookEntity account = accountBookRepository.findById(accountBookId)
+        AccountBookEntity account = accountBookRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("해당 가계부 내역을 찾을 수 없습니다."));
 
         RecurringSettingEntity recurring = recurringRepository.findByAccount(account).orElse(null);
@@ -338,10 +351,10 @@ public class AccountBookService {
 
     // 가계부 삭제
     @Transactional
-    public AccountBookDTO.Detail deleteAccount(String userId, int accountBookId) throws Exception{
+    public AccountBookDTO.Detail deleteAccount(String userId, int accountId) throws Exception{
 
         // 기존 엔티티 조회
-        AccountBookEntity account = accountBookRepository.findById(accountBookId)
+        AccountBookEntity account = accountBookRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("해당 가계부 내역을 찾을 수 없습니다."));
         // 해당 가계부 사용자의 것인지 확인
         if(!account.getUser().getUserId().equals(userId)){

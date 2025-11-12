@@ -25,7 +25,7 @@ public class AccountBookDTO {
     @Getter
     public static class Response{
 
-        private Integer accountBookId;
+        private Integer accountId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
@@ -39,7 +39,7 @@ public class AccountBookDTO {
 
         public static Response of (AccountBookEntity entity){
             return Response.builder()
-                    .accountBookId(entity.getAccountId())
+                    .accountId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
                     .method(entity.getMethod())
@@ -61,7 +61,7 @@ public class AccountBookDTO {
     @Getter
     public static class Detail{
 
-        private Integer accountBookId;
+        private Integer accountId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
@@ -86,7 +86,7 @@ public class AccountBookDTO {
                     .collect(Collectors.toList());
 
             return Detail.builder()
-                    .accountBookId(entity.getAccountId())
+                    .accountId(entity.getAccountId())
                     .type(entity.getType())
                     .date(entity.getDate())
                     .method(entity.getMethod())
@@ -180,7 +180,7 @@ public class AccountBookDTO {
     @NoArgsConstructor
     @Getter
     public static class InstallmentListResponse {
-        private Integer accountBookId;
+        private Integer accountId;
         private Integer installmentId;
         private String content;
         private String categoryName;
@@ -199,7 +199,7 @@ public class AccountBookDTO {
                                                  boolean isCompleted, 
                                                  int remainingAmount) {
             return InstallmentListResponse.builder()
-                            .accountBookId(account.getAccountId())
+                            .accountId(account.getAccountId())
                             .installmentId(installment.getInstallmentId())
                             .content(account.getContent())
                             .categoryName(account.getCategory().getCategoryName())
@@ -222,7 +222,7 @@ public class AccountBookDTO {
     // 클라이언트 -> 서버
     @Data
     public static class Request {
-        private Integer accountBookId;
+        private Integer accountId;
         private AccountType type;
         private LocalDate date;
         private AccountMethod method;
@@ -239,7 +239,7 @@ public class AccountBookDTO {
                                     UserEntity user,
                                     AccountCategoryEntity category,
                                     AccountSavingsGoalEntity savingGoal) {
-            account.setAccountId(this.accountBookId);
+            account.setAccountId(this.accountId);
             account.setType(this.type);
             account.setDate(this.date);
             account.setMethod(this.method);
@@ -337,7 +337,7 @@ public class AccountBookDTO {
     @Getter
     public static class chartResponse{
 
-        private Integer accountBookId;
+        private Integer accountId;
         private String userId;
         private LocalDate date;
         private AccountType type;
@@ -350,7 +350,7 @@ public class AccountBookDTO {
 
         public static chartResponse of (AccountBookEntity entity){
             return chartResponse.builder()
-                    .accountBookId(entity.getAccountId())
+                    .accountId(entity.getAccountId())
                     .userId(entity.getUser().getUserId())
                     .date(entity.getDate())
                     .type(entity.getType())

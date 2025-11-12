@@ -1,5 +1,6 @@
 package back.code.accountBook.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.MediaType;
@@ -41,12 +42,20 @@ public class AccountBookController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    // 파일 삭제
+    @DeleteMapping("/account/{accountId}/file/{fileId}")
+    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable Integer accountId,
+                                                              @PathVariable String fileId) throws Exception {
+        accountBookService.deleteFile(accountId, fileId);
+        return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
+    }
+
     // 가계부 상세조회
     @GetMapping("")
     public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> getAccount(
                                             @RequestParam("userId") String userId,
-                                            @RequestParam("accountBookId") int accountBookId) throws Exception{
-        AccountBookDTO.Detail result = accountBookService.getAccount(userId, accountBookId);
+                                            @RequestParam("accountId") int accountId) throws Exception{
+        AccountBookDTO.Detail result = accountBookService.getAccount(userId, accountId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
