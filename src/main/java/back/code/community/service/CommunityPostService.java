@@ -1,26 +1,20 @@
 package back.code.community.service;
 
 import back.code.common.utils.FileUtils;
-import back.code.community.dto.CommunityPostCreateDTO;
-import back.code.community.dto.CommunityPostDTO;
-import back.code.community.dto.CommunityPostDetailDTO;
-import back.code.community.dto.CommunityPostFileDTO;
-import back.code.community.entity.CommunityBoardEntity;
-import back.code.community.entity.CommunityPostEntity;
-import back.code.community.entity.CommunityPostFileEntity;
-import back.code.community.entity.CommunityPostSettingEntity;
+import back.code.common.utils.SecurityUtils;
+import back.code.community.dto.*;
+import back.code.community.entity.*;
 import back.code.community.entity.enum_.FileRole;
 import back.code.community.repository.*;
 import back.code.file.entity.FileEntity;
-import back.code.file.event.OrphanFileCleanupEvent;
 import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +24,8 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,14 +40,17 @@ public class CommunityPostService {
     private final UserRepository userRepository;
     private final FileService fileService;
     private final CommunityBoardRepository communityBoardRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final FileUtils fileUtils;
     private final FileRepository fileRepository;
+    private final CommunityPostSettingRepository settingRepository;
+    private final CommunityPostViewRepository postViewRepository;
+    private final CommunityPostLikeRepository postLikeRepository;
 
     /** 게시글 전체 목록 조회 */
     @Transactional(readOnly = true)
     public List<CommunityPostDTO> getAllPosts() {
-        return communityPostRepository.findAllPostSummaries();
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return communityPostRepository.findAllPostSummariesWithLikeStatus(userId);
     }
 
     /** 게시판별 게시글 목록 조회 */
@@ -264,7 +263,7 @@ public class CommunityPostService {
     @Transactional
     public void deletePost(Integer postId) {
         // 삭제 대상 파일 리스트 가져오기
-        var mappings = postFileRepository.findByPost_PostId(postId);
+        var mappings = postFileRepository.findByPost_PostIdWithFile(postId);
         var files = mappings.stream()
                 .map(CommunityPostFileEntity::getFile)
                 .distinct()
@@ -322,12 +321,31 @@ public class CommunityPostService {
     @Transactional
     public CommunityPostDetailDTO getPostDetail(Integer postId) {
 
-        // 게시글 조회
-        CommunityPostEntity post = postRepository.findById(postId)
+        // 게시글 + 설정 JOIN 조회
+        CommunityPostEntity post = postRepository.findPostWithSetting(postId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
-        // 조회수 증가
-        post.increaseReadCount();
+        // 현재 로그인한 사용자 ID 가져오기
+        String userId = SecurityUtils.getCurrentUserId();
+
+        boolean isLiked = false;
+        if (userId != null && !"anonymousUser".equals(userId)) {
+            isLiked = postLikeRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
+        }
+
+        // 로그인 상태이며 게시글 작성자가 아니고 이전에 조회한 적이 없으면 → 조회수 증가
+        if (userId != null && !post.getUser().getUserId().equals(userId)) {
+            boolean alreadyViewed = postViewRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
+            if (!alreadyViewed) {
+                post.increaseReadCount();
+                postViewRepository.save(
+                        CommunityPostViewEntity.builder()
+                                .post(post)
+                                .user((UserEntity) userRepository.findByUserId(userId).orElseThrow())
+                                .build()
+                );
+            }
+        }
 
         // 작성자 프로필 이미지 조회 (file_type = 'PROFILE')
         List<FileEntity> profileFiles = fileRepository.findByUser_UserIdAndFileType(
@@ -356,7 +374,13 @@ public class CommunityPostService {
                 .toList();
 
         // DTO 변환
-        return CommunityPostDetailDTO.fromEntity(post, fileDtos, profileImagePath);
+        CommunityPostDetailDTO dto = CommunityPostDetailDTO.fromEntity(post, fileDtos, profileImagePath);
+        dto.setLiked(isLiked);
+        if (post.getSetting() != null) {
+            dto.setImageSizeType(String.valueOf(post.getSetting().getImageSizeType()));
+        }
+
+        return dto;
     }
 
     /** 공용 파일 URL 생성 유틸 (CommunityPostDTO와 동일한 로직) */
@@ -365,5 +389,81 @@ public class CommunityPostService {
         String normalized = filePath.replace("\\", "/");
         String relative = normalized.replace("C:/files/modu", "");
         return "http://localhost:9090" + relative + "/" + storedName;
+    }
+
+    /** 게시글 설정 조회 */
+    @Transactional(readOnly = true)
+    public CommunityPostSettingDTO getSettingByPostId(Integer postId) {
+        CommunityPostSettingEntity entity = settingRepository.findByPost_PostId(postId)
+                .orElseThrow(() -> new RuntimeException("게시글 설정 정보를 찾을 수 없습니다."));
+
+        CommunityPostSettingDTO dto = new CommunityPostSettingDTO();
+        dto.setIsPublic(String.valueOf(entity.getIsPublic()));
+        dto.setIsSearch(String.valueOf(entity.getIsSearch()));
+        dto.setIsComment(String.valueOf(entity.getIsComment()));
+        dto.setIsInShare(String.valueOf(entity.getIsInShare()));
+        dto.setIsOutShare(String.valueOf(entity.getIsOutShare()));
+        dto.setIsCopy(String.valueOf(entity.getIsCopy()));
+        dto.setImageSizeType(entity.getImageSizeType());
+        return dto;
+    }
+
+    /** 게시글 추천 (토글 + 결과 반환) */
+    @Transactional
+    public Map<String, Object> togglePostLike(Integer postId) {
+        // 로그인한 사용자 ID 가져오기
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 게시글 조회
+        CommunityPostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        // 이미 좋아요한 경우 확인
+        Optional<CommunityPostLikeEntity> existingLike =
+                postLikeRepository.findByPost_PostIdAndUser_UserId(postId, userId);
+
+        boolean isLiked;
+
+        if (existingLike.isPresent()) {
+            // 이미 눌렀으면 좋아요 취소
+            postLikeRepository.delete(existingLike.get());
+            log.info("[LIKE CANCEL] postId={}, userId={}", postId, userId);
+            isLiked = false;
+        } else {
+            // 처음 누른 경우
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+            CommunityPostLikeEntity newLike = CommunityPostLikeEntity.builder()
+                    .post(post)
+                    .user(user)
+                    .build();
+
+            postLikeRepository.save(newLike);
+            log.info("[LIKE ADD] postId={}, userId={}", postId, userId);
+            isLiked = true;
+        }
+
+        // 총 좋아요 수 다시 계산 후 캐시 필드 동기화
+        long likeCount = postLikeRepository.countByPost_PostId(postId);
+        post.setLikeCount((int) likeCount);
+        postRepository.save(post);
+
+        // 결과 반환
+        return Map.of(
+                "isLiked", isLiked,
+                "likeCount", likeCount
+        );
+    }
+
+    /** 로그인한 사용자가 특정 게시글을 추천했는지 여부 반환 */
+    @Transactional(readOnly = true)
+    public boolean isPostLikedByUser(Integer postId) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (userId == null || userId.equals("anonymousUser")) {
+            return false; // 로그인하지 않은 경우
+        }
+
+        return postLikeRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
     }
 }

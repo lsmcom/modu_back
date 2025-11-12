@@ -27,6 +27,8 @@ public class CommunityPostDetailDTO {
     private Integer readCount;
     private Integer likeCount;
     private Character isTemporary;
+    private String imageSizeType;
+    private boolean isLiked;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;

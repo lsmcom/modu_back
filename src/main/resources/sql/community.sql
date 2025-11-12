@@ -144,6 +144,40 @@ ALTER TABLE community_post
   ON UPDATE CASCADE;
 
 
+/* 11.11 수정사항 */
+/* 게시글 조회 이력 */
+create table community_post_view (
+    view_id     int 			auto_increment 	comment '조회 번호',
+    post_id     int 			not null 		comment '조회한 게시글 번호',
+    user_id     varchar(100) 	not null 		comment '조회한 사용자 아이디',
+    created_at  datetime        default now()   comment '조회한 시각',
+    
+    primary key (view_id),
+    constraint fk_view_post foreign key (post_id) references community_post(post_id),
+    constraint fk_view_user foreign key (user_id) references user(user_id),
+    unique key uk_post_user (post_id, user_id)
+) comment '게시글 조회 이력';
+
+/* 기존 PRIMARY KEY 및 FK 제약조건 제거 */
+ALTER TABLE community_post_like
+DROP PRIMARY KEY,
+DROP FOREIGN KEY fk_like_post,
+DROP FOREIGN KEY fk_like_user;
+
+/* like_id 컬럼 추가 및 기본키 설정 */
+ALTER TABLE community_post_like
+ADD COLUMN like_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '좋아요 고유 ID' FIRST;
+
+/* post_id + user_id 중복 방지 UNIQUE 제약 추가 */
+ALTER TABLE community_post_like
+ADD CONSTRAINT uq_post_user UNIQUE (post_id, user_id);
+
+/* 외래키 제약 다시 추가 (CASCADE 유지) */
+ALTER TABLE community_post_like
+ADD CONSTRAINT fk_like_post FOREIGN KEY (post_id) REFERENCES community_post(post_id) ON DELETE CASCADE,
+ADD CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE;
+
+
 
 
 

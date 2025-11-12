@@ -12,6 +12,7 @@ public interface CommunityPostSettingRepository extends JpaRepository<CommunityP
 
     Optional<CommunityPostSettingEntity> findByPost_PostId(Integer postId);
 
+    // 게시글 삭제 시 글쓰기 설정도 삭제
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from CommunityPostSettingEntity s where s.post.postId = :postId")
     int deleteByPost_PostId(@Param("postId") Integer postId);
