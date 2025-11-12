@@ -60,6 +60,13 @@ public class PlanAPIController {
         return ResponseEntity.ok(plans);
     }
 
+    /** 내 일정 + 공유받은 일정 */
+    @GetMapping("/user/{userId}/all")
+    public ResponseEntity<List<PlanResponse>> getPlansByUserIncludingShared(@PathVariable String userId) {
+        List<PlanResponse> plans = planService.getPlansByUserIncludingShared(userId);
+        return ResponseEntity.ok(plans);
+    }
+
     /** 폴더별 일정 */
     @GetMapping("/folder/{folderId}")
     public ResponseEntity<List<PlanResponse>> getPlansByFolder(@PathVariable Long folderId) {

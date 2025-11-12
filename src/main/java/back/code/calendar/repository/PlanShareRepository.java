@@ -23,5 +23,13 @@ public interface PlanShareRepository extends JpaRepository<PlanShareEntity, Plan
             "JOIN FETCH p.folder f " +
             "WHERE ps.sharedUser = :user")
     List<PlanShareEntity> findBySharedUserWithPlan(@Param("user") UserEntity user);
+
+    @Query("""
+    SELECT ps.plan 
+    FROM PlanShareEntity ps 
+    JOIN ps.sharedUser su 
+    WHERE su.userId = :userId
+""")
+    List<PlanEntity> findPlansSharedWithUser(@Param("userId") String userId);
 }
 

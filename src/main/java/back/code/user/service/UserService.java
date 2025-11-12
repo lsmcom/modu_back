@@ -1,5 +1,6 @@
 package back.code.user.service;
 
+import back.code.calendar.service.CalendarFolderService;
 import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
 import back.code.file.repository.FileRepository;
@@ -39,6 +40,7 @@ public class UserService {
     private final UserSettingService userSettingService;
     private final FileRepository fileRepository;
     private final FileService fileService;
+    private final CalendarFolderService calendarFolderService;
 
     /** 아이디 중복 확인 */
     @Transactional(readOnly = true)
@@ -138,8 +140,13 @@ public class UserService {
 
         // 저장
         userRepository.save(user);
+        // flush 실행하여 save 기능 밀림 해결
+        userRepository.flush();
         // 기본 사용자 설정 생성
         userSettingService.createDefaultSetting(user);
+
+        // 캘린더 폴더 자동 생성
+        calendarFolderService.createDefaultFolders(user);
 
         log.info("[회원가입 성공] userId={}, email={}", dto.getUserId(), dto.getEmail());
     }

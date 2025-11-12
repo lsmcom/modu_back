@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -134,6 +135,34 @@ public class PlanService {
                 .sharedUser(sharedUser)
                 .build();
         planShareRepository.save(share);
+    }
+
+    // 내 일정 + 공유 받은 일정 모두 조회
+    @Transactional(readOnly = true)
+    public List<PlanResponse> getPlansByUserIncludingShared(String userId) {
+        //  본인 일정
+        List<PlanEntity> personalPlans = planRepository.findByUser_UserId(userId);
+
+        // 공유된 일정
+        List<PlanEntity> sharedPlans = planShareRepository.findPlansSharedWithUser(userId);
+
+        // DTO 변환 시 folderType 강제 변경
+        List<PlanResponse> sharedResponses = sharedPlans.stream()
+                .map(p -> {
+                    PlanResponse r = PlanResponse.fromEntity(p);
+                    r.setFolderType("SHARED");
+                    return r;
+                })
+                .toList();
+
+        // 합치기
+        List<PlanResponse> personalResponses = personalPlans.stream()
+                .map(PlanResponse::fromEntity)
+                .toList();
+
+        return Stream.concat(personalResponses.stream(), sharedResponses.stream())
+                .distinct()
+                .toList();
     }
 
     /** 공유 사용자 삭제 */
