@@ -3,6 +3,7 @@ package back.code.todo.repository;
 import back.code.todo.entity.TodoList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -66,4 +67,15 @@ public interface TodoListRepository extends JpaRepository<TodoList, Integer> {
      */
     @Query("SELECT MAX(t.orderIndex) FROM TodoList t WHERE t.userId = :userId")
     Optional<Integer> findMaxOrderIndexByUserId(String userId);
+
+    /**
+     * 특정 사용자가 완료(삭제)한 Todo 항목의 총 개수를 조회합니다.
+     * 이 메서드는 MilestoneService의 호출 오류를 해결합니다.
+     * [주의]: Todo 삭제가 완료를 의미하므로, 이 카운트는 활성 Todo 테이블이 아닌,
+     * 'user_completion_stats'와 같은 별도의 통계 테이블을 조회해야 합니다.
+     * * @param userId 사용자 ID
+     * @return 총 완료 개수
+     */
+    @Query(value = "SELECT IFNULL(SUM(t.completed_count), 0) FROM todo_completion_status t WHERE t.user_id = :userId", nativeQuery = true)
+    long countCompletedTodosByUserId(@Param("userId") String userId);
 }

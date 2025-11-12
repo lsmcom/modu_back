@@ -5,8 +5,10 @@ import back.code.todo.entity.SubTodoList;
 import back.code.todo.entity.TodoFolder;
 import back.code.todo.entity.TodoList;
 import back.code.todo.repository.SubTodoListRepository;
+import back.code.todo.repository.TodoCompletionStatusRepository;
 import back.code.todo.repository.TodoFolderRepository;
 import back.code.todo.repository.TodoListRepository;
+import back.code.milestone.service.MilestoneService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,8 @@ public class TodoListService {
     private final TodoListRepository todoListRepository;
     private final TodoFolderRepository todoFolderRepository;
     private final SubTodoListRepository subTodoListRepository;
-
+    private final MilestoneService milestoneService;
+    private final TodoCompletionStatusRepository todoCompletionStatusRepository;
     /**
      * TodoList를 SubTodoResponse를 포함한 TodoResponse로 변환하는 헬퍼 메소드
      */
@@ -48,7 +51,7 @@ public class TodoListService {
         return TodoResponse.fromEntity(todo, folderName, subTodoResponses);
     }
 
-    // 💡 [추가] 익일 자동 이월 처리 헬퍼 함수
+    // 익일 자동 이월 처리 헬퍼 함수
     private LocalDateTime processAutoMigrate(LocalDateTime dueDate, Boolean autoMigrate, LocalDateTime now) {
         if (dueDate != null && autoMigrate != null && autoMigrate) {
 
@@ -85,23 +88,23 @@ public class TodoListService {
         // 2. 모든 TodoList 조회 (order_index 순으로 정렬되어 조회)
         List<TodoList> todos = todoListRepository.findByUserIdOrderByOrderIndexAsc(userId);
 
-        ZoneId kstZone = ZoneId.of("Asia/Seoul"); // 💡 [추가] ZoneId 정의
+        ZoneId kstZone = ZoneId.of("Asia/Seoul"); // ZoneId 정의
         LocalDateTime now = LocalDateTime.now(kstZone);
-        DayOfWeek today = now.getDayOfWeek(); // 💡 [추가] 오늘 요일
+        DayOfWeek today = now.getDayOfWeek(); // 오늘 요일
 
         // ====================================================================
-        // 💡 [추가] 반복 Todo 및 이월 Todo 처리 로직
+        // 반복 Todo 및 이월 Todo 처리 로직
         // ====================================================================
 
         List<TodoList> newTodosToAdd = new java.util.ArrayList<>();
 
-        // 💡 [추가] titlesDueToday 변수 정의 및 초기화 (오류 해결)
+        // titlesDueToday 변수 정의 및 초기화 (오류 해결)
         Set<String> titlesDueToday = todos.stream()
                 .filter(todo -> todo.getDueDate() != null && todo.getDueDate().toLocalDate().isEqual(now.toLocalDate()))
                 .map(TodoList::getTitle)
                 .collect(Collectors.toSet());
 
-        List<TodoList> updatedTodos = todos.stream() // 💡 [수정] updatedTodos 리스트를 활용
+        List<TodoList> updatedTodos = todos.stream() // updatedTodos 리스트를 활용
                 .peek(todo -> {
                     // --- 1. 익일 자동 이월 처리 (이전 단계 수정 로직) ---
                     if (todo.getDueDate() != null &&
@@ -127,7 +130,7 @@ public class TodoListService {
                         boolean isRepeatDay = repeatDays.contains(clientDayIndex);
                         boolean isDueToday = todo.getDueDate() != null && todo.getDueDate().toLocalDate().isEqual(now.toLocalDate());
                         boolean alreadyCreatedToday = titlesDueToday.contains(todo.getTitle());
-                        // 💡 [수정] 중복 생성 방지 로직 강화
+                        // 중복 생성 방지 로직 강화
                         if (isRepeatDay && !isDueToday && !alreadyCreatedToday) {
 
                             // Todo 복제 및 마감일 설정
@@ -138,7 +141,7 @@ public class TodoListService {
                             newTodo.setTdFixed(false);
                             newTodo.setIsCompleted(false);
 
-                            // 💡 [수정 시작] LocalTime 호환성 오류 해결 로직
+                            // LocalTime 호환성 오류 해결 로직
                             LocalDateTime originalDateTime = todo.getDueDate();
                             LocalTime originalTime;
 
@@ -148,9 +151,8 @@ public class TodoListService {
                                 originalTime = LocalTime.of(23, 59, 0);
                             }
 
-                            LocalDateTime newDueDate = now.with(originalTime); // 💡 [수정] now를 기준으로 originalTime을 적용
+                            LocalDateTime newDueDate = now.with(originalTime); // now를 기준으로 originalTime을 적용
                             newTodo.setDueDate(newDueDate);
-                            // 💡 [수정 끝]
 
                             Optional<Integer> maxOrderIndex = todoListRepository.findMaxOrderIndexByUserId(userId);
                             int newOrderIndex = maxOrderIndex.map(index -> index + 1).orElse(0);
@@ -165,14 +167,14 @@ public class TodoListService {
                         }
                     }
                 })
-                .collect(Collectors.toList()); // 💡 [수정] 이월 처리된 항목을 포함한 리스트
+                .collect(Collectors.toList()); // 이월 처리된 항목을 포함한 리스트
 
-        // 💡 [수정] 새로 생성된 Todo 항목 저장 및 목록에 추가
+        // 새로 생성된 Todo 항목 저장 및 목록에 추가
         List<TodoList> savedNewTodos = todoListRepository.saveAll(newTodosToAdd);
-        todos.addAll(savedNewTodos); // 💡 [수정] 원본 리스트(todos)에 추가하여 최종 리스트 구성
+        todos.addAll(savedNewTodos); // 원본 리스트(todos)에 추가하여 최종 리스트 구성
 
         // 3. TodoList를 TodoResponse로 변환 (SubTodo 정보 포함)
-        List<TodoResponse> todoResponses = todos.stream() // 💡 [수정] 최종 리스트인 todos 사용
+        List<TodoResponse> todoResponses = todos.stream() // 최종 리스트인 todos 사용
                 .map(todo -> convertToTodoResponse(todo, folderNameMap.getOrDefault(todo.getFolderId(), "알 수 없음")))
                 .collect(Collectors.toList());
 
@@ -199,7 +201,7 @@ public class TodoListService {
             finalDueDate = nowKst.with(LocalTime.of(23, 59, 0));
         }
 
-        finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst); // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
+        finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst); // 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
 
         TodoList newTodo = new TodoList();
         newTodo.setUserId(userId);
@@ -228,7 +230,7 @@ public class TodoListService {
         }
 
         ZoneId kstZone = ZoneId.of("Asia/Seoul");
-        LocalDateTime nowKst = LocalDateTime.now(kstZone); // 💡 [추가] nowKst 변수 정의
+        LocalDateTime nowKst = LocalDateTime.now(kstZone); // nowKst 변수 정의
 
         // 1. 폴더 존재 여부 확인 및 폴더 이름 조회
         TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
@@ -251,15 +253,15 @@ public class TodoListService {
 
         LocalDateTime newDueDate = request.getDueDate();
 
-        // 💡 [추가] 익일 자동 이월 로직 즉시 실행 (수정 시점 체크)
+        // 익일 자동 이월 로직 즉시 실행 (수정 시점 체크)
         if (newDueDate != null) {
             // 이월 로직: isCompleted가 false인 경우에만 이월 처리
-            if (!todo.getIsCompleted()) { // 💡 [추가] 미완료 상태인 경우에만 이월 로직을 태웁니다.
+            if (!todo.getIsCompleted()) { // 미완료 상태인 경우에만 이월 로직을 태웁니다.
                 newDueDate = processAutoMigrate(newDueDate, request.getAutoMigrate(), nowKst);
             }
         }
 
-        todo.setDueDate(newDueDate); // 💡 [수정] 이월 처리된 newDueDate 사용
+        todo.setDueDate(newDueDate); // 이월 처리된 newDueDate 사용
         todo.setRepeatDays(request.getRepeatDays());
         todo.setAutoMigrate(request.getAutoMigrate());
 
@@ -293,9 +295,12 @@ public class TodoListService {
             throw new SecurityException("Todo를 삭제할 권한이 없습니다.");
         }
 
+        todoCompletionStatusRepository.incrementCompletionCount(userId);
+
         todoListRepository.delete(todo);
 
         /* Note: 외래 키 제약조건으로 인해 SubTodoList도 자동 삭제 예상 */
+        milestoneService.checkAndAwardMilestones(userId);
     }
 
     @Transactional

@@ -1,5 +1,7 @@
+DROP TABLE IF EXISTS milestone;
+DROP TABLE IF EXISTS user_milestone;
 -- 업적 테이블
-CREATE TABLE `milestone` (
+CREATE TABLE milestone (
                              `milestone_id`	BIGINT	NOT NULL	AUTO_INCREMENT	COMMENT '마일스톤 고유 ID (PK)',
                              `name`	VARCHAR(100)	NOT NULL	COMMENT '마일스톤명',
                              `description`	TEXT	NULL	COMMENT '마일스톤 설명',
@@ -17,7 +19,7 @@ CREATE TABLE `milestone` (
 
 -- 유저 달성 업적 테이블
 
-CREATE TABLE `user_milestone` (
+CREATE TABLE user_milestone (
                                   `user_id`	VARCHAR(100)	NOT NULL	COMMENT '회원 아이디 (FK)',
                                   `milestone_id`	BIGINT	NOT NULL	COMMENT '마일스톤 고유 ID (FK)',
                                   `achieved_at`	DATETIME	NOT NULL	DEFAULT CURRENT_TIMESTAMP	COMMENT '마일스톤 달성 시간',
@@ -34,3 +36,15 @@ CREATE TABLE `user_milestone` (
                                           REFERENCES `milestone` (`milestone_id`)
                                           ON DELETE CASCADE
 ) COMMENT '사용자 마일스톤 달성 기록 테이블';
+
+INSERT INTO `milestone`
+(`name`, `description`, `category`, `target_type`, `target_value`, `reward`, `is_hidden`, `create_date`)
+VALUES
+    ('첫 걸음마', 'Todo 10개를 완료하여 첫 걸음을 내디뎠습니다.', 'TODO_COUNT', 'TODO_COMPLETE', 10, '브론즈 뱃지', FALSE, NOW()),
+    ('작은 성공', 'Todo 20개 완료! 꾸준함이 비결입니다.', 'TODO_COUNT', 'TODO_COMPLETE', 20, '실버 뱃지', FALSE, NOW()),
+    ('성장의 증거', 'Todo 30개 완료! 당신은 목표 달성가입니다.', 'TODO_COUNT', 'TODO_COMPLETE', 30, '골드 뱃지', FALSE, NOW()),
+    ('최고의 달성가', 'Todo 40개 완료! 이제 목표를 더 높여보세요.', 'TODO_COUNT', 'TODO_COMPLETE', 40, '플래티넘 뱃지', FALSE, NOW())
+ON DUPLICATE KEY UPDATE
+                     -- 'uk_target' (`target_type`, `target_value`) 중복 시 업데이트 방지 (필요에 따라 name, description 등 업데이트 가능)
+                     `name` = VALUES(`name`),
+                     `description` = VALUES(`description`);
