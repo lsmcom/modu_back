@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"plan", "sharedUser"})
 public class PlanShareEntity {
 
     @EmbeddedId
@@ -19,13 +18,11 @@ public class PlanShareEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("planId")
-    @JoinColumn(name = "plan_id",
-            foreignKey = @ForeignKey(name = "fk_plan_share_plan"))
+    @JoinColumn(name = "plan_id")
     private PlanEntity plan;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("sharedUserId")
-    @JoinColumn(name = "shared_user_id",
-            foreignKey = @ForeignKey(name = "fk_plan_share_user"))
+    @MapsId("userId")
+    @JoinColumn(name = "shared_user_id")
     private UserEntity sharedUser;
 }

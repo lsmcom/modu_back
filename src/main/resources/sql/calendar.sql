@@ -85,3 +85,17 @@ ALTER TABLE calendar_folder
 INSERT INTO calendar_folder (user_id, folder_name, folder_type)
 VALUES
     ('user01', '공유 폴더', 'SHARED');
+
+INSERT INTO calendar_folder (user_id, folder_name, folder_type)
+VALUES
+    ('admin01', '공유 폴더', 'SHARED');
+
+INSERT INTO calendar_folder (user_id, folder_name, folder_type)
+SELECT u.user_id, '공유 폴더', 'SHARED'
+FROM user u
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM calendar_folder f
+    WHERE f.user_id = u.user_id
+      AND f.folder_type = 'SHARED'
+);

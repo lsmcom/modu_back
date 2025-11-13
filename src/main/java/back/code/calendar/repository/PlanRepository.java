@@ -17,6 +17,10 @@ public interface PlanRepository extends JpaRepository<PlanEntity, Long> {
     @Query("SELECT p FROM PlanEntity p JOIN FETCH p.folder WHERE p.user = :user")
     List<PlanEntity> findByUserWithFolder(@Param("user") UserEntity user);
 
+    // userId 기반으로 일정 조회 (folder, user 함께 로딩)
+    @Query("SELECT p FROM PlanEntity p JOIN FETCH p.folder f JOIN FETCH p.user u WHERE u.userId = :userId")
+    List<PlanEntity> findByUser_UserId(@Param("userId") String userId);
+
     // 특정 사용자 전체 일정
     List<PlanEntity> findByUser(UserEntity user);
 

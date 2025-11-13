@@ -36,6 +36,27 @@ public class CalendarFolderService {
         return folderRepository.save(folder);
     }
 
+    // 회원가입 시 기본 폴더 / 공유 폴더 생성
+    @Transactional
+    public void createDefaultFolders(UserEntity user) {
+
+        // 기본 폴더 생성
+        CalendarFolderEntity personalFolder = CalendarFolderEntity.builder()
+                .user(user)
+                .folderName("기본 폴더")
+                .folderType("PERSONAL")
+                .build();
+        folderRepository.save(personalFolder);
+
+        // 공유 폴더 생성
+        CalendarFolderEntity sharedFolder = CalendarFolderEntity.builder()
+                .user(user)
+                .folderName("공유 폴더")
+                .folderType("SHARED")
+                .build();
+        folderRepository.save(sharedFolder);
+    }
+
     /** 사용자별 폴더 목록 조회 */
     @Transactional(readOnly = true)
     public List<CalendarFolderEntity> getFoldersByUser(String userId) {
