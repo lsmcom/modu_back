@@ -27,6 +27,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
         JOIN p.user u
         LEFT JOIN u.files f ON f.fileType = 'PROFILE'
         WHERE p.isTemporary = 'N'
+        AND (p.setting.isPublic = 'Y' OR (:userId IS NOT NULL AND p.user.userId = :userId))
         ORDER BY p.createAt DESC
     """)
     List<CommunityPostDTO> findAllPostSummariesWithLikeStatus(@Param("userId") String userId);
@@ -42,10 +43,11 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
         JOIN p.user u
         LEFT JOIN u.files f ON f.fileType = 'PROFILE'
         WHERE p.isTemporary = 'N'
+        AND (p.setting.isPublic = 'Y' OR (:userId IS NOT NULL AND p.user.userId = :userId))
         AND b.boardId = :boardId
         ORDER BY p.createAt DESC
     """)
-    List<CommunityPostDTO> findPostDTOsByBoardId(@Param("boardId") Integer boardId);
+    List<CommunityPostDTO> findPostDTOsByBoardId(@Param("userId") String userId, @Param("boardId") Integer boardId);
 
     // 임시저장 게시글 조회
     @Query("""
@@ -88,4 +90,31 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
         WHERE p.postId = :postId
     """)
     Optional<CommunityPostEntity> findPostWithSetting(@Param("postId") Integer postId);
+
+    // 사용자별 게시글 수 조회
+    int countByUser_UserIdAndIsTemporary(String userId, Character isTemporary);
+
+    // 인기 게시글 조회 (조회수 / 추천수 / 댓글수 순 정렬 + 기간 필터)
+    @Query("""
+        SELECT new back.code.community.dto.CommunityPostDTO(p.postId, b.boardId, b.boardName, u.userId, u.userNick,
+            f.filePath, f.storedName, p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt)
+        FROM CommunityPostEntity p
+        JOIN p.board b
+        JOIN p.user u
+        LEFT JOIN u.files f ON f.fileType = 'PROFILE'
+        WHERE p.isTemporary = 'N'
+        AND (p.setting.isPublic = 'Y' OR (:userId IS NOT NULL AND p.user.userId = :userId))
+        AND (:period = 'all' OR p.createAt >= :cutoff)
+        ORDER BY
+            CASE WHEN :sortBy = 'view' THEN p.readCount END DESC,
+            CASE WHEN :sortBy = 'like' THEN p.likeCount END DESC,
+            CASE WHEN :sortBy = 'comment' THEN (
+                SELECT COUNT(c)
+                FROM CommunityPostCommentEntity c
+                WHERE c.post.postId = p.postId
+            ) END DESC
+    """)
+    List<CommunityPostDTO> findPopularPosts(@Param("userId") String userId, @Param("cutoff") LocalDateTime cutoff,
+            @Param("sortBy") String sortBy, @Param("period") String period
+    );
 }

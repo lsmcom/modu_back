@@ -108,4 +108,31 @@ public class CommunityPostController {
         boolean liked = communityPostService.isPostLikedByUser(postId);
         return ResponseEntity.ok(ApiResponse.ok(liked));
     }
+
+    /** 사용자 별 게시글, 댓글 수 조회 */
+    @GetMapping("/users/{userId}/activity-count")
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getUserActivityCount(@PathVariable String userId) {
+        Map<String, Integer> result = communityPostService.getUserPostAndCommentCount(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /**
+     * 인기 게시글 조회
+     *
+     * - sortBy : 정렬 기준 ("view" = 조회수, "like" = 추천수, "comment" = 댓글수)
+     * - period : 기간 필터 ("7" = 최근 7일, "30" = 최근 30일, "all" = 전체)
+     */
+    @GetMapping("/posts/popular")
+    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getPopularPosts(
+            @RequestParam(defaultValue = "view") String sortBy, @RequestParam(defaultValue = "7") String period) {
+        List<CommunityPostDTO> posts = communityPostService.getPopularPosts(sortBy, period);
+        return ResponseEntity.ok(ApiResponse.ok(posts));
+    }
+
+    /** 게시글 신고 */
+    @PostMapping("/report")
+    public ResponseEntity<ApiResponse<String>> reportPost(@RequestBody CommunityReportRequest request) {
+        communityPostService.reportPost(request);
+        return ResponseEntity.ok(ApiResponse.ok("신고가 접수되었습니다."));
+    }
 }

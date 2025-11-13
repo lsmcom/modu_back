@@ -118,17 +118,6 @@ create table community_post_setting(
     constraint fk_setting_user foreign key (user_id) references user(user_id) on delete cascade
 ) comment '커뮤니티 게시글 설정';
 
-/* 사용자 차단 테이블 */
-create table user_block (
-    blocker_id varchar(100) not null comment '차단한 회원 아이디',
-    blocked_id varchar(100) not null comment '차단당한 회원 아이디',
-    created_at datetime default now() comment '차단한 시각',
-
-    primary key (blocker_id, blocked_id),
-    constraint fk_blocker_user foreign key (blocker_id) references user(user_id) on delete cascade,
-    constraint fk_blocked_user foreign key (blocked_id) references user(user_id) on delete cascade
-) comment '회원 차단 관계';
-
 
 /* 11.06 수정사항 */
 ALTER TABLE community_post DROP FOREIGN KEY fk_post_board;
@@ -176,6 +165,25 @@ ADD CONSTRAINT uq_post_user UNIQUE (post_id, user_id);
 ALTER TABLE community_post_like
 ADD CONSTRAINT fk_like_post FOREIGN KEY (post_id) REFERENCES community_post(post_id) ON DELETE CASCADE,
 ADD CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE;
+
+
+/* 11.12 수정사항 */
+drop table user_block;
+
+INSERT INTO community_post_setting (post_id, user_id, is_public, is_search, is_comment, 
+is_in_share, is_copy, is_out_share, image_size_type)
+SELECT 
+    post_id,
+    user_id,
+    'Y' AS is_public,
+    'Y' AS is_search,
+    'Y' AS is_comment,
+    'Y' AS is_in_share,
+    'Y' AS is_copy,
+    'Y' AS is_out_share,
+    'LARGE' AS image_size_type
+FROM community_post
+WHERE post_id NOT IN (SELECT post_id FROM community_post_setting);
 
 
 

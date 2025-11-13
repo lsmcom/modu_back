@@ -45,18 +45,44 @@ public class CommunityPostService {
     private final CommunityPostSettingRepository settingRepository;
     private final CommunityPostViewRepository postViewRepository;
     private final CommunityPostLikeRepository postLikeRepository;
+    private final CommunityPostCommentRepository commentRepository;
+    private final CommunityReportRepository reportRepository;
+
+    /** 댓글 및 이미지 파일 첫번째 부분 가져오기 */
+    private void enrichPostListWithExtras(List<CommunityPostDTO> list) {
+        for (CommunityPostDTO dto : list) {
+            int commentCount = commentRepository.countByPost_PostId(dto.getPostId());
+            dto.setCommentCount(commentCount);
+
+            var files = postFileRepository.findByPost_PostIdOrderByFileOrderAsc(dto.getPostId());
+            String thumbnailPath = files.stream()
+                    .map(CommunityPostFileEntity::getFile)
+                    .filter(file -> file.getStoredName() != null &&
+                            file.getStoredName().toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$"))
+                    .findFirst()
+                    .map(file -> buildUrl(file.getFilePath(), file.getStoredName()))
+                    .orElse(null);
+
+            dto.setThumbnailPath(thumbnailPath);
+        }
+    }
 
     /** 게시글 전체 목록 조회 */
     @Transactional(readOnly = true)
     public List<CommunityPostDTO> getAllPosts() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        return communityPostRepository.findAllPostSummariesWithLikeStatus(userId);
+        List<CommunityPostDTO> list = communityPostRepository.findAllPostSummariesWithLikeStatus(userId);
+        enrichPostListWithExtras(list);
+        return list;
     }
 
     /** 게시판별 게시글 목록 조회 */
     @Transactional(readOnly = true)
     public List<CommunityPostDTO> getPostsByBoardId(Integer boardId) {
-        return communityPostRepository.findPostDTOsByBoardId(boardId);
+        String userId = SecurityUtils.getCurrentUserId();
+        List<CommunityPostDTO> list = communityPostRepository.findPostDTOsByBoardId(userId, boardId);
+        enrichPostListWithExtras(list);
+        return list;
     }
 
     /** 필독 공지(상단 고정) 조회 */
@@ -465,5 +491,53 @@ public class CommunityPostService {
         }
 
         return postLikeRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
+    }
+
+    /** 사용자 별 게시글, 댓글 수 조회 */
+    @Transactional(readOnly = true)
+    public Map<String, Integer> getUserPostAndCommentCount(String userId) {
+        int postCount = communityPostRepository.countByUser_UserIdAndIsTemporary(userId, 'N');
+        int commentCount = commentRepository.countByUser_UserId(userId);
+
+        return Map.of(
+                "postCount", postCount,
+                "commentCount", commentCount
+        );
+    }
+
+    /**
+     * 인기 게시글 목록 조회
+     * - 조회수 / 추천수 / 댓글수 TOP
+     * - 기간 필터 (최근 7일 / 최근 30일 / 전체)
+     */
+    public List<CommunityPostDTO> getPopularPosts(String sortBy, String period) {
+        String userId = SecurityUtils.getCurrentUserId();
+
+        LocalDateTime cutoff = switch (period) {
+            case "7" -> LocalDateTime.now().minusDays(7);
+            case "30" -> LocalDateTime.now().minusDays(30);
+            default -> LocalDateTime.now(); // placeholder (사용 안됨)
+        };
+        return communityPostRepository.findPopularPosts(userId, cutoff, sortBy, period);
+    }
+
+    /** 게시글 신고 */
+    @Transactional
+    public void reportPost(CommunityReportRequest request) {
+        // 중복 신고 여부 확인
+        if (reportRepository.findByPostIdAndUserId(request.getPostId(), request.getUserId()).isPresent()) {
+            throw new RuntimeException("이미 이 게시글을 신고하셨습니다.");
+        }
+
+        CommunityReportEntity report = CommunityReportEntity.builder()
+                .postId(request.getPostId())
+                .userId(request.getUserId())
+                .reportReason(request.getReportReason())
+                .build();
+
+        reportRepository.save(report);
+        log.info("게시글 신고 등록됨 -> postId: {}, userId: {}, reason: {}",
+                request.getPostId(), request.getUserId(), request.getReportReason()
+        );
     }
 }

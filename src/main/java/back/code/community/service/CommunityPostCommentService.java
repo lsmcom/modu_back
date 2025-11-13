@@ -41,6 +41,11 @@ public class CommunityPostCommentService {
         CommunityPostEntity post = postRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
+        // 글쓰기 설정에서 댓글 비허용일 경우
+        if (post.getSetting() != null && post.getSetting().getIsComment() == 'N') {
+            throw new RuntimeException("이 게시글은 댓글 작성을 허용하지 않습니다.");
+        }
+
         // 부모 댓글 (대댓글일 경우)
         CommunityPostCommentEntity parent = null;
         if (dto.getParentCommentId() != null) {
