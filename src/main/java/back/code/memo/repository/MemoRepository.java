@@ -34,7 +34,4 @@ public interface MemoRepository extends JpaRepository<MemoEntity, Integer> {
     @Query("SELECT m FROM MemoEntity m WHERE m.user.userId = :userId AND (LOWER(m.memoTitle) LIKE LOWER(:keyword) OR LOWER(m.memoContents) LIKE LOWER(:keyword))")
     List<MemoEntity> findByUserIdAndKeyword(@Param("userId") String userId, @Param("keyword") String keyword);
 
-    // 해당 유저의 내역 삭제
-    void deleteByUser(UserEntity user);
-
 }

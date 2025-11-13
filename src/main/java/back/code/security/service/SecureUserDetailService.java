@@ -41,6 +41,6 @@ public class SecureUserDetailService implements  UserDetailsService {
 
         // DB의 사용자 정보를 기반으로 인증용 DTO 생성
         return new SecureUserDTO(user.getUserId(), user.getUserName(),
-                user.getPassword(), user.getRoleName()) ;
+                user.getPassword(), user.getRoleId()) ;
     }
 }

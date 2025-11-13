@@ -75,11 +75,11 @@ CREATE TABLE todo_completion_status (
 
 -- 1. todofolder 테이블 데이터 삽입
 INSERT INTO todofolder (folder_id, user_id, name) VALUES
-                                                      (0, 'user01', '전체'),
-                                                      (1, 'user01', '기본 폴더'),
-                                                      (2, 'user01', '개인'),
-                                                      (3, 'user01', '업무'),
-                                                      (999, 'user01', 'NotTodo')
+                                                      (0, 'user02', '전체'),
+                                                      (1, 'user02', '기본 폴더'),
+                                                      (2, 'user02', '개인'),
+                                                      (3, 'user02', '업무'),
+                                                      (999, 'user02', 'NotTodo')
 ON DUPLICATE KEY UPDATE name = VALUES(name); -- 중복 삽입 방지 로직 추가 (선택 사항)
 
 

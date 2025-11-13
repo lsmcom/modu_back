@@ -9,5 +9,8 @@ import java.util.Optional;
 public interface UserSettingRepository extends JpaRepository<UserSettingEntity, String> {
 
     Optional<UserSettingEntity> findByUser(UserEntity user);
+
+    // 해당 유저의 내역 삭제
+    void deleteByUser(UserEntity user);
     
 }

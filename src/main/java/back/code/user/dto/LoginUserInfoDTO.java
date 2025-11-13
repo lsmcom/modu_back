@@ -12,6 +12,6 @@ public class LoginUserInfoDTO {
     private String userId;
     private String userName;
     private String password;
-    private String roleName;
+    private String roleId;
     private String status;
 }

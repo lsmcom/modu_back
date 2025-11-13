@@ -32,7 +32,5 @@ public interface PlanShareRepository extends JpaRepository<PlanShareEntity, Plan
 """)
     List<PlanEntity> findPlansSharedWithUser(@Param("userId") String userId);
 
-    // 해당 유저의 내역 삭제
-    // void deleteByUser(UserEntity user);
 }
 

@@ -2,10 +2,11 @@ package back.code.milestone.repository;
 
 import back.code.milestone.entity.UserMilestone;
 import back.code.milestone.entity.UserMilestoneId;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface UserMilestoneRepository extends JpaRepository<UserMilestone, UserMilestoneId> {
@@ -21,4 +22,9 @@ public interface UserMilestoneRepository extends JpaRepository<UserMilestone, Us
 
     /*특정 사용자가 특정 업적을 이미 달성했는지 확인합니다.*/
     boolean existsById_UserIdAndId_MilestoneId(String userId, Long milestoneId);
+
+    // 해당 유저의 내역 삭제
+    @Modifying
+    @Query("DELETE FROM UserMilestone um WHERE um.id.userId = :userId")
+    void deleteByUserId(@Param("userId") String userId);
 }

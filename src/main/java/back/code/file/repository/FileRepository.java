@@ -1,6 +1,8 @@
 package back.code.file.repository;
 
 import back.code.file.entity.FileEntity;
+import back.code.user.entity.UserEntity;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,5 +28,8 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     @Modifying
     @Query(value = "DELETE FROM file WHERE file_id = :fileId", nativeQuery = true)
     void deletePhysicalFile(@Param("fileId") String fileId);
+
+    // 해당 유저의 내역 삭제
+    void deleteByUser(UserEntity user);
 
 }

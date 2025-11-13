@@ -33,10 +33,10 @@ public class SecureUserDTO extends User {
      * @param userId   로그인 ID (Security의 username으로 매핑됨)
      * @param userName 사용자 표시 이름 (프로필/로그용)
      * @param password 암호화된 비밀번호 (BCrypt 등) — JWT 컨텍스트에선 placeholder 사용 가능
-     * @param roleName 권한 명(예: USER, ADMIN). 내부에서 {@code ROLE_} 접두사를 자동 부여
+     * @param roleId 권한 명(예: USER, ADMIN). 내부에서 {@code ROLE_} 접두사를 자동 부여
      */
-    public SecureUserDTO(String userId, String userName, String password, String roleName) {
-        super(userId, password, getAuthority(roleName));
+    public SecureUserDTO(String userId, String userName, String password, String roleId) {
+        super(userId, password, getAuthority(roleId));
 
         this.userId = userId;
         this.userName = userName;
@@ -47,12 +47,12 @@ public class SecureUserDTO extends User {
      *
      * <p>예: "USER" → "ROLE_USER"</p>
      *
-     * @param roleName 권한 명(접두사 미포함)
+     * @param roleId 권한 명(접두사 미포함)
      * @return GrantedAuthority 목록
      */
-    private static  List<GrantedAuthority>  getAuthority(String roleName){
+    private static  List<GrantedAuthority>  getAuthority(String roleId){
         List<GrantedAuthority> list = new ArrayList<>();
-        list.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleName));
+        list.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleId));
         return list;
     }
 }

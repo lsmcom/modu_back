@@ -6,9 +6,14 @@ import back.code.accountBook.repository.CategoryRepository;
 import back.code.accountBook.repository.SavingGoalRepository;
 import back.code.calendar.repository.CalendarFolderRepository;
 import back.code.calendar.repository.CalendarSettingRepository;
-import back.code.calendar.repository.PlanRepository;
-import back.code.calendar.repository.PlanShareRepository;
-import back.code.memo.repository.MemoRepository;
+import back.code.calendar.service.CalendarFolderService;
+import back.code.file.repository.FileRepository;
+import back.code.milestone.repository.UserMilestoneRepository;
+import back.code.notice.repository.NotificationRepository;
+import back.code.recentsearch.repository.RecentSearchRepository;
+import back.code.todo.entity.TodoFolder;
+import back.code.todo.repository.TodoFolderRepository;
+import back.code.todo.repository.TodoListRepository;
 import back.code.memo.repository.MemoFolderRepository;
 import back.code.user.dto.UserSettingUpdateDTO;
 import back.code.user.entity.UserEntity;
@@ -20,13 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserSettingService {
+
+    private final CalendarFolderService calendarFolderService;
 
     private final UserRepository userRepository;
     private final UserSettingRepository userSettingRepository;
@@ -35,11 +42,14 @@ public class UserSettingService {
     private final SavingGoalRepository savingGoalRepository;
     private final CategoryRepository categoryRepository;
     private final MemoFolderRepository memoFolderRepository;
-    private final MemoRepository memoRepository;
     private final CalendarFolderRepository calendarFolderRepository;
-    private final PlanRepository planRepository;
     private final CalendarSettingRepository calendarSettingRepository;
-    // private final PlanShareRepository planShareRepository;
+    private final TodoFolderRepository todoFolderRepository;
+    private final RecentSearchRepository recentSearchRepository;
+    private final UserMilestoneRepository userMilestoneRepository;
+    private final NotificationRepository notificationRepository;
+    private final FileRepository fileRepository;
+
 
     /** 회원가입시 기본 사용자 설정 생성 */
     @Transactional
@@ -97,24 +107,9 @@ public class UserSettingService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-        UserSettingEntity setting = userSettingRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("사용자 설정이 존재하지 않습니다."));
-
         // 사용자 설정 초기화
-        Optional<UserSettingEntity> settingOpt = userSettingRepository.findByUser(user);
-        if(settingOpt.isPresent()) {
-            setting = settingOpt.get(); 
-
-            setting.setTheDayOfWeek("M");
-            setting.setThemeMode("light");
-            setting.setAlarmAllowed("Y");
-            setting.setPersonalInfoAgreed("Y");
-            setting.setLocationInfoAgreed("Y");
-            setting.setMarketingInfoAgreed("Y");
-            setting.setMarketingRejectDate(null);
-
-            userSettingRepository.save(setting);
-        }
+        userSettingRepository.deleteByUser(user);
+        createDefaultSetting(user);
             
         // 가계부 데이터 삭제
         budgetRepository.deleteByUser(user);
@@ -123,17 +118,27 @@ public class UserSettingService {
         categoryRepository.deleteByUserAndIsDefaultNull(user);  // 사용자 카테고리만 초기화
 
         // 메모 데이터 삭제
-        memoRepository.deleteByUser(user);
         memoFolderRepository.deleteByUser(user);
 
-        // 캘린더 데이터 삭제
+        // 캘린더 데이터 삭제 및 초기화
         calendarFolderRepository.deleteByUser(user);
-        calendarSettingRepository.deleteByUser(user);
-        planRepository.deleteByUser(user);
-        // planShareRepository.deleteByUser(user);
+        calendarSettingRepository.deleteByUser(user);  // 알아서 초기화 됨
+        calendarFolderService.createDefaultFolders(user);  // 캘린더 공유폴더 자동 생성
 
         // 투두 데이터 삭제
+        // todoFolderRepository.deleteByUserId(user.getUserId());
 
+        // 파일 삭제
+        fileRepository.deleteByUser(user);
 
+        // 알림 삭제
+        notificationRepository.deleteByUserId(user.getUserId());
+
+        // 업적 삭제
+        userMilestoneRepository.deleteByUserId(user.getUserId());
+
+        // 최근검색어 삭제
+        recentSearchRepository.deleteByUserId(user.getUserId());
+        
     }
 }

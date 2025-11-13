@@ -189,7 +189,7 @@ public class NaverOAuthService {
                 "access",
                 user.getUserId(),
                 user.getUserName(),
-                user.getUserRole().getRoleName(),
+                user.getUserRole().getRoleId(),
                 1440
         );
 
@@ -198,7 +198,7 @@ public class NaverOAuthService {
         result.put("token", token);
         result.put("userId", user.getUserId());
         result.put("userName", user.getUserName());
-        result.put("userRole", user.getUserRole().getRoleName());
+        result.put("userRole", user.getUserRole().getRoleId());
         result.put("socialType", user.getSocialType());
 
         log.info("[NAVER] 로그인 완료 - userId={}, email={}", user.getUserId(), user.getEmail());

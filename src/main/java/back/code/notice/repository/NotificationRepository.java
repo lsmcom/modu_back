@@ -1,6 +1,7 @@
 package back.code.notice.repository;
 
 import back.code.notice.entity.Notification;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
@@ -22,4 +23,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // 알림 페이지에서 읽음 처리 시 사용: notificationId로 알림을 찾습니다.
     // JpaRepository의 기본 메서드 (findById)로 충분합니다.
+
+    // 해당 유저의 내역 삭제
+    void deleteByUserId(String userId);
 }
