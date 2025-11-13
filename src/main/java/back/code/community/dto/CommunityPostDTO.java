@@ -3,6 +3,7 @@ package back.code.community.dto;
 import back.code.community.entity.enum_.ImageSizeType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,11 @@ public class CommunityPostDTO {
     private Integer likeCount;
     private Character isTemporary;
     private boolean isLiked;
+
+    @Setter
+    private Integer commentCount;
+    @Setter
+    private String thumbnailPath;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;

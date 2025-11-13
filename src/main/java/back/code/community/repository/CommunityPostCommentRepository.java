@@ -25,4 +25,10 @@ public interface CommunityPostCommentRepository extends JpaRepository<CommunityP
 
     // 특정 게시글의 모든 댓글 조회 (부모/자식 관계 무시)
     List<CommunityPostCommentEntity> findByPost_PostIdOrderByCreateAtAsc(Integer postId);
+
+    // 게시글 별 댓글수 조회
+    int countByPost_PostId(Integer postId);
+
+    // 사용자 별 댓글수 조회
+    int countByUser_UserId(String userId);
 }
