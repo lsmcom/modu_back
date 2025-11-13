@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS subtodolist;
 DROP TABLE IF EXISTS todolist;
 -- 3. todofolder 테이블 삭제 (가장 상위 테이블)
 DROP TABLE IF EXISTS todofolder;
+-- 3. todo_completion_status 테이블 삭제
+DROP TABLE IF EXISTS todo_completion_status;
 
 /* 투두 폴더 */
 CREATE TABLE todofolder (
@@ -63,6 +65,13 @@ CREATE TABLE subtodolist (
 
 CREATE INDEX idx_subtodo_todolist_id ON subtodolist (todolist_id);
 
+CREATE TABLE todo_completion_status (
+                                          `user_id` VARCHAR(100) NOT NULL,
+                                          `completed_count` INT NOT NULL DEFAULT 0,
+                                          `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                          PRIMARY KEY (`user_id`)
+) COMMENT '투두 완료 카운트';
+
 
 -- 1. todofolder 테이블 데이터 삽입
 INSERT INTO todofolder (folder_id, user_id, name) VALUES
@@ -70,40 +79,56 @@ INSERT INTO todofolder (folder_id, user_id, name) VALUES
                                                       (1, 'user01', '기본 폴더'),
                                                       (2, 'user01', '개인'),
                                                       (3, 'user01', '업무'),
-                                                      (999, 'user01', 'NotTodo');
+                                                      (999, 'user01', 'NotTodo')
+ON DUPLICATE KEY UPDATE name = VALUES(name); -- 중복 삽입 방지 로직 추가 (선택 사항)
 
--- 2. todolist 테이블 데이터 삽입
-INSERT INTO todolist (
-    todo_id, user_id, folder_id, title, td_fixed, is_completed, due_date, order_index, create_date, repeat_days, auto_migrate
-) VALUES
--- --- 1. 날짜를 부여한 기본 할 일 (2025-11-03 기준) ---
--- 수정된 부분: sub_title 컬럼 제거 및 repeat_days, auto_migrate 컬럼 추가
-(1, 'user01', 1, '고정 할 일 (11/05)', 1, 0, '2025-11-05 10:00:00', 0, NOW(), NULL, NULL),
-(2, 'user01', 1, '하위 Todo 포함 (11/06)', 0, 0, '2025-11-06 10:00:00', 1, NOW(), NULL, NULL), -- sub_title: '하위 TodoList입니다.' -> subtodolist로 이관
-(3, 'user01', 2, '개인 폴더 Todo (11/07)', 1, 0, '2025-11-07 10:00:00', 0, NOW(), NULL, NULL),
 
--- --- 2. NotTodo 항목 (folder_id: 999) ---
-(4, 'user01', 999, 'NotTodoList (11/04)', 0, 0, '2025-11-04 08:00:00', 0, NOW(), NULL, NULL),
-(5, 'user01', 999, 'NotTodoList 하위 (11/04)', 0, 0, '2025-11-04 09:00:00', 1, NOW(), NULL, NULL), -- sub_title: '하위 TodoList입니다.' -> subtodolist로 이관
+-- ******************************************************
+-- 2. todolist 테이블 데이터 삽입 (Todo 항목)
+-- ******************************************************
 
--- --- 3. 미완료/기한 초과 항목 (Overdue) ---
-(6, 'user01', 2, '미완료 - 11/02 초과', 0, 0, '2025-11-02 23:59:59', 2, NOW(), NULL, NULL), -- sub_title: '하위 TodoList입니다.' -> subtodolist로 이관
-(7, 'user01', 2, '미완료 - 10/31 초과', 0, 0, '2025-10-31 23:59:59', 3, NOW(), NULL, NULL),
+INSERT INTO todolist (user_id, folder_id, title, td_fixed, is_completed, due_date, order_index, create_date, repeat_days, auto_migrate)
+VALUES
+    -- Todo 1: 고정된 미완료 할 일 (기본 폴더)
+    ('user01', 1, '긴급 보고서 작성', 1, 0, NOW() + INTERVAL 1 DAY, 0, NOW(), NULL, 1),
 
--- --- 4. 기타 테스트 항목 (날짜/폴더별) ---
-(8, 'user01', 1, '다음 주 할 일 (11/10)', 0, 0, '2025-11-10 16:00:00', 2, NOW(), NULL, NULL),
-(9, 'user01', 1, '오늘 할 일 (11/03)', 0, 0, '2025-11-03 10:00:00', 6, NOW(), NULL, NULL), -- sub_title: '날짜 필터링 메인' -> subtodolist로 이관
-(10, 'user01', 3, '내일 업무 (11/04)', 0, 0, '2025-11-04 12:00:00', 7, NOW(), NULL, NULL), -- sub_title: '업무 폴더 필터' -> subtodolist로 이관
-(11, 'user01', 2, '금요일 할 일 (11/07)', 1, 0, '2025-11-07 14:00:00', 8, NOW(), NULL, NULL),
-(12, 'user01', 1, '주말 할 일 (11/08)', 0, 0, '2025-11-08 09:00:00', 9, NOW(), NULL, NULL),
-(13, 'user01', 1, '다음 주 월요일 (11/10)', 0, 0, '2025-11-10 16:00:00', 10, NOW(), NULL, NULL),
-(14, 'user01', 3, '10월 말 업무 (10/30)', 0, 0, '2025-10-30 10:00:00', 11, NOW(), NULL, NULL);
+    -- Todo 2: 완료된 할 일 (업무 폴더)
+    ('user01', 3, '팀 회의 자료 검토', 0, 1, NOW() - INTERVAL 1 HOUR, 1, NOW() - INTERVAL 1 DAY, NULL, 0),
 
--- 3. subtodolist 테이블 데이터 삽입 (기존 sub_title 데이터를 기반으로 새 항목 생성)
--- todo_id 2, 5, 6, 9, 10의 sub_title 데이터를 title로 이관
-INSERT INTO subtodolist (todolist_id, title) VALUES
-                                                 (2, '하위 TodoList입니다.'), -- todo_id 2
-                                                 (5, '하위 TodoList입니다.'), -- todo_id 5
-                                                 (6, '하위 TodoList입니다.'), -- todo_id 6
-                                                 (9, '날짜 필터링 메인'),     -- todo_id 9
-                                                 (10, '업무 폴더 필터');      -- todo_id 10
+    -- Todo 3: 반복 설정된 할 일 (개인 폴더, 월/수/금 반복, 월요일=0, 수요일=2, 금요일=4)
+    ('user01', 2, '헬스장 방문 (반복)', 0, 0, NOW() + INTERVAL 1 DAY, 2, NOW(), '0,2,4', 1),
+
+    -- Todo 4: 마감일 없는 할 일 (기본 폴더)
+    ('user01', 1, '주간 목표 설정 검토', 0, 0, NULL, 3, NOW(), NULL, 0),
+
+    -- Todo 5: 미완료 할 일 (NotTodo 폴더)
+    ('user01', 999, '핸드폰 게임 3시간 하기', 0, 0, NOW() + INTERVAL 3 DAY, 4, NOW(), NULL, 0);
+
+
+-- ******************************************************
+-- 3. subtodolist 테이블 데이터 삽입 (하위 Todo 항목)
+-- (Todo 1의 todo_id를 1로, Todo 3의 todo_id를 3으로 가정)
+-- 참고: Auto_increment가 1부터 시작한다고 가정하고 FK를 직접 명시합니다.
+-- 실제 환경에서는 last_insert_id() 등을 사용해야 합니다.
+-- ******************************************************
+
+INSERT INTO subtodolist (todolist_id, title)
+VALUES
+    -- Todo 1의 하위 항목
+    (1, '데이터 분석 섹션 완료'),
+    (1, '차트 디자인 검토'),
+
+    -- Todo 3의 하위 항목
+    (3, '유산소 30분'),
+    (3, '근력 운동 40분');
+
+
+-- ******************************************************
+-- 4. todo_completion_status 테이블 데이터 삽입
+-- (Milestone 로직 테스트를 위해 Todo 2 완료 기록 1개를 반영)
+-- ******************************************************
+
+INSERT INTO todo_completion_status (user_id, completed_count, last_updated)
+VALUES
+    ('user01', 1, NOW() - INTERVAL 1 DAY)
+ON DUPLICATE KEY UPDATE completed_count = VALUES(completed_count);
