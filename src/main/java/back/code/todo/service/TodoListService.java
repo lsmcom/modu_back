@@ -3,6 +3,7 @@ package back.code.todo.service;
 import back.code.todo.dto.*;
 import back.code.todo.entity.SubTodoList;
 import back.code.todo.entity.TodoFolder;
+import back.code.todo.entity.TodoFolderId;
 import back.code.todo.entity.TodoList;
 import back.code.todo.repository.SubTodoListRepository;
 import back.code.todo.repository.TodoCompletionStatusRepository;
@@ -40,7 +41,7 @@ public class TodoListService {
      */
     private TodoResponse convertToTodoResponse(TodoList todo, String folderName) {
         // 해당 TodoId에 연결된 모든 SubTodoList 항목 조회
-        List<SubTodoList> subTodos = subTodoListRepository.findByTodoListId(todo.getTodoId());
+        List<SubTodoList> subTodos = subTodoListRepository.findByTodoList_TodoId(todo.getTodoId());
 
         // SubTodoList를 SubTodoResponse DTO로 변환
         List<SubTodoResponse> subTodoResponses = subTodos.stream()
@@ -86,7 +87,7 @@ public class TodoListService {
                 .collect(Collectors.toList());
 
         // 2. 모든 TodoList 조회 (order_index 순으로 정렬되어 조회)
-        List<TodoList> todos = todoListRepository.findByUserIdOrderByOrderIndexAsc(userId);
+        List<TodoList> todos = todoListRepository.findByFolder_UserIdOrderByOrderIndexAsc(userId);
 
         ZoneId kstZone = ZoneId.of("Asia/Seoul"); // ZoneId 정의
         LocalDateTime now = LocalDateTime.now(kstZone);
@@ -135,8 +136,8 @@ public class TodoListService {
 
                             // Todo 복제 및 마감일 설정
                             TodoList newTodo = new TodoList();
-                            newTodo.setUserId(userId);
-                            newTodo.setFolderId(todo.getFolderId());
+                            TodoFolder sourceFolder = todo.getFolder();
+                            newTodo.setFolder(sourceFolder);
                             newTodo.setTitle(todo.getTitle());
                             newTodo.setTdFixed(false);
                             newTodo.setIsCompleted(false);
@@ -187,8 +188,8 @@ public class TodoListService {
     @Transactional
     public TodoResponse createTodo(String userId, TodoCreateRequest request) {
         // 1. 폴더 존재 여부 확인
-        TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다."));
+        TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(request.getFolderId(), userId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다."));
 
         Optional<Integer> maxOrderIndex = todoListRepository.findMaxOrderIndexByUserId(userId);
         int newOrderIndex = maxOrderIndex.map(index -> index + 1).orElse(0);
@@ -204,8 +205,8 @@ public class TodoListService {
         finalDueDate = processAutoMigrate(finalDueDate, request.getAutoMigrate(), nowKst); // 익일 자동 이월 로직 즉시 실행 (생성 시점 체크)
 
         TodoList newTodo = new TodoList();
-        newTodo.setUserId(userId);
-        newTodo.setFolderId(request.getFolderId());
+        newTodo.setFolder(folder);
+
         newTodo.setTitle(request.getTitle());
         newTodo.setTdFixed(request.getTdFixed() != null ? request.getTdFixed() : false);
         newTodo.setIsCompleted(false);
@@ -233,12 +234,12 @@ public class TodoListService {
         LocalDateTime nowKst = LocalDateTime.now(kstZone); // nowKst 변수 정의
 
         // 1. 폴더 존재 여부 확인 및 폴더 이름 조회
-        TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다."));
+        TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(request.getFolderId(), userId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다."));
 
         // 2. 필드 업데이트
         todo.setTitle(request.getTitle());
-        todo.setFolderId(request.getFolderId());
+        todo.setFolder(folder);
 
 
         // isCompleted 필드는 요청에 따라 토글 가능
@@ -280,8 +281,8 @@ public class TodoListService {
         todo.setTdFixed(!todo.getTdFixed());
 
         // 폴더 이름 조회를 위한 폴더 엔티티
-        TodoFolder folder = todoFolderRepository.findById(todo.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다."));
+        TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(todo.getFolderId(), userId))
+                .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없거나 접근 권한이 없습니다."));
 
         return convertToTodoResponse(todo, folder.getName());
     }

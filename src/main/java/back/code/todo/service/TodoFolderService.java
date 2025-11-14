@@ -5,6 +5,7 @@ import back.code.todo.dto.FolderDeleteRequest;
 import back.code.todo.dto.FolderResponse;
 import back.code.todo.dto.FolderUpdateRequest;
 import back.code.todo.entity.TodoFolder;
+import back.code.todo.entity.TodoFolderId;
 import back.code.todo.repository.TodoFolderRepository;
 import back.code.todo.repository.TodoListRepository;
 import jakarta.transaction.Transactional;
@@ -65,8 +66,8 @@ public class TodoFolderService {
      */
     @Transactional
     public FolderResponse updateFolder(String userId, FolderUpdateRequest request) {
-        TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다: " + request.getFolderId()));
+        TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(request.getFolderId(), userId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다: " + request.getFolderId()));
 
         // 권한 검사: 요청 사용자와 폴더 소유자가 일치하는지 확인
         if (!folder.getUserId().equals(userId)) {
@@ -101,8 +102,8 @@ public class TodoFolderService {
                 throw new IllegalArgumentException("기본 폴더(ID: " + folderId + ")는 삭제할 수 없습니다.");
             }
 
-            TodoFolder folder = todoFolderRepository.findById(folderId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다: " + folderId));
+            TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(folderId, userId))
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다: " + folderId));
 
             // 권한 검사
             if (!folder.getUserId().equals(userId)) {

@@ -40,7 +40,7 @@ public class SubTodoListService {
 
         // 2. SubTodo 엔티티 생성 및 저장
         SubTodoList newSubTodo = new SubTodoList();
-        newSubTodo.setTodoListId(request.getTodoListId());
+        newSubTodo.setTodoList(parentTodo);
         newSubTodo.setTitle(request.getTitle());
 
         SubTodoList savedSubTodo = subTodoListRepository.save(newSubTodo);
@@ -66,7 +66,7 @@ public class SubTodoListService {
         }
 
         // 2. SubTodo 목록 조회 및 DTO 변환
-        return subTodoListRepository.findByTodoListId(todoListId).stream()
+        return subTodoListRepository.findByTodoList_TodoId(todoListId).stream()
                 .map(SubTodoResponse::fromEntity)
                 .collect(Collectors.toList());
     }
