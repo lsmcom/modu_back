@@ -15,6 +15,7 @@ import back.code.todo.entity.TodoFolder;
 import back.code.todo.repository.TodoFolderRepository;
 import back.code.todo.repository.TodoListRepository;
 import back.code.memo.repository.MemoFolderRepository;
+import back.code.memo.service.MemoFolderService;
 import back.code.user.dto.UserSettingUpdateDTO;
 import back.code.user.entity.UserEntity;
 import back.code.user.entity.UserSettingEntity;
@@ -42,6 +43,7 @@ public class UserSettingService {
     private final SavingGoalRepository savingGoalRepository;
     private final CategoryRepository categoryRepository;
     private final MemoFolderRepository memoFolderRepository;
+    private final MemoFolderService memoFolderService;
     private final CalendarFolderRepository calendarFolderRepository;
     private final CalendarSettingRepository calendarSettingRepository;
     private final TodoFolderRepository todoFolderRepository;
@@ -117,8 +119,9 @@ public class UserSettingService {
         savingGoalRepository.deleteByUser(user);
         categoryRepository.deleteByUserAndIsDefaultNull(user);  // 사용자 카테고리만 초기화
 
-        // 메모 데이터 삭제
+        // 메모 데이터 삭제 및 초기화
         memoFolderRepository.deleteByUser(user);
+        memoFolderService.createDefaultFolders(user);
 
         // 캘린더 데이터 삭제 및 초기화
         calendarFolderRepository.deleteByUser(user);

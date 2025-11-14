@@ -10,6 +10,8 @@ import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
 import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
+import back.code.milestone.repository.MilestoneRepository;
+import back.code.milestone.service.MilestoneService;
 import back.code.recentsearch.service.RecentSearchService;
 
 import java.nio.file.Paths;
@@ -50,6 +52,7 @@ public class AccountBookService {
     @Value("${server.file.upload.path}")
     private String filePath;
     
+    private static final String SEARCH_TYPE = "ACCOUNT";
     private final UserRepository userRepository;
     private final AccountBookRepository accountBookRepository;
     private final CategoryRepository categoryRepository;
@@ -60,9 +63,9 @@ public class AccountBookService {
     private final InstallmentSettingRepository installmentRepository;
     private final AccountSearchRepository searchRepository;
     private final RecentSearchService recentSearchService;
-    private static final String SEARCH_TYPE = "ACCOUNT";
     private final FileRepository fileRepository;
     private final FileUtils fileUtils;
+    private final MilestoneService milestoneService;
 
 
     // 가계부 작성
@@ -144,6 +147,8 @@ public class AccountBookService {
         }
         // DTO 변환
         AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
+
+        milestoneService.checkAndAwardMilestones(user.getUserId());
 
         return detail;
     }

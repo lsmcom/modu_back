@@ -1,6 +1,8 @@
 package back.code.memo.service;
 
 import back.code.memo.dto.MemoFolderDTO;
+import back.code.user.entity.UserEntity;
+
 import java.util.List;
 
 public interface MemoFolderService {
@@ -9,4 +11,5 @@ public interface MemoFolderService {
     MemoFolderDTO addFolder(MemoFolderDTO dto);
     MemoFolderDTO updateFolder(Integer folderId, MemoFolderDTO dto);
     void deleteFolder(Integer folderId);
+    void createDefaultFolders(UserEntity user);
 }

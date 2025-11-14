@@ -48,3 +48,32 @@ ON DUPLICATE KEY UPDATE
                      -- 'uk_target' (`target_type`, `target_value`) 중복 시 업데이트 방지 (필요에 따라 name, description 등 업데이트 가능)
                      `name` = VALUES(`name`),
                      `description` = VALUES(`description`);
+
+------- 변경 -------
+ALTER TABLE milestone
+DROP COLUMN `category`;
+
+INSERT INTO `milestone`
+(`name`, `description`, `target_type`, `target_value`, `reward`, `is_hidden`, `create_date`)
+VALUES
+    ('첫 기록', '가계부 10개를 작성했습니다.', 'ACCOUNT_WRITE', 10, '브론즈 뱃지', FALSE, NOW()),
+    ('꾸준함', '가계부 20개를 작성했습니다.', 'ACCOUNT_WRITE', 20, '실버 뱃지', FALSE, NOW()),
+    ('기록 장인', '가계부 30개를 작성했습니다.', 'ACCOUNT_WRITE', 30, '골드 뱃지', FALSE, NOW()),
+    ('금손', '가계부 40개를 작성했습니다.', 'ACCOUNT_WRITE', 40, '플래티넘 뱃지', FALSE, NOW())
+ON DUPLICATE KEY UPDATE
+    `name` = VALUES(`name`),
+    `description` = VALUES(`description`);
+
+INSERT INTO `milestone`
+(`name`, `description`, `target_type`, `target_value`, `reward`, `is_hidden`, `create_date`)
+VALUES
+    ('첫 목표 달성', '가계부 목표 5개를 달성했습니다.', 'ACCOUNT_COMPLETE', 5, '브론즈 뱃지', FALSE, NOW()),
+    ('점점 성장', '가계부 목표 10개를 달성했습니다.', 'ACCOUNT_COMPLETE', 10, '실버 뱃지', FALSE, NOW()),
+    ('목표 달성왕', '가계부 목표 20개를 달성했습니다.', 'ACCOUNT_COMPLETE', 20, '골드 뱃지', FALSE, NOW()),
+    ('마스터', '가계부 목표 40개를 달성했습니다.', 'ACCOUNT_COMPLETE', 40, '플래티넘 뱃지', FALSE, NOW())
+ON DUPLICATE KEY UPDATE
+    `name` = VALUES(`name`),
+    `description` = VALUES(`description`);
+
+
+

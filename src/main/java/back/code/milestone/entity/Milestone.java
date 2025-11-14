@@ -26,9 +26,6 @@ public class Milestone {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "category", nullable = false, length = 50)
-    private String category; // 예: TODO_COUNT
-
     @Column(name = "target_type", nullable = false, length = 50)
     private String targetType; // 예: TODO_COMPLETE
 

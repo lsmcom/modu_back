@@ -95,4 +95,12 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
     // 해당 유저의 가계부 내역 삭제
     void deleteByUser(UserEntity user);
 
+    // 작성한 가계부 횟수
+    @Query(value = """
+          select count(*) as cnt
+          from AccountBookEntity a
+          where a.user.userId = :userId
+          """)
+    long countByUserId(@Param("userId") String userId);
+
 }

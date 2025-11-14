@@ -80,4 +80,15 @@ public class MemoFolderServiceImpl implements MemoFolderService {
         }
         memoFolderRepository.deleteById(folderId);
     }
+
+    @Override
+    @Transactional
+    public void createDefaultFolders(UserEntity user) {
+
+        MemoFolderEntity memoFolderEntity = MemoFolderEntity.builder()
+            .user(user)
+            .folderName("기본 폴더")
+            .build();
+        memoFolderRepository.save(memoFolderEntity);     
+    }
 }

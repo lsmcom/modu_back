@@ -1,10 +1,12 @@
 package back.code.user.service;
 
+import back.code.accountBook.service.AccountCategoryService;
 import back.code.calendar.service.CalendarFolderService;
 import back.code.file.dto.FileDTO;
 import back.code.file.entity.FileEntity;
 import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
+import back.code.memo.service.MemoFolderService;
 import back.code.user.dto.JoinRequestDTO;
 import back.code.user.dto.UserInfoDTO;
 import back.code.user.dto.UserUpdateRequest;
@@ -41,6 +43,8 @@ public class UserService {
     private final FileRepository fileRepository;
     private final FileService fileService;
     private final CalendarFolderService calendarFolderService;
+    private final MemoFolderService memoFolderService;
+    private final AccountCategoryService categoryService;
 
     /** 아이디 중복 확인 */
     @Transactional(readOnly = true)
@@ -147,6 +151,12 @@ public class UserService {
 
         // 캘린더 폴더 자동 생성
         calendarFolderService.createDefaultFolders(user);
+
+        // 메모 폴더 자동 생성
+        memoFolderService.createDefaultFolders(user);
+
+        // 가계부 기본 카테고리 자동 생성
+        categoryService.createDefaultCategory(user);
 
         log.info("[회원가입 성공] userId={}, email={}", dto.getUserId(), dto.getEmail());
     }

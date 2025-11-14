@@ -8,7 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import back.code.accountBook.dto.AccountCategoryDTO;
 import back.code.accountBook.entity.AccountCategoryEntity;
+import back.code.accountBook.enums.AccountType;
 import back.code.accountBook.repository.CategoryRepository;
+import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -100,6 +102,46 @@ public class AccountCategoryService {
         categoryRepository.delete(category);
 
         return response;
+    }
+
+    // 기본 카테고리 생성
+    @Transactional
+    public void createDefaultCategory(UserEntity user) {
+
+        Object[][] defaultCategoriesData = {
+            {"급여", "INCOME", "#66BB6A"},
+            {"용돈", "INCOME", "#4DB6AC"},
+            {"저축", "INCOME", "#5C6BC0"},
+            {"식비", "EXPENSE", "#4BC0FF"},
+            {"교통비", "EXPENSE", "#FF6384"},
+            {"쇼핑", "EXPENSE", "#FF7043"},
+            {"여가", "EXPENSE", "#FFCE56"},
+            {"운동", "EXPENSE", "#AB47BC"},
+        };
+
+        List<AccountCategoryEntity> defaultCategories = new ArrayList<>();
+
+        for (Object[] data  : defaultCategoriesData) {
+            String categoryName = (String) data [0];
+            AccountType type = (AccountType) data [1];
+            String color = (String) data [2];
+
+            // DTO 생성
+            AccountCategoryDTO.Request dto = new AccountCategoryDTO.Request();
+            dto.setCategoryName(categoryName);
+            dto.setType(type);
+            dto.setIsDefault(true);
+            dto.setUserId(user.getUserId());
+
+            // 엔티티 변환
+            AccountCategoryEntity category = dto.to(user);
+            category.setColor(color);
+
+            defaultCategories.add(category);
+        }
+
+        categoryRepository.saveAll(defaultCategories);
+
     }
 
 }

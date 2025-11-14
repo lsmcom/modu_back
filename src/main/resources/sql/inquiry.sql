@@ -145,3 +145,4 @@ CREATE TABLE inquiry_file_mapping (
         FOREIGN KEY (file_id) REFERENCES file(file_id)
         ON DELETE CASCADE
 ) COMMENT '문의사항-파일 매핑 테이블';
+
