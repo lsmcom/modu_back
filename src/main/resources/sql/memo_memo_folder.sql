@@ -73,3 +73,9 @@ VALUES
 SELECT * FROM memo_folder;
 SELECT * FROM memo;
 select * from file;
+
+
+-- 여기부터 추가
+ALTER TABLE memo_folder
+ADD COLUMN folder_type ENUM('ALL', 'DEFAULT', 'NORMAL') NOT NULL DEFAULT 'NORMAL'
+COMMENT '폴더 타입 (전체, 기본, 일반)';

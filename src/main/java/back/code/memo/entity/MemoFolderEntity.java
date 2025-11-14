@@ -1,5 +1,6 @@
 package back.code.memo.entity;
 
+import back.code.memo.enums.FolderType;
 import back.code.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,6 +20,9 @@ public class MemoFolderEntity {
 
     @Column(nullable = false)
     private String folderName;
+
+    @Enumerated(EnumType.STRING)
+    private FolderType folderType; 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -2,6 +2,7 @@ package back.code.memo.service;
 
 import back.code.memo.dto.MemoFolderDTO;
 import back.code.memo.entity.MemoFolderEntity;
+import back.code.memo.enums.FolderType;
 import back.code.memo.repository.MemoFolderRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +20,9 @@ public class MemoFolderServiceImpl implements MemoFolderService {
     private final MemoFolderRepository memoFolderRepository;
     private final UserRepository userRepository;
 
+    // 고정된 ID(전체, 기본 폴더)
+    private static final Set<Integer> NON_DELETABLE_FOLDER_IDS = Set.of(0, 1);
+
     @Override
     @Transactional(readOnly = true)
     public List<MemoFolderDTO> getAllFolders() {
@@ -25,6 +30,8 @@ public class MemoFolderServiceImpl implements MemoFolderService {
             MemoFolderDTO dto = new MemoFolderDTO();
             dto.setFolderId(f.getFolderId());
             dto.setFolderName(f.getFolderName());
+            dto.setFolderType(f.getFolderType());
+            dto.setUserId(f.getUser().getUserId());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -36,6 +43,8 @@ public class MemoFolderServiceImpl implements MemoFolderService {
             MemoFolderDTO dto = new MemoFolderDTO();
             dto.setFolderId(f.getFolderId());
             dto.setFolderName(f.getFolderName());
+            dto.setFolderType(f.getFolderType());
+            dto.setUserId(f.getUser().getUserId());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -49,6 +58,7 @@ public class MemoFolderServiceImpl implements MemoFolderService {
         MemoFolderEntity folder = MemoFolderEntity.builder()
                 .folderName(dto.getFolderName())
                 .user(user)
+                .folderType(FolderType.NORMAL)
                 .build();
 
         MemoFolderEntity saved = memoFolderRepository.save(folder);
@@ -65,6 +75,10 @@ public class MemoFolderServiceImpl implements MemoFolderService {
         MemoFolderEntity folder = memoFolderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("Folder not found: " + folderId));
 
+        if (NON_DELETABLE_FOLDER_IDS.contains(folder.getFolderId())) {
+            throw new IllegalArgumentException("기본 폴더는 이름을 수정할 수 없습니다.");
+        }
+
         folder.setFolderName(dto.getFolderName());
         MemoFolderEntity updated = memoFolderRepository.save(folder);
 
@@ -75,9 +89,15 @@ public class MemoFolderServiceImpl implements MemoFolderService {
     @Override
     @Transactional
     public void deleteFolder(Integer folderId) {
+
+        if (NON_DELETABLE_FOLDER_IDS.contains(folderId)) {
+            throw new IllegalArgumentException("기본 폴더(ID: " + folderId + ")는 삭제할 수 없습니다.");
+        }
+
         if (!memoFolderRepository.existsById(folderId)) {
             throw new RuntimeException("Folder not found: " + folderId);
         }
+
         memoFolderRepository.deleteById(folderId);
     }
 
@@ -87,8 +107,16 @@ public class MemoFolderServiceImpl implements MemoFolderService {
 
         MemoFolderEntity memoFolderEntity = MemoFolderEntity.builder()
             .user(user)
-            .folderName("기본 폴더")
+            .folderName("전체")
+            .folderType(FolderType.ALL)
             .build();
         memoFolderRepository.save(memoFolderEntity);     
+
+        MemoFolderEntity memoBasicFolderEntity = MemoFolderEntity.builder()
+            .user(user)
+            .folderName("기본폴더")
+            .folderType(FolderType.DEFAULT)
+            .build();
+        memoFolderRepository.save(memoBasicFolderEntity);     
     }
 }

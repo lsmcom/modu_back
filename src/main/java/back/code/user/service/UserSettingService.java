@@ -128,8 +128,9 @@ public class UserSettingService {
         calendarSettingRepository.deleteByUser(user);  // 알아서 초기화 됨
         calendarFolderService.createDefaultFolders(user);  // 캘린더 공유폴더 자동 생성
 
-        // 투두 데이터 삭제
+        // 투두 데이터 삭제 및 초기화
         // todoFolderRepository.deleteByUserId(user.getUserId());
+        // todoFolderRepository.createDefaultFolders(user.getUserId());
 
         // 파일 삭제
         fileRepository.deleteByUser(user);
