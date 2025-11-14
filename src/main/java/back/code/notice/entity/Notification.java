@@ -17,7 +17,10 @@ public class Notification {
      * DB ENUM('공지', '업적', '일정 공유', '문의 답변')에 대응하는 Java Enum 정의
      */
     public enum NotificationType {
-        공지, 업적, 일정_공유, 문의_답변
+        announcement,
+        milestone,
+        planshare,
+        inquiryAnswer
     }
 
     @Id
@@ -28,6 +31,9 @@ public class Notification {
     // user_id는 FK이지만, 엔티티 관계 설정 없이 String으로 매핑
     @Column(name = "user_id", nullable = false, length = 100)
     private String userId;
+
+    @Column(name = "sender_id")
+    private String senderId;   // 알림 보낸 사람 (일정 공유한 userId)
 
     // FK: Milestone 엔티티 참조
     @Column(name = "milestone_id")
