@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS inquiry_reply;
-DROP TABLE IF EXISTS inquiryEntity;
+DROP TABLE IF EXISTS inquiry;
 
 
 
-/* inquiryEntity 테이블 수정 */
+/* inquiry 테이블 수정 */
 CREATE TABLE `inquiry` (
                            `inquiry_id`	BIGINT	NOT NULL AUTO_INCREMENT	COMMENT '문의사항 고유 ID (PK)',
                            `user_id`	varchar(100)	NOT NULL	COMMENT '문의 작성자 ID (FK)',
