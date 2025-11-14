@@ -1,151 +1,106 @@
 package back.code.inquiry.service;
 
-import back.code.inquiry.repository.InquiryRepository; // 4. 코드 내 수정된 부분을 명확히 표시: 파일 경로 수정
-import back.code.inquiry.dto.*; // 4. 코드 내 수정된 부분을 명확히 표시: 파일 경로 수정
-import back.code.inquiry.entity.Inquiry; // 4. 코드 내 수정된 부분을 명확히 표시: 파일 경로 수정
-import back.code.inquiry.repository.InquiryReplyRepository; // 4. 코드 내 수정된 부분을 명확히 표시: 파일 경로 수정
-import back.code.user.repository.UserRepository;
+import back.code.file.entity.FileEntity;
+import back.code.file.service.FileService;
+import back.code.inquiry.dto.InquiryCreateRequest;
+import back.code.inquiry.dto.InquiryDto;
+import back.code.inquiry.entity.InquiryEntity;
+import back.code.inquiry.entity.InquiryFileMappingEntity;
+import back.code.inquiry.entity.InquiryStatus;
+import back.code.inquiry.repository.InquiryFileMappingRepository;
+import back.code.inquiry.repository.InquiryRepository;
 import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
-// 4. 코드 내 수정된 부분을 명확히 표시: Inquiry 서비스 (import 경로 수정)
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class InquiryService {
 
     private final InquiryRepository inquiryRepository;
-    private final InquiryReplyRepository replyRepository;
+    private final InquiryFileMappingRepository inquiryFileMappingRepository;
     private final UserRepository userRepository;
+    private final FileService fileService;
 
-    /**
-     * 문의 목록 조회 (Inquiry.jsx)
-     */
-    public List<InquiryListResponseDto> getInquiryList(String userId, Pageable pageable) {
-        // 1. 공지사항 및 FAQ (isPublic=true)
-        List<InquiryListResponseDto> publicInquiries = inquiryRepository.findByIsPublicTrueOrderByCreateAtDesc()
-                .stream()
-                .map(inquiry -> {
-                    String type = inquiry.getInquiryId() < 200 ? "notice" : "faq";
-                    return InquiryListResponseDto.fromEntity(inquiry, type, 1L);
-                })
-                .collect(Collectors.toList());
+    /** 전체 문의사항 조회 (최신순) */
+    @Transactional(readOnly = true)
+    public List<InquiryDto> getAllInquiries() {
 
-        // 2. 비공개 문의 (isPublic=false, 현재 user가 작성한 것만)
-        String sortType = pageable.getSort().stream()
-                .findFirst()
-                .map(order -> order.getProperty().equals("createAt") && order.isDescending() ? "latest" : "created")
-                .orElse("latest");
+        List<InquiryEntity> inquiries = inquiryRepository.findAllByOrderByCreateAtDesc();
 
-        Sort sort = sortType.equals("latest") ? Sort.by(Sort.Direction.DESC, "createAt") : Sort.by(Sort.Direction.ASC, "createAt");
-        Pageable privatePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
-        Page<Inquiry> privateInquiryPage = inquiryRepository.findByIsPublicFalseAndUser_UserId(userId, privatePageable);
-
-        List<InquiryListResponseDto> privateInquiries = privateInquiryPage.getContent()
-                .stream()
-                .map(inquiry -> {
-                    Long replyCount = replyRepository.countByInquiry_InquiryId(inquiry.getInquiryId());
-                    return InquiryListResponseDto.fromEntity(inquiry, null, replyCount);
-                })
-                .collect(Collectors.toList());
-
-        // 3. 공지/FAQ + 비공개 문의 통합
-        List<InquiryListResponseDto> result = new java.util.ArrayList<>();
-        result.addAll(publicInquiries);
-        result.addAll(privateInquiries);
-
-        return result;
+        return inquiries.stream()
+                .map(InquiryDto::fromEntity)
+                .toList();
     }
 
     /**
-     * 문의 상세 조회 (InquiryDetail.jsx)
-     */
-    public InquiryDetailResponseDto getInquiryDetail(Long inquiryId) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다: " + inquiryId));
-
-        Long replyCount = replyRepository.countByInquiry_InquiryId(inquiryId);
-        List<InquiryReplyResponseDto> replies = replyRepository.findByInquiry_InquiryIdOrderByCreateAtAsc(inquiryId) // 4. 코드 내 수정된 부분을 명확히 표시: RepliedAt -> CreateAt으로 수정
-                .stream()
-                .map(InquiryReplyResponseDto::fromEntity)
-                .collect(Collectors.toList());
-
-        return InquiryDetailResponseDto.fromEntity(inquiry, replyCount, replies);
-    }
-
-    /**
-     * 문의 등록 (WriteForm.jsx)
+     * 문의사항 등록 (파일 첨부 포함)
+     * - 일반 사용자: 항상 비공개(isPublic = false)
+     * - 관리자: 공개 문의(공지/FAQ) 작성 가능
      */
     @Transactional
-    public InquiryDetailResponseDto createInquiry(InquirySaveRequestDto requestDto) {
-        UserEntity user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + requestDto.getUserId()));
+    public Long createInquiry(InquiryCreateRequest dto, List<MultipartFile> files) throws IOException {
 
-        Inquiry inquiry = requestDto.toEntity(user);
-        inquiry = inquiryRepository.save(inquiry);
+        // 작성자 조회
+        UserEntity user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("유효하지 않은 사용자입니다."));
 
-        return getInquiryDetail(inquiry.getInquiryId());
-    }
+        // 공개 여부(관리자만 true 허용)
+        boolean isPublic = "ADMIN".equals(user.getUserRole().getRoleId());
 
-    /**
-     * 문의 수정 (WriteForm.jsx)
-     */
-    @Transactional
-    public InquiryDetailResponseDto updateInquiry(Long inquiryId, InquirySaveRequestDto requestDto) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다: " + inquiryId));
-
-        inquiry.setTitle(requestDto.getTitle());
-        inquiry.setContent(requestDto.getContent());
-        inquiry.setIsPublic(requestDto.getIsPublic());
-        inquiry.setStatus(requestDto.getStatus());
-
-        return getInquiryDetail(inquiryId);
-    }
-
-    /**
-     * 문의 삭제 (InquiryDetail.jsx)
-     */
-    @Transactional
-    public void deleteInquiry(Long inquiryId) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다: " + inquiryId));
-
-        inquiryRepository.delete(inquiry);
-    }
-
-    // 4. 코드 내 수정된 부분을 명확히 표시: 문의 검색 기능 (InquirySearch.jsx)
-    public Page<InquiryListResponseDto> searchInquiries(String userId, String keyword, String range, Pageable pageable) {
-        Page<Inquiry> inquiryPage;
-
-        // 검색 범위에 따른 레포지토리 메서드 호출
-        switch (range) {
-            case "제목":
-                inquiryPage = inquiryRepository.findByIsPublicFalseAndUser_UserIdAndTitleContainingIgnoreCase(userId, keyword, pageable);
-                break;
-            case "작성자":
-                inquiryPage = inquiryRepository.findByIsPublicFalseAndUser_UserIdAndUser_UserIdContainingIgnoreCase(userId, keyword, pageable);
-                break;
-            case "제목+내용":
-            case "전체":
-            default:
-                inquiryPage = inquiryRepository.searchPrivateInquiriesByAll(userId, keyword, pageable);
-                break;
+        if (isPublic) {
+            throw new RuntimeException("일반 사용자는 공개 문의를 작성할 수 없습니다.");
         }
 
-        return inquiryPage.map(inquiry -> {
-            Long replyCount = replyRepository.countByInquiry_InquiryId(inquiry.getInquiryId());
-            return InquiryListResponseDto.fromEntity(inquiry, null, replyCount);
-        });
+        // 제목/내용 검증
+        if (dto.getTitle() == null || dto.getTitle().isBlank() ||
+                dto.getContent() == null || dto.getContent().isBlank()) {
+            throw new RuntimeException("제목과 내용은 필수입니다.");
+        }
+
+        // 상태 기본값 처리 (null이면 submitted)
+        String status = dto.getStatus();
+        if (status == null || status.isBlank()) {
+            status = "submitted";
+        }
+
+        // 문의 엔티티 생성 및 저장
+        InquiryEntity inquiry = InquiryEntity.builder()
+                .user(user)
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .status(InquiryStatus.valueOf(status))
+                .isPublic(isPublic)
+                .build();
+
+        inquiryRepository.save(inquiry);
+
+        // 파일 업로드 + 매핑 저장
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile mf : files) {
+                // 공용 FileService 사용 (file_type = "INQUIRY")
+                FileEntity fileEntity = fileService.uploadFileAndReturnEntity(mf, user.getUserId(), "INQUIRY");
+
+                InquiryFileMappingEntity mapping = InquiryFileMappingEntity.builder()
+                        .inquiry(inquiry)
+                        .file(fileEntity)
+                        .build();
+
+                inquiryFileMappingRepository.save(mapping);
+            }
+        }
+
+        log.info("[INQUIRY CREATE] inquiryId={}, userId={}, isPublic={}, status={}",
+                inquiry.getInquiryId(), user.getUserId(), isPublic, status);
+
+        return inquiry.getInquiryId();
     }
 }
