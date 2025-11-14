@@ -45,3 +45,4 @@ logs/
 .vscode/
 src/main/resources/application-hs.yml
 src/main/resources/application.properties
+src/main/resources/application-hj.yml
