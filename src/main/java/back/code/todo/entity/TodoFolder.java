@@ -29,4 +29,11 @@ public class TodoFolder {
 
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
+
+    public TodoFolder(Integer folderId, String userId, String name, Boolean isDefault) {
+        this.folderId = folderId;
+        this.userId = userId;
+        this.name = name;
+        this.isDefault = isDefault;
+    }
 }
