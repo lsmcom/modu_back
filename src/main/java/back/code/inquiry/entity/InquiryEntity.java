@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -47,17 +48,10 @@ public class InquiryEntity extends BaseTimeEntity {
     @Column(name = "is_public", nullable = false)
     private boolean isPublic;
 
-    // 상태 변경(관리자 답변 등) 시 사용 가능
-    public void updateStatus(InquiryStatus status) {
-        this.status = status;
-    }
-
-    public void updateContent(String title, String content) {
-        this.title = title;
-        this.content = content;
-    }
-
     @JsonIgnore
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InquiryFileMappingEntity> files = new ArrayList<>();
+
+    @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InquiryReplyEntity> replies = new ArrayList<>();
 }

@@ -272,4 +272,29 @@ public class FileService {
                 .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .body(resource);
     }
+
+    /** 파일 미리보기 */
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> previewFile(String fileId) throws IOException {
+
+        FileEntity file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 파일입니다."));
+
+        Path filePath = Paths.get(file.getFilePath(), file.getStoredName());
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new RuntimeException("파일을 읽을 수 없습니다.");
+        }
+
+        // inline 미리보기 → attachment 없음
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(resource);
+    }
 }

@@ -50,9 +50,15 @@ public class SecureUserDTO extends User {
      * @param roleId 권한 명(접두사 미포함)
      * @return GrantedAuthority 목록
      */
-    private static  List<GrantedAuthority>  getAuthority(String roleId){
+    private static List<GrantedAuthority> getAuthority(String roleId) {
         List<GrantedAuthority> list = new ArrayList<>();
-        list.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleId));
+
+        // 여기서는 접두사 유무 체크만 하고 SimpleGrantedAuthority에 직접 넣음
+        if (!roleId.startsWith("ROLE_")) {
+            roleId = "ROLE_" + roleId;
+        }
+
+        list.add(new SimpleGrantedAuthority(roleId));
         return list;
     }
 }
