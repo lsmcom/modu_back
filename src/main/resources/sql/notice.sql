@@ -36,3 +36,18 @@ ALTER TABLE notification
 
 ALTER TABLE notification
     ADD COLUMN sender_id VARCHAR(100) NULL COMMENT '알림 보낸 사용자 ID';
+
+
+
+
+
+
+
+
+
+
+
+
+-- 알림 한솔 추가 (type에 account 추가)
+ALTER TABLE `notification`
+MODIFY COLUMN `type` ENUM('announcement','milestone','planshare','inquiryAnswer','account') NOT NULL COMMENT '알림 유형';    

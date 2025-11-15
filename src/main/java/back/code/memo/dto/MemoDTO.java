@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Data
 public class MemoDTO {
 
@@ -16,7 +18,9 @@ public class MemoDTO {
     private String memoTitle;        // 메모 제목
     private String memoContents;     // 메모 내용
     private String isFixed;          // 상단 고정 여부 ('Y' / 'N')
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate; // 생성일 (DB 자동)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate; // 수정일 (DB 자동)
 
     // 첨부된 파일 리스트

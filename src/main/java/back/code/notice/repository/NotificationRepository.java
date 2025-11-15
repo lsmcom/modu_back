@@ -26,4 +26,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // 해당 유저의 내역 삭제
     void deleteByUserId(String userId);
+
+    // 사용자에게 같은 저축목표로 알림 보냈었는지 확인
+    boolean existsByUserIdAndTypeAndContentContaining(String userId, Notification.NotificationType type, String content);
 }

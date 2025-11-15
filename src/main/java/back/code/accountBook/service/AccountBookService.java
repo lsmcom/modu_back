@@ -213,19 +213,21 @@ public class AccountBookService {
             }
         }
 
+        account = request.to(account, user, category, savingGoal);
+
         // 반복 설정
         RecurringSettingEntity recurring = null;
         if (request.getRecurring() != null) {
             AccountBookDTO.RecurringDTO recurringDTO = request.getRecurring();
 
             // 기존 엔티티 찾거나 새로 생성
-            recurring = recurringRepository.findByAccount(account)
-                .orElseGet(() -> {
-                    RecurringSettingEntity r = new RecurringSettingEntity();
-                    r.setAccount(account);
-                    r.setIsActive(true);
-                    return r;
-                });
+            recurring = recurringRepository.findByAccount(account).orElse(null);
+
+            if (recurring == null) {
+                recurring = new RecurringSettingEntity();
+                recurring.setAccount(account);
+                recurring.setIsActive(true);
+            }
 
             // 반복 시작일을 현재 계정 날짜로 설정
             recurringDTO.setStartDate(account.getDate());
@@ -250,12 +252,11 @@ public class AccountBookService {
             AccountBookDTO.InstallmentDTO installmentDTO = request.getInstallment();
 
             // 기존 엔티티 조회, 없으면 새로 생성
-            installment = installmentRepository.findByAccount(account)
-                .orElseGet(() -> {
-                    InstallmentSettingEntity i = new InstallmentSettingEntity();
-                    i.setAccount(account);
-                    return i;
-                });
+            installment = installmentRepository.findByAccount(account).orElse(null);
+            if (installment == null) {
+                installment = new InstallmentSettingEntity();
+                installment.setAccount(account);
+            }
 
             // 시작일 기본값 설정
             if (installmentDTO.getStartDate() == null) {

@@ -77,6 +77,10 @@ public class AccountSettingService {
         // 사용자 확인
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        // 저축목표 중복체크        
+        if (savingGoalRepository.existsByUserAndGoalName(user, request.getGoalName())) {
+            throw new RuntimeException("같은 이름의 저축 목표가 이미 존재합니다.");
+        }
         // DTO → 엔티티
         AccountSavingsGoalEntity goals = request.to(user);
         // DTO로 변경
@@ -94,6 +98,10 @@ public class AccountSettingService {
         // 사용자 확인
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        // 저축목표 중복체크        
+        if (savingGoalRepository.existsByUserAndGoalName(user, request.getGoalName())) {
+            throw new RuntimeException("같은 이름의 저축 목표가 이미 존재합니다.");
+        }
         AccountSavingsGoalEntity goals;
         // 기존 저축목표 수정 및 새 저축목표 생성
         if(request.getGoalId() != null) {

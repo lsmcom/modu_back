@@ -20,7 +20,8 @@ public class Notification {
         announcement,
         milestone,
         planshare,
-        inquiryAnswer
+        inquiryAnswer,
+        account
     }
 
     @Id

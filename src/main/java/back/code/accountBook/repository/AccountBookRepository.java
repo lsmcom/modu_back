@@ -103,4 +103,30 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
           """)
     long countByUserId(@Param("userId") String userId);
 
+    // 전체 월별 지출
+    @Query(value = """
+                    select coalesce(sum(a.amount), 0)
+                    from AccountBookEntity a
+                    where a.user.userId = :userId
+                      and date_format(a.date, '%Y-%m') = :yearMonth
+                      and a.type = 'EXPENSE'
+                """)
+    Integer sumTotalExpenseByUserAndYearMonth(@Param("userId") String userId,
+                                              @Param("yearMonth") String yearMonth);
+
+
+    // 카테고리별 지출
+    @Query(value = """
+                    select coalesce(sum(a.amount), 0)
+                    from AccountBookEntity a
+                    where a.user.userId = :userId
+                      and date_format(a.date, '%Y-%m') = :yearMonth
+                      and a.category.categoryId = :categoryId
+                      and a.type = 'EXPENSE'
+                """)
+  Integer sumExpenseByUserAndYearMonthAndCategory(@Param("userId") String userId,
+                                                  @Param("yearMonth") String yearMonth,
+                                                  @Param("categoryId") Integer categoryId);
+
+
 }
