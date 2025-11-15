@@ -86,4 +86,10 @@ public class FileRestController {
         log.info("[FileController] Download request: {}", fileId);
         return fileService.downloadFile(fileId);
     }
+
+    /** 파일 미리보기 */
+    @GetMapping("/preview/{fileId}")
+    public ResponseEntity<Resource> previewFile(@PathVariable String fileId) throws IOException {
+        return fileService.previewFile(fileId);
+    }
 }

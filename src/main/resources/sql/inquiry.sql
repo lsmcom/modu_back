@@ -28,7 +28,7 @@ CREATE TABLE `inquiry_reply` (
                                  `update_at`	DATETIME	NULL	DEFAULT NULL	COMMENT '수정일 (BaseTimeEntity)',
 
                                  PRIMARY KEY(`reply_id`),
-                                 CONSTRAINT fk_reply_inquiry FOREIGN KEY (`inquiry_id`) REFERENCES `inquiryEntity` (`inquiry_id`),
+                                 CONSTRAINT fk_reply_inquiry FOREIGN KEY (`inquiry_id`) REFERENCES `inquiry` (`inquiry_id`),
                                  CONSTRAINT fk_reply_admin FOREIGN KEY (`admin_id`) REFERENCES `user` (`user_id`)
 ) COMMENT '문의 답변 테이블';
 
