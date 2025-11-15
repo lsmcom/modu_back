@@ -5,15 +5,21 @@ import back.code.todo.dto.FolderDeleteRequest;
 import back.code.todo.dto.FolderResponse;
 import back.code.todo.dto.FolderUpdateRequest;
 import back.code.todo.entity.TodoFolder;
+import back.code.todo.entity.TodoFolderId;
 import back.code.todo.repository.TodoFolderRepository;
 import back.code.todo.repository.TodoListRepository;
-import jakarta.transaction.Transactional;
+import back.code.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import back.code.user.entity.UserEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,36 +28,44 @@ public class TodoFolderService {
     private final TodoFolderRepository todoFolderRepository;
     private final TodoListRepository todoListRepository;
 
-    // 프론트엔드에서 고정된 ID를 사용하는 '전체' 및 'NotTodo'를 정의
-    private static final Set<Integer> NON_DELETABLE_FOLDER_IDS = Set.of(0, 1, 999);
+    // 프론트엔드에서 고정된 ID를 사용하는 '기본' 및 'NotTodo'를 정의
+    private static final Set<Integer> NON_DELETABLE_FOLDER_IDS = Set.of(1, 999);
     private static final int DEFAULT_FOLDER_ID = 1; // 기본 폴더 ID (Mock 데이터 기반 가정)
 
-    /**
-     * 특정 사용자의 모든 폴더 목록을 조회합니다.
-     * @param userId 사용자 ID
-     * @return FolderResponse DTO 목록
-     */
+    // 회원가입 시 기본 폴더 (1) 및 NotTodoList 폴더 (999) 생성
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void createDefaultTodoFolders(UserEntity user) {
+        String userId = user.getUserId();
+
+        TodoFolder defaultFolder = new TodoFolder(1, userId, "기본 폴더", true);
+        todoFolderRepository.save(defaultFolder);
+
+        TodoFolder notTodoFolder = new TodoFolder(999, userId, "NotTodoList", false);
+        todoFolderRepository.save(notTodoFolder);
+    }
+
+    /* 특정 사용자의 모든 폴더 목록을 조회 */
     public List<FolderResponse> getAllFolders(String userId) {
         // TodoFolderRepository.findByUserId를 사용하여 사용자 폴더만 조회합니다.
         List<TodoFolder> folders = todoFolderRepository.findByUserId(userId);
 
-        // 프론트엔드에서 '전체' 폴더(ID: 0)를 Mock으로 관리할 수도 있으나,
-        // 여기서는 DB에 있는 폴더만 응답합니다. (단, NOT_TODO_FOLDER_ID 999는 DB에 있을 수 있음)
         return folders.stream()
                 .map(FolderResponse::fromEntity)
                 .collect(Collectors.toList());
     }
-
-    /**
-     * 새 폴더를 생성합니다.
-     * @param userId 사용자 ID
-     * @param request 폴더 생성 요청 DTO
-     * @return 생성된 폴더의 FolderResponse DTO
-     */
+    /* 새 폴더를 생성 */
     public FolderResponse createFolder(String userId, FolderCreateRequest request) {
+
+        Optional<Integer> maxFolderId = todoFolderRepository.findMaxFolderIdByUserId(userId);
+        int newFolderId = maxFolderId.map(id -> id + 1).orElse(2);
+        while (NON_DELETABLE_FOLDER_IDS.contains(newFolderId)) {
+            newFolderId++;
+        }
         TodoFolder newFolder = new TodoFolder();
         newFolder.setUserId(userId);
         newFolder.setName(request.getName());
+        newFolder.setIsDefault(false);
+        newFolder.setFolderId(newFolderId);
 
         TodoFolder savedFolder = todoFolderRepository.save(newFolder);
         return FolderResponse.fromEntity(savedFolder);
@@ -65,8 +79,8 @@ public class TodoFolderService {
      */
     @Transactional
     public FolderResponse updateFolder(String userId, FolderUpdateRequest request) {
-        TodoFolder folder = todoFolderRepository.findById(request.getFolderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다: " + request.getFolderId()));
+        TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(request.getFolderId(), userId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다: " + request.getFolderId()));
 
         // 권한 검사: 요청 사용자와 폴더 소유자가 일치하는지 확인
         if (!folder.getUserId().equals(userId)) {
@@ -101,8 +115,8 @@ public class TodoFolderService {
                 throw new IllegalArgumentException("기본 폴더(ID: " + folderId + ")는 삭제할 수 없습니다.");
             }
 
-            TodoFolder folder = todoFolderRepository.findById(folderId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID입니다: " + folderId));
+            TodoFolder folder = todoFolderRepository.findById(new TodoFolderId(folderId, userId))
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 폴더 ID이거나 접근 권한이 없습니다: " + folderId));
 
             // 권한 검사
             if (!folder.getUserId().equals(userId)) {

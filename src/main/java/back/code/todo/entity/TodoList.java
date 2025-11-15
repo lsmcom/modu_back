@@ -1,15 +1,20 @@
 package back.code.todo.entity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "todolist")
@@ -24,14 +29,6 @@ public class TodoList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "todo_id", nullable = false)
     private Integer todoId; // 할 일 항목 고유 ID
-
-    // user_id (VARCHAR(255) NOT NULL) - Foreign Key
-    @Column(name = "user_id", nullable = false)
-    private String userId; // 사용자 ID (FK)
-
-    // folder_id (INT NOT NULL) - Foreign Key
-    @Column(name = "folder_id", nullable = false)
-    private Integer folderId; // 폴더 ID (FK)
 
     // title (VARCHAR(255) NOT NULL)
     @Column(name = "title", nullable = false)
@@ -65,9 +62,21 @@ public class TodoList {
     @Column(name = "auto_migrate")
     private Boolean autoMigrate; // 익일 자동 이월 여부
 
-    /*
-     * N:1 관계 매핑 (TodoList : User, TodoList : TodoFolder).
-     * private User user;
-     * private TodoFolder folder;
-     */
+    @ManyToOne // 관계 (TodoList N개 -> TodoFolder 1개)
+    @JoinColumns({ // 복합 키 매핑
+        @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false),
+       @JoinColumn(name = "folder_id", referencedColumnName = "folder_id", nullable = false)
+    }) private TodoFolder folder; // 폴더 엔티티
+
+    @OneToMany(mappedBy = "todoList", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubTodoList> subTodos;
+
+    public String getUserId() {
+        return this.folder != null ? this.folder.getUserId() : null;
+    }
+
+    public Integer getFolderId() {
+        return this.folder != null ? this.folder.getFolderId() : null;
+    }
+
 }

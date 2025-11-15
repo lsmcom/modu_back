@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,17 +19,21 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SubTodoList {
 
-    // @Id: Primary Key (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT)
+    // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id; // 하위 할 일 항목 고유 ID
 
-    // todolist_id (INT NOT NULL) - Foreign Key
-    @Column(name = "todolist_id", nullable = false)
-    private Integer todoListId; // 상위 할 일 항목 ID (FK)
+    @ManyToOne // N:1 관계 (SubTodoList N개 -> TodoList 1개)
+    @JoinColumn(name = "todolist_id", referencedColumnName = "todo_id", nullable = false)
+    private TodoList todoList;
 
     // title (VARCHAR(255) NOT NULL)
     @Column(name = "title", nullable = false)
     private String title; // 하위 할 일 내용
+
+    public Integer getTodoListId() {
+        return this.todoList != null ? this.todoList.getTodoId() : null;
+    }
 }
