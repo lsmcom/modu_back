@@ -7,6 +7,7 @@ import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.calendar.entity.PlanEntity;
 import back.code.calendar.entity.PlanShareEntity;
 import back.code.calendar.repository.CalendarFolderRepository;
+import back.code.calendar.repository.PlanRepository;
 import back.code.calendar.service.PlanService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
@@ -23,6 +24,7 @@ public class PlanAPIController {
     private final PlanService planService;
     private final CalendarFolderRepository calendarFolderRepository;
     private final UserRepository userRepository;
+    private final PlanRepository planRepository;
 
     /** 일정 등록 */
     @PostMapping
@@ -77,18 +79,23 @@ public class PlanAPIController {
     /** 일정 공유자 목록 */
     @GetMapping("/{planId}/share")
     public ResponseEntity<List<PlanShareEntity>> getSharedUsers(@PathVariable Long planId) {
-        PlanEntity plan = new PlanEntity();
-        plan.setPlanId(planId);
+
+        PlanEntity plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
         return ResponseEntity.ok(planService.getSharedUsers(plan));
     }
 
     /** 일정 공유자 추가 */
     @PostMapping("/{planId}/share/{sharedUserId}")
     public ResponseEntity<Void> addSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
-        PlanEntity plan = new PlanEntity();
-        plan.setPlanId(planId);
-        UserEntity user = new UserEntity();
-        user.setUserId(sharedUserId);
+
+        PlanEntity plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
+        UserEntity user = userRepository.findById(sharedUserId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
         planService.addSharedUser(plan, user);
         return ResponseEntity.ok().build();
     }
@@ -96,13 +103,17 @@ public class PlanAPIController {
     /** 일정 공유자 삭제 */
     @DeleteMapping("/{planId}/share/{sharedUserId}")
     public ResponseEntity<Void> removeSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
-        PlanEntity plan = new PlanEntity();
-        plan.setPlanId(planId);
-        UserEntity user = new UserEntity();
-        user.setUserId(sharedUserId);
+
+        PlanEntity plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
+        UserEntity user = userRepository.findById(sharedUserId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
         planService.removeSharedUser(plan, user);
         return ResponseEntity.noContent().build();
     }
+
 
     // 공유 일정 색상 변경
     @PutMapping("/shared/color")

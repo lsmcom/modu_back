@@ -102,7 +102,7 @@ public class MilestoneService {
         Notification notification = new Notification();
         notification.setUserId(userId);
         // ENUM 타입이 '업적'으로 정의되어 있다고 가정
-        notification.setType(Notification.NotificationType.업적);
+        notification.setType(Notification.NotificationType.milestone);
         notification.setMilestoneId(milestone.getMilestoneId());
         notification.setTitle(milestone.getName());
         notification.setContent(milestone.getDescription());

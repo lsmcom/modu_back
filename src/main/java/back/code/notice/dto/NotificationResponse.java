@@ -13,6 +13,7 @@ public class NotificationResponse {
 
     private Long notificationId;
     private String userId;
+    private String senderId;
     private Long milestoneId;
     private Long inquiryId;
     private String type;
@@ -28,6 +29,7 @@ public class NotificationResponse {
         return NotificationResponse.builder()
                 .notificationId(notification.getNotificationId())
                 .userId(notification.getUserId())
+                .senderId(notification.getSenderId())
                 .milestoneId(notification.getMilestoneId())
                 .inquiryId(notification.getInquiryId())
                 // Enum 타입을 String으로 변환하여 전달

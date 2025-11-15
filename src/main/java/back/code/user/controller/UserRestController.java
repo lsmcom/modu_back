@@ -1,8 +1,8 @@
 package back.code.user.controller;
 
 import back.code.common.dto.ApiResponse;
-import back.code.file.dto.FileDTO;
 import back.code.user.dto.JoinRequestDTO;
+import back.code.admin.dto.user.UserAllInfoDTO;
 import back.code.user.dto.UserInfoDTO;
 import back.code.user.dto.UserUpdateRequest;
 import back.code.user.service.UserService;
@@ -10,10 +10,12 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -187,4 +189,5 @@ public class UserRestController {
         userService.withdrawUser(userId, password, reason);
         return ResponseEntity.ok(ApiResponse.ok("회원 탈퇴가 완료되었습니다."));
     }
+
 }

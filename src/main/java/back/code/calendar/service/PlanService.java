@@ -10,6 +10,7 @@ import back.code.calendar.entity.PlanSharedUserMapId;
 import back.code.calendar.repository.CalendarFolderRepository;
 import back.code.calendar.repository.PlanRepository;
 import back.code.calendar.repository.PlanShareRepository;
+import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class PlanService {
     private final CalendarFolderRepository calendarFolderRepository;
     private final UserRepository userRepository;
     private final PlanRepeatRuleService repeatRuleService; //  반복 규칙 서비스 추가
+    private final NotificationService notificationService;
 
     /** 일정 등록 */
     @Transactional
@@ -129,12 +131,28 @@ public class PlanService {
 
     /** 공유 사용자 추가 */
     public void addSharedUser(PlanEntity plan, UserEntity sharedUser) {
+
+        // DB에서 진짜 PlanEntity 조회 (user 포함)
+        PlanEntity realPlan = planRepository.findById(plan.getPlanId())
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
+        String senderId = realPlan.getUser().getUserId();
+
+        // 1) 공유 등록
         PlanShareEntity share = PlanShareEntity.builder()
-                .id(new PlanSharedUserMapId(plan.getPlanId(), sharedUser.getUserId()))
-                .plan(plan)
+                .id(new PlanSharedUserMapId(realPlan.getPlanId(), sharedUser.getUserId()))
+                .plan(realPlan)
                 .sharedUser(sharedUser)
                 .build();
         planShareRepository.save(share);
+
+        // 2) 알림 전송
+        notificationService.sendPlanShareNotification(
+                sharedUser.getUserId(),
+                senderId,                       // 여기서 senderId 정확히 들어감
+                realPlan.getPlanId(),
+                realPlan.getPlanTitle()
+        );
     }
 
     // 내 일정 + 공유 받은 일정 모두 조회

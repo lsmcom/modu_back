@@ -61,4 +61,21 @@ public class NotificationService {
 
         return NotificationResponse.fromEntity(savedNotification);
     }
+
+    /** 공유 일정 알림 발송 */
+    @Transactional
+    public void sendPlanShareNotification(String targetUserId, String senderId, Long planId, String title) {
+
+        Notification noti = new Notification();
+        noti.setUserId(targetUserId);   // 알림 받는 사람
+        noti.setSenderId(senderId);     // 만든 사람 / 공유한 사람
+        noti.setInquiryId(null);
+        noti.setMilestoneId(null);
+        noti.setType(Notification.NotificationType.planshare);
+        noti.setTitle("[일정 공유] " + title);
+        noti.setContent("새로운 일정이 공유되었습니다.");
+        noti.setIsRead(false);
+
+        notificationRepository.save(noti);
+    }
 }

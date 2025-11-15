@@ -25,3 +25,14 @@ CREATE TABLE notification (
                                         REFERENCES `milestone` (`milestone_id`)
                                         ON DELETE SET NULL
 ) COMMENT '알림 테이블';
+
+ALTER TABLE notification
+    MODIFY COLUMN type ENUM(
+        'announcement',
+        'milestone',
+        'planshare',
+        'inquiryAnswer'
+        ) NOT NULL COMMENT '알림 유형';
+
+ALTER TABLE notification
+    ADD COLUMN sender_id VARCHAR(100) NULL COMMENT '알림 보낸 사용자 ID';

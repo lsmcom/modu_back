@@ -28,7 +28,7 @@ CREATE TABLE `inquiry_reply` (
                                  `update_at`	DATETIME	NULL	DEFAULT NULL	COMMENT '수정일 (BaseTimeEntity)',
 
                                  PRIMARY KEY(`reply_id`),
-                                 CONSTRAINT fk_reply_inquiry FOREIGN KEY (`inquiry_id`) REFERENCES `inquiryEntity` (`inquiry_id`),
+                                 CONSTRAINT fk_reply_inquiry FOREIGN KEY (`inquiry_id`) REFERENCES `inquiry` (`inquiry_id`),
                                  CONSTRAINT fk_reply_admin FOREIGN KEY (`admin_id`) REFERENCES `user` (`user_id`)
 ) COMMENT '문의 답변 테이블';
 
@@ -130,19 +130,19 @@ VALUES
 
 /* 문의사항 - 파일 매핑 테이블 생성 */
 CREATE TABLE inquiry_file_mapping (
-    inquiry_file_mapping_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '문의사항-파일 매핑 ID (PK)',
-    inquiry_id BIGINT NOT NULL COMMENT '문의사항 ID (FK)',
-    file_id VARCHAR(255) NOT NULL COMMENT '파일 ID (FK)',
-    created_at DATETIME DEFAULT NOW() COMMENT '등록일',
+                                      inquiry_file_mapping_id BIGINT NOT NULL AUTO_INCREMENT COMMENT '문의사항-파일 매핑 ID (PK)',
+                                      inquiry_id BIGINT NOT NULL COMMENT '문의사항 ID (FK)',
+                                      file_id VARCHAR(255) NOT NULL COMMENT '파일 ID (FK)',
+                                      created_at DATETIME DEFAULT NOW() COMMENT '등록일',
 
-    PRIMARY KEY (inquiry_file_mapping_id),
+                                      PRIMARY KEY (inquiry_file_mapping_id),
 
-    CONSTRAINT fk_inquiry_file_mapping_inquiry
-        FOREIGN KEY (inquiry_id) REFERENCES inquiry(inquiry_id)
-        ON DELETE CASCADE,
+                                      CONSTRAINT fk_inquiry_file_mapping_inquiry
+                                          FOREIGN KEY (inquiry_id) REFERENCES inquiry(inquiry_id)
+                                              ON DELETE CASCADE,
 
-    CONSTRAINT fk_inquiry_file_mapping_file
-        FOREIGN KEY (file_id) REFERENCES file(file_id)
-        ON DELETE CASCADE
+                                      CONSTRAINT fk_inquiry_file_mapping_file
+                                          FOREIGN KEY (file_id) REFERENCES file(file_id)
+                                              ON DELETE CASCADE
 ) COMMENT '문의사항-파일 매핑 테이블';
 
