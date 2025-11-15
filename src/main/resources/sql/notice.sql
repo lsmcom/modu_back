@@ -27,12 +27,18 @@ CREATE TABLE notification (
 ) COMMENT '알림 테이블';
 
 ALTER TABLE notification
+    ADD COLUMN sender_id VARCHAR(100) NULL COMMENT '알림 보낸 사용자 ID';
+
+ALTER TABLE notification
+    ADD COLUMN plan_id BIGINT NULL AFTER sender_id;
+
+ALTER TABLE notification
     MODIFY COLUMN type ENUM(
         'announcement',
         'milestone',
         'planshare',
+        'planshare_request',
+        'planshare_accept',
+        'planshare_reject',
         'inquiryAnswer'
         ) NOT NULL COMMENT '알림 유형';
-
-ALTER TABLE notification
-    ADD COLUMN sender_id VARCHAR(100) NULL COMMENT '알림 보낸 사용자 ID';

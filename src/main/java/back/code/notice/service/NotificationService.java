@@ -1,8 +1,15 @@
 package back.code.notice.service;
 
+import back.code.calendar.entity.PlanEntity;
+import back.code.calendar.entity.PlanShareEntity;
+import back.code.calendar.entity.PlanSharedUserMapId;
+import back.code.calendar.repository.PlanRepository;
+import back.code.calendar.repository.PlanShareRepository;
 import back.code.notice.entity.Notification;
 import back.code.notice.repository.NotificationRepository;
 import back.code.notice.dto.NotificationResponse;
+import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +22,9 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final PlanRepository planRepository;
+    private final UserRepository userRepository;
+    private final PlanShareRepository planShareRepository;
 
     /**
      * 특정 사용자의 모든 알림 목록을 최신순으로 조회합니다.
@@ -62,20 +72,81 @@ public class NotificationService {
         return NotificationResponse.fromEntity(savedNotification);
     }
 
-    /** 공유 일정 알림 발송 */
+    /** 🔔 일정 공유 "초대" 알림 발송 (PlanShare는 만들지 않음) */
     @Transactional
-    public void sendPlanShareNotification(String targetUserId, String senderId, Long planId, String title) {
+    public void sendPlanShareRequestNotification(
+            String targetUserId, String senderId, Long planId, String title) {
 
         Notification noti = new Notification();
-        noti.setUserId(targetUserId);   // 알림 받는 사람
-        noti.setSenderId(senderId);     // 만든 사람 / 공유한 사람
-        noti.setInquiryId(null);
+        noti.setUserId(targetUserId);      // 알림 받는 사람
+        noti.setSenderId(senderId);        // 초대한 사람
+        noti.setPlanId(planId);            // 수락 시 사용할 일정 ID
         noti.setMilestoneId(null);
-        noti.setType(Notification.NotificationType.planshare);
-        noti.setTitle("[일정 공유] " + title);
-        noti.setContent("새로운 일정이 공유되었습니다.");
+        noti.setInquiryId(null);
+        noti.setType(Notification.NotificationType.planshare_request);
+        noti.setTitle("[일정 공유 초대] " + title);
+        noti.setContent("일정 공유 초대가 도착했습니다. 수락 또는 거절할 수 있습니다.");
         noti.setIsRead(false);
 
         notificationRepository.save(noti);
+    }
+
+    /** ✅ 일정 공유 초대 수락: 여기에서 PlanShareEntity 저장 */
+    @Transactional
+    public void acceptPlanShare(Long notificationId, String userId) {
+
+        Notification noti = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다."));
+
+        if (!noti.getUserId().equals(userId)) {
+            throw new SecurityException("권한이 없습니다.");
+        }
+
+        if (noti.getType() != Notification.NotificationType.planshare_request) {
+            throw new IllegalStateException("일정 공유 초대 알림이 아닙니다.");
+        }
+
+        Long planId = noti.getPlanId();
+        if (planId == null) {
+            throw new IllegalStateException("알림에 연결된 일정 정보가 없습니다.");
+        }
+
+        PlanEntity plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
+        UserEntity sharedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 이미 수락되어 있는지(중복 저장 방지)
+        boolean exists = planShareRepository.existsById(
+                new PlanSharedUserMapId(planId, userId)
+        );
+        if (!exists) {
+            PlanShareEntity share = PlanShareEntity.builder()
+                    .id(new PlanSharedUserMapId(planId, userId))
+                    .plan(plan)
+                    .sharedUser(sharedUser)
+                    .build();
+            planShareRepository.save(share);
+        }
+
+        // 알림 상태 변경
+        noti.setIsRead(true);
+        noti.setType(Notification.NotificationType.planshare_accept); // 선택적: 상태 표현용
+    }
+
+    /** ❌ 일정 공유 초대 거절 (PlanShare 저장 없이 읽음 처리만) */
+    @Transactional
+    public void rejectPlanShare(Long notificationId, String userId) {
+
+        Notification noti = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다."));
+
+        if (!noti.getUserId().equals(userId)) {
+            throw new SecurityException("권한이 없습니다.");
+        }
+
+        noti.setIsRead(true);
+        noti.setType(Notification.NotificationType.planshare_reject); // 선택적
     }
 }

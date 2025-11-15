@@ -129,27 +129,36 @@ public class PlanService {
                 .toList();
     }
 
-    /** 공유 사용자 추가 */
+    /** 일정 공유자 추가: 이제는 "공유 초대 알림"만 발송 */
+    @Transactional
     public void addSharedUser(PlanEntity plan, UserEntity sharedUser) {
 
-        // DB에서 진짜 PlanEntity 조회 (user 포함)
         PlanEntity realPlan = planRepository.findById(plan.getPlanId())
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
 
         String senderId = realPlan.getUser().getUserId();
 
-        // 1) 공유 등록
-        PlanShareEntity share = PlanShareEntity.builder()
-                .id(new PlanSharedUserMapId(realPlan.getPlanId(), sharedUser.getUserId()))
-                .plan(realPlan)
-                .sharedUser(sharedUser)
-                .build();
-        planShareRepository.save(share);
+        // 예전처럼 PlanShareEntity는 여기서 저장하지 않습니다.
+        //  → 수락 API에서만 PlanShareEntity 저장
 
-        // 2) 알림 전송
-        notificationService.sendPlanShareNotification(
+        notificationService.sendPlanShareRequestNotification(
+                sharedUser.getUserId(),          // 초대 받는 사람
+                senderId,                        // 초대한 사람
+                realPlan.getPlanId(),            // 일정 ID (수락 시 사용)
+                realPlan.getPlanTitle()
+        );
+    }
+
+    /** 일정 공유 초대 요청 보내기 (저장 X) */
+    @Transactional
+    public void requestShareUser(PlanEntity plan, UserEntity sharedUser) {
+
+        PlanEntity realPlan = planRepository.findById(plan.getPlanId())
+                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+
+        notificationService.sendPlanShareRequestNotification(
                 sharedUser.getUserId(),
-                senderId,                       // 여기서 senderId 정확히 들어감
+                realPlan.getUser().getUserId(),
                 realPlan.getPlanId(),
                 realPlan.getPlanTitle()
         );
