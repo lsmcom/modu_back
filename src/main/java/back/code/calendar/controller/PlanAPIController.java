@@ -9,6 +9,7 @@ import back.code.calendar.entity.PlanShareEntity;
 import back.code.calendar.repository.CalendarFolderRepository;
 import back.code.calendar.repository.PlanRepository;
 import back.code.calendar.service.PlanService;
+import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class PlanAPIController {
     private final CalendarFolderRepository calendarFolderRepository;
     private final UserRepository userRepository;
     private final PlanRepository planRepository;
+    private final NotificationService notificationService;
 
     /** 일정 등록 */
     @PostMapping
@@ -86,9 +88,10 @@ public class PlanAPIController {
         return ResponseEntity.ok(planService.getSharedUsers(plan));
     }
 
-    /** 일정 공유자 추가 */
+    /** 일정 공유자 추가 (이제는 공유 초대만 전송) */
     @PostMapping("/{planId}/share/{sharedUserId}")
-    public ResponseEntity<Void> addSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
+    public ResponseEntity<Void> addSharedUser(@PathVariable Long planId,
+                                              @PathVariable String sharedUserId) {
 
         PlanEntity plan = planRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
@@ -96,7 +99,9 @@ public class PlanAPIController {
         UserEntity user = userRepository.findById(sharedUserId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        // 여기서 실제 공유 저장 X, 초대 알림만 전송
         planService.addSharedUser(plan, user);
+
         return ResponseEntity.ok().build();
     }
 
@@ -123,6 +128,25 @@ public class PlanAPIController {
     ) {
         planService.updateSharedPlanColors(userId, color);
         return ResponseEntity.ok("공유 일정 색상 변경 완료");
+    }
+
+    // 공유 초대 수락
+    @PostMapping("/share/accept")
+    public ResponseEntity<?> acceptShare(
+            @RequestParam Long notificationId,
+            @RequestParam String userId) {
+
+        notificationService.acceptPlanShare(notificationId, userId);
+        return ResponseEntity.ok("공유 초대 수락 완료");
+    }
+
+    @PostMapping("/share/reject")
+    public ResponseEntity<?> rejectShare(
+            @RequestParam Long notificationId,
+            @RequestParam String userId) {
+
+        notificationService.rejectPlanShare(notificationId, userId);
+        return ResponseEntity.ok("공유 초대 거절 완료");
     }
 }
 

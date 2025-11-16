@@ -20,6 +20,9 @@ public class Notification {
         announcement,
         milestone,
         planshare,
+        planshare_request,
+        planshare_accept,
+        planshare_reject,
         inquiryAnswer
     }
 
@@ -31,6 +34,9 @@ public class Notification {
     // user_id는 FK이지만, 엔티티 관계 설정 없이 String으로 매핑
     @Column(name = "user_id", nullable = false, length = 100)
     private String userId;
+
+    @Column(name = "plan_id")
+    private Long planId;
 
     @Column(name = "sender_id")
     private String senderId;   // 알림 보낸 사람 (일정 공유한 userId)
