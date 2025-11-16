@@ -1,17 +1,22 @@
 package back.code.admin.service.announcement;
 
 
+import back.code.admin.dto.announcement.AnnouncementCreateDTO;
 import back.code.admin.dto.announcement.AnnouncementResponseDTO;
 import back.code.admin.repository.AdminCommunityPostRepository;
 import back.code.admin.repository.AdminInquiryRepository;
 import back.code.community.entity.CommunityPostEntity;
+import back.code.community.repository.CommunityBoardRepository;
 import back.code.inquiry.entity.InquiryEntity;
-import back.code.inquiry.repository.InquiryRepository;
+import back.code.inquiry.entity.InquiryStatus;
+import back.code.user.entity.UserEntity;
+import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +27,8 @@ public class AdminAnnouncementService {
 
     private final AdminInquiryRepository adminInquiryRepository;
     private final AdminCommunityPostRepository communityPostRepository;
+    private final CommunityBoardRepository  communityBoardRepository;
+    private final UserRepository userRepository;
 
 
 
@@ -69,6 +76,75 @@ public class AdminAnnouncementService {
         log.info("[AdminAnnouncementService] 전체 공지 조회 후 {}건 순번 부여", result.size());
 
         return result;
+    }
+
+    @Transactional
+    public void createAnnouncement(AnnouncementCreateDTO dto) {
+
+        UserEntity adminUser = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        switch (dto.getType()) {
+
+            case "NOTICE": {
+                CommunityPostEntity post = CommunityPostEntity.builder()
+                        .title(dto.getTitle())
+                        .contents(dto.getContent())
+                        .board(communityBoardRepository.getReferenceById(1))
+                        .user(adminUser)         // 프론트에서 넘어온 관리자 userId
+                        .likeCount(0)
+                        .readCount(0)
+                        .build();
+
+                communityPostRepository.save(post);
+                break;
+            }
+
+            case "INQUIRY_RESPONSE": {
+                InquiryEntity inquiry = InquiryEntity.builder()
+                        .title(dto.getTitle())
+                        .content(dto.getContent())
+                        .isPublic(true)
+                        .status(InquiryStatus.answered)
+                        .user(adminUser)
+                        .build();
+
+                adminInquiryRepository.save(inquiry);
+                break;
+            }
+        }
+    }
+
+    // 공지 삭제(커뮤니티)
+    @Transactional
+    public void deleteCommunity(Integer id) {
+        communityPostRepository.deleteById(id);
+    }
+
+    // 공지 삭제(문의사항)
+    @Transactional
+    public void deleteInquiry(Long id) {
+        adminInquiryRepository.deleteById(id);
+    }
+
+    // 공지 수정(커뮤니티)
+    @Transactional
+    public void updateCommunity(Integer id, AnnouncementCreateDTO dto) {
+        CommunityPostEntity post = communityPostRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 커뮤니티 공지를 찾을 수 없습니다."));
+
+        post.setTitle(dto.getTitle());
+        post.setContents(dto.getContent());
+    }
+
+    // 공지 수정(커뮤니티)
+    @Transactional
+    public void updateInquiry(Long id, AnnouncementCreateDTO dto) {
+        InquiryEntity inquiry = adminInquiryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 문의 공지를 찾을 수 없습니다."));
+
+        inquiry.setTitle(dto.getTitle());
+        inquiry.setContent(dto.getContent());
     }
 
 }
