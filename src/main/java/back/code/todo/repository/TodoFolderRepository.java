@@ -23,4 +23,6 @@ public interface TodoFolderRepository extends JpaRepository<TodoFolder, TodoFold
 
     // 해당 유저의 내역 삭제
     void deleteByUserId(String userId);
+    
+    boolean existsByUserIdAndFolderId(String userId, int folderId);
 }

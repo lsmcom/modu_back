@@ -155,7 +155,7 @@ public class UserService {
         calendarFolderService.createDefaultFolders(user);
 
         // Todo 폴더 자동 생성
-        todoFolderService.createDefaultTodoFolders(user);
+        todoFolderService.createDefaultTodoFoldersInNewTx(user);
 
         // 메모 폴더 자동 생성
         memoFolderService.createDefaultFolders(user);

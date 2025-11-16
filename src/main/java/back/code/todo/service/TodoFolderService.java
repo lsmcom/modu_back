@@ -33,17 +33,24 @@ public class TodoFolderService {
     private static final int DEFAULT_FOLDER_ID = 1; // 기본 폴더 ID (Mock 데이터 기반 가정)
 
     // 회원가입 시 기본 폴더 (1) 및 NotTodoList 폴더 (999) 생성
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createDefaultTodoFolders(UserEntity user) {
         String userId = user.getUserId();
 
-        TodoFolder defaultFolder = new TodoFolder(1, userId, "기본 폴더", true);
-        todoFolderRepository.save(defaultFolder);
+        if (!todoFolderRepository.existsByUserIdAndFolderId(userId, 1)) {
+            TodoFolder defaultFolder = new TodoFolder(1, userId, "기본 폴더", true);
+            todoFolderRepository.save(defaultFolder);
+        }
 
-        TodoFolder notTodoFolder = new TodoFolder(999, userId, "NotTodoList", false);
-        todoFolderRepository.save(notTodoFolder);
+        if (!todoFolderRepository.existsByUserIdAndFolderId(userId, 999)) {
+            TodoFolder notTodoFolder = new TodoFolder(999, userId, "NotTodoList", false);
+            todoFolderRepository.save(notTodoFolder);
+        }
     }
 
+    @Transactional
+    public void createDefaultTodoFoldersInNewTx(UserEntity user) {
+        createDefaultTodoFolders(user);
+    }
     /* 특정 사용자의 모든 폴더 목록을 조회 */
     public List<FolderResponse> getAllFolders(String userId) {
         // TodoFolderRepository.findByUserId를 사용하여 사용자 폴더만 조회합니다.
