@@ -13,6 +13,13 @@ import back.code.user.entity.UserEntity;
 
 public interface BudgetRepository extends JpaRepository<BudgetEntity, Integer>{
 
+    // 모든 유저 ID 조회
+    @Query(value = """
+                    select distinct b.user.userId 
+                    from BudgetEntity b
+                """)
+    List<String> findDistinctUserIds();
+
     // 전체 조회
     List<BudgetEntity> findAllByUser_UserIdAndYearMonth(String userId, String yearMonth);
 

@@ -10,7 +10,6 @@ import back.code.accountBook.dto.AccountCategoryDTO;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.accountBook.enums.AccountType;
 import back.code.accountBook.repository.CategoryRepository;
-import back.code.calendar.entity.CalendarFolderEntity;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

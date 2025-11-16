@@ -11,9 +11,8 @@ import back.code.file.repository.FileRepository;
 import back.code.milestone.repository.UserMilestoneRepository;
 import back.code.notice.repository.NotificationRepository;
 import back.code.recentsearch.repository.RecentSearchRepository;
-import back.code.todo.entity.TodoFolder;
 import back.code.todo.repository.TodoFolderRepository;
-import back.code.todo.repository.TodoListRepository;
+import back.code.todo.service.TodoFolderService;
 import back.code.memo.repository.MemoFolderRepository;
 import back.code.memo.service.MemoFolderService;
 import back.code.user.dto.UserSettingUpdateDTO;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -47,6 +45,7 @@ public class UserSettingService {
     private final CalendarFolderRepository calendarFolderRepository;
     private final CalendarSettingRepository calendarSettingRepository;
     private final TodoFolderRepository todoFolderRepository;
+    private final TodoFolderService todoFolderService;
     private final RecentSearchRepository recentSearchRepository;
     private final UserMilestoneRepository userMilestoneRepository;
     private final NotificationRepository notificationRepository;
@@ -64,7 +63,7 @@ public class UserSettingService {
                 .alarmAllowed("Y")           // 알림 허용
                 .personalInfoAgreed("Y")     // 개인정보 동의
                 .locationInfoAgreed("Y")     // 위치정보 동의
-                .marketingInfoAgreed("Y")    // 마케팅 동의
+                .marketingInfoAgreed("N")    // 마케팅 동의
                 .build();
 
         userSettingRepository.save(setting);
@@ -129,8 +128,8 @@ public class UserSettingService {
         calendarFolderService.createDefaultFolders(user);  // 캘린더 공유폴더 자동 생성
 
         // 투두 데이터 삭제 및 초기화
-        // todoFolderRepository.deleteByUserId(user.getUserId());
-        // todoFolderRepository.createDefaultFolders(user.getUserId());
+        todoFolderRepository.deleteByUserId(user.getUserId());
+        todoFolderService.createDefaultTodoFolders(user);
 
         // 파일 삭제
         fileRepository.deleteByUser(user);

@@ -23,7 +23,8 @@ public class Notification {
         planshare_request,
         planshare_accept,
         planshare_reject,
-        inquiryAnswer
+        inquiryAnswer,
+        account
     }
 
     @Id
