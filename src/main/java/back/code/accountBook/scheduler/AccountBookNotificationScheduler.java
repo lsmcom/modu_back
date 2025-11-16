@@ -104,9 +104,8 @@ public class AccountBookNotificationScheduler {
             Notification noti = new Notification();
             noti.setUserId(budget.getUser().getUserId());
             noti.setType(Notification.NotificationType.account); 
-            // noti.setTitle("[가계부] 카테고리 예산 한도 도달");
-            noti.setTitle(String.format("[가계부] '%s' 카테고리 예산 %d%% 사용했습니다.", categoryName, budget.getThreshold()));
-            // noti.setContent(String.format("'%s' 카테고리 예산 %d%% 사용했습니다.", categoryName, budget.getThreshold()));
+            noti.setTitle("[가계부] 카테고리 예산 한도 도달");
+            noti.setContent(String.format("'%s' 카테고리 예산 %d%% 사용했습니다.", categoryName, budget.getThreshold()));
             noti.setIsRead(false);
             noti.setCreateDate(LocalDateTime.now());
 
@@ -163,9 +162,8 @@ public class AccountBookNotificationScheduler {
         Notification noti = new Notification();
         noti.setUserId(userId);
         noti.setType(Notification.NotificationType.account);
-        // noti.setTitle("[가계부] 저축 목표 달성");
-        noti.setTitle(String.format("[가계부] 저축 목표 '%s' 100%% 달성했습니다!", goalName));
-        // noti.setContent(String.format("저축 목표 '%s' 100%% 달성했습니다!", goalName));
+        noti.setTitle("[가계부] 저축 목표 달성");
+        noti.setContent(String.format("저축 목표 '%s' 100%% 달성했습니다!", goalName));
         noti.setIsRead(false);
         noti.setCreateDate(LocalDateTime.now());
 
