@@ -73,24 +73,6 @@ CREATE TABLE todo_completion_status (
 
 ) COMMENT '투두 완료 카운트';
 
-REPLACE INTO user (user_id, password, user_name, user_nick, email, birth, agency, phone, addr, addr_detail, create_at, update_at, withdraw_at, status, user_role)
-VALUES (
-    'user01',
-    '$2a$12$ejj5.Hi18FA6kXYAdM2ORefkX1ksYxoAAVzDeNMgWRyyel1upKWwW', -- 비밀번호 해시 값
-    '사용자',
-    '사용자',
-    'user01@naver.com',
-    '1990-10-05',
-    'KT',
-    '010-9876-5432',
-    '서울 마포구 서강로 136',
-    '신촌IT아카데미 2층',
-    '2025-11-04 19:56:41.000',
-    NULL, -- update_at
-    NULL, -- withdraw_at
-    'active',
-    'USER'
-);
 -- REPLACE INTO user 구문 뒤에 추가할 코드 (트리거 대체)
 INSERT INTO todofolder (user_id, folder_id, name, is_default)
 VALUES ('user01', 1, '기본 폴더', 1),
