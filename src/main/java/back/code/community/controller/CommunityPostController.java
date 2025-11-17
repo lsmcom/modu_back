@@ -142,4 +142,10 @@ public class CommunityPostController {
         List<MyPostActivityDTO> posts = communityPostService.getUserPosts(userId);
         return ResponseEntity.ok(ApiResponse.ok(posts));
     }
+
+    @GetMapping("/posts/notice")
+    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getNoticePosts() {
+        List<CommunityPostDTO> notices = communityPostService.getNoticePosts();
+        return ResponseEntity.ok(ApiResponse.ok(notices));
+    }
 }

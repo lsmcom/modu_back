@@ -185,6 +185,11 @@ SELECT
 FROM community_post
 WHERE post_id NOT IN (SELECT post_id FROM community_post_setting);
 
+/* 11.17 수정 가게부 -> 가계부 */
+UPDATE community_board
+SET board_name = '절약 / 가계부 팁'
+WHERE board_name = '절약 / 가게부 팁';
+
 
 
 

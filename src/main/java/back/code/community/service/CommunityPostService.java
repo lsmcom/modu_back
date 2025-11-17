@@ -174,6 +174,20 @@ public class CommunityPostService {
                     CommunityPostEntity.create(board, user, dto.getTitle(), dto.getContents(), dto.getIsTemporary())
             );
 
+            // 공지글은 기본적으로 공개 설정 생성 (setting null 방지)
+            postSettingRepository.save(
+                    CommunityPostSettingEntity.builder()
+                            .post(post)
+                            .user(user)
+                            .isPublic('Y')      // 기본 공개
+                            .isSearch('Y')      // 검색 허용
+                            .isComment('Y')     // 댓글 허용
+                            .isInShare('Y')
+                            .isOutShare('Y')
+                            .isCopy('Y')
+                            .build()
+            );
+
             // 파일 업로드
             if (files != null && !files.isEmpty()) {
                 int order = 1;
@@ -359,6 +373,8 @@ public class CommunityPostService {
             isLiked = postLikeRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
         }
 
+        long realLikeCount = postLikeRepository.countByPost_PostId(postId);
+
         // 로그인 상태이며 게시글 작성자가 아니고 이전에 조회한 적이 없으면 → 조회수 증가
         if (userId != null && !post.getUser().getUserId().equals(userId)) {
             boolean alreadyViewed = postViewRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
@@ -401,6 +417,8 @@ public class CommunityPostService {
 
         // DTO 변환
         CommunityPostDetailDTO dto = CommunityPostDetailDTO.fromEntity(post, fileDtos, profileImagePath);
+        // 실제 좋아요 수 적용
+        dto.setLikeCount((int)realLikeCount);
         dto.setLiked(isLiked);
         if (post.getSetting() != null) {
             dto.setImageSizeType(String.valueOf(post.getSetting().getImageSizeType()));
@@ -576,5 +594,12 @@ public class CommunityPostService {
                     .createAt(p.getCreateAt())
                     .build();
         }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommunityPostDTO> getNoticePosts() {
+        List<CommunityPostDTO> notices = communityPostRepository.findNoticePosts();
+        enrichPostListWithExtras(notices);
+        return notices;
     }
 }

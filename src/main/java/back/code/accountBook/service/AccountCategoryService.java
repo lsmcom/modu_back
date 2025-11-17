@@ -108,22 +108,22 @@ public class AccountCategoryService {
     public void createDefaultCategory(UserEntity user) {
 
         Object[][] defaultCategoriesData = {
-            {"급여", "INCOME", "#66BB6A"},
-            {"용돈", "INCOME", "#4DB6AC"},
-            {"저축", "INCOME", "#5C6BC0"},
-            {"식비", "EXPENSE", "#4BC0FF"},
-            {"교통비", "EXPENSE", "#FF6384"},
-            {"쇼핑", "EXPENSE", "#FF7043"},
-            {"여가", "EXPENSE", "#FFCE56"},
-            {"운동", "EXPENSE", "#AB47BC"},
+                {"급여", "INCOME", "#66BB6A"},
+                {"용돈", "INCOME", "#4DB6AC"},
+                {"저축", "INCOME", "#5C6BC0"},
+                {"식비", "EXPENSE", "#4BC0FF"},
+                {"교통비", "EXPENSE", "#FF6384"},
+                {"쇼핑", "EXPENSE", "#FF7043"},
+                {"여가", "EXPENSE", "#FFCE56"},
+                {"운동", "EXPENSE", "#AB47BC"},
         };
 
         List<AccountCategoryEntity> defaultCategories = new ArrayList<>();
 
-        for (Object[] data  : defaultCategoriesData) {
-            String categoryName = (String) data [0];
-            AccountType type = (AccountType) data [1];
-            String color = (String) data [2];
+        for (Object[] data : defaultCategoriesData) {
+            String categoryName = (String) data[0];
+            AccountType type = AccountType.valueOf((String) data[1]); // 핵심 수정
+            String color = (String) data[2];
 
             // DTO 생성
             AccountCategoryDTO.Request dto = new AccountCategoryDTO.Request();
@@ -140,7 +140,6 @@ public class AccountCategoryService {
         }
 
         categoryRepository.saveAll(defaultCategories);
-
     }
 
 }

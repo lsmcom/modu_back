@@ -45,9 +45,9 @@ public class CommunitySearchService {
         List<CommunityPostEntity> posts;
 
         switch (range) {
-            case "제목" -> posts = searchRepository.searchByTitle(q, boardId);
-            case "작성자" -> posts = searchRepository.searchByUserNick(q, boardId);
-            case "글+댓글", "전체" -> posts = searchRepository.searchAll(q, boardId);
+            case "제목" -> posts = searchRepository.searchByTitle(q, boardId, userId);
+            case "작성자" -> posts = searchRepository.searchByUserNick(q, boardId, userId);
+            case "글+댓글", "전체" -> posts = searchRepository.searchAll(q, boardId, userId);
             default -> throw new RuntimeException("잘못된 검색 범위입니다.");
         }
 

@@ -149,4 +149,25 @@ public class NotificationService {
         noti.setIsRead(true);
         noti.setType(Notification.NotificationType.planshare_reject); // 선택적
     }
+
+    @Transactional
+    public void sendAnnouncementNotification(String title, String content, Long announcementId) {
+
+        List<UserEntity> allUsers = userRepository.findAll();
+
+        List<Notification> notifications = allUsers.stream()
+                .map(user -> {
+                    Notification n = new Notification();
+                    n.setUserId(user.getUserId());
+                    n.setSenderId("ADMIN");
+                    n.setType(Notification.NotificationType.announcement);
+                    n.setTitle("[공지사항] " + title);
+                    n.setContent(content);
+                    n.setIsRead(false);
+                    return n;
+                })
+                .toList();
+
+        notificationRepository.saveAll(notifications);
+    }
 }

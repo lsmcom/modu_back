@@ -31,5 +31,7 @@ public interface PlanRepository extends JpaRepository<PlanEntity, Long> {
     @Query("SELECT p FROM PlanEntity p JOIN FETCH p.folder WHERE p.folder.folderId = :folderId")
     List<PlanEntity> findByFolder_FolderId(@Param("folderId") Long folderId);
 
+    void deleteByUser(UserEntity user);
+
 }
 

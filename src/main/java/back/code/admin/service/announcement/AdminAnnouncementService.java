@@ -9,6 +9,7 @@ import back.code.community.entity.CommunityPostEntity;
 import back.code.community.repository.CommunityBoardRepository;
 import back.code.inquiry.entity.InquiryEntity;
 import back.code.inquiry.entity.InquiryStatus;
+import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AdminAnnouncementService {
     private final AdminCommunityPostRepository communityPostRepository;
     private final CommunityBoardRepository  communityBoardRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
 
 
@@ -81,38 +83,54 @@ public class AdminAnnouncementService {
     @Transactional
     public void createAnnouncement(AnnouncementCreateDTO dto) {
 
+        // (1) 관리자 계정 조회
         UserEntity adminUser = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        String title = dto.getTitle();
+        String content = dto.getContent();
+
+        Long announcementId; // 공지 ID 저장용
 
         switch (dto.getType()) {
 
             case "NOTICE": {
                 CommunityPostEntity post = CommunityPostEntity.builder()
-                        .title(dto.getTitle())
-                        .contents(dto.getContent())
+                        .title(title)
+                        .contents(content)
                         .board(communityBoardRepository.getReferenceById(1))
-                        .user(adminUser)         // 프론트에서 넘어온 관리자 userId
+                        .user(adminUser)
                         .likeCount(0)
                         .readCount(0)
                         .build();
 
-                communityPostRepository.save(post);
+                CommunityPostEntity saved = communityPostRepository.save(post);
+                announcementId = Long.valueOf(saved.getPostId());
                 break;
             }
 
             case "INQUIRY_RESPONSE": {
                 InquiryEntity inquiry = InquiryEntity.builder()
-                        .title(dto.getTitle())
-                        .content(dto.getContent())
+                        .title(title)
+                        .content(content)
                         .isPublic(true)
                         .status(InquiryStatus.answered)
                         .user(adminUser)
                         .build();
 
-                adminInquiryRepository.save(inquiry);
+                InquiryEntity saved = adminInquiryRepository.save(inquiry);
+                announcementId = saved.getInquiryId();
                 break;
             }
+
+            default:
+                throw new IllegalArgumentException("지원하지 않는 공지 유형입니다.");
         }
+
+        // (2) 🔔 전체 사용자에게 알림 발송
+        notificationService.sendAnnouncementNotification(title, content, announcementId);
+
+        log.info("[AdminAnnouncementService] 공지 생성 완료 및 전체 알림 발송 완료");
     }
 
     // 공지 삭제(커뮤니티)

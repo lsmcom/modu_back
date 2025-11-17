@@ -219,4 +219,45 @@ public class PlanService {
             }
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<PlanResponse> getAllPlansByUser(String userId) {
+
+        // 1. 내가 만든 일정
+        List<PlanEntity> myPlans = planRepository.findByUser_UserId(userId);
+
+        // 2. 내가 공유받은 일정 (plan, folder 즉시 로딩)
+        List<PlanShareEntity> sharedPlans = planShareRepository.findBySharedUser_UserId(userId);
+
+        // 3. 공유받은 사람 자신의 "SHARED 폴더" 조회
+        CalendarFolderEntity mySharedFolder =
+                calendarFolderRepository.findByUser_UserIdAndFolderType(userId, "SHARED");
+
+        if (mySharedFolder == null) {
+            throw new IllegalStateException("공유 폴더가 존재하지 않습니다. userId=" + userId);
+        }
+
+        List<PlanResponse> result = new ArrayList<>();
+
+        // 4. 내가 만든 일정 → 그대로 변환
+        for (PlanEntity p : myPlans) {
+            result.add(PlanResponse.fromEntity(p));
+        }
+
+        // 5. 내가 공유받은 일정 → 내 공유 폴더 기준으로 덮어쓰기
+        for (PlanShareEntity sp : sharedPlans) {
+            PlanEntity p = sp.getPlan();
+
+            PlanResponse dto = PlanResponse.fromEntity(p);
+
+            dto.setFolderId(mySharedFolder.getFolderId());
+            dto.setFolderName(mySharedFolder.getFolderName());
+            dto.setFolderType("SHARED");
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
 }

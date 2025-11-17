@@ -128,4 +128,20 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
         ORDER BY p.createAt DESC
     """)
     List<CommunityPostEntity> findUserPostsWithBoard(@Param("userId") String userId);
+
+    @Query("""
+    SELECT new back.code.community.dto.CommunityPostDTO(
+        p.postId, b.boardId, b.boardName, u.userId, u.userNick,
+        f.filePath, f.storedName, p.title, p.contents,
+        p.readCount, p.likeCount, p.isTemporary, p.createAt
+    )
+        FROM CommunityPostEntity p
+        JOIN p.board b
+        JOIN p.user u
+        LEFT JOIN u.files f ON f.fileType = 'PROFILE'
+        WHERE p.isTemporary = 'N'
+          AND b.boardId = 1
+        ORDER BY p.createAt DESC
+    """)
+    List<CommunityPostDTO> findNoticePosts();
 }

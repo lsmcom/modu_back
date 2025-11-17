@@ -25,7 +25,9 @@ public class CommunityReportEntity extends BaseCreateTimeEntity {
     private String reportReason; // 신고 사유
 
     @Enumerated(EnumType.STRING)
-    private ReportStatus reportStatus = ReportStatus.PENDING; // 신고 처리 상태
+    @Column(name = "report_status", nullable = false)
+    @Builder.Default
+    private ReportStatus reportStatus = ReportStatus.PENDING; // 신고 처리 상태, 자동으로 PENDING 지정
 
     public enum ReportStatus {
         PENDING, APPROVED, REJECTED

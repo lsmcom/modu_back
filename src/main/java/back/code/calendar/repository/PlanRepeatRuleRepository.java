@@ -1,6 +1,7 @@
 package back.code.calendar.repository;
 
 import back.code.calendar.entity.PlanRepeatRuleEntity;
+import back.code.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,4 +11,6 @@ public interface PlanRepeatRuleRepository extends JpaRepository<PlanRepeatRuleEn
     void deleteByPlan_PlanId(Long planId);
 
     boolean existsByPlan_PlanId(Long planId);
+
+    void deleteByPlan_User(UserEntity user);
 }

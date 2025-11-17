@@ -4,8 +4,7 @@ import back.code.accountBook.repository.AccountBookRepository;
 import back.code.accountBook.repository.BudgetRepository;
 import back.code.accountBook.repository.CategoryRepository;
 import back.code.accountBook.repository.SavingGoalRepository;
-import back.code.calendar.repository.CalendarFolderRepository;
-import back.code.calendar.repository.CalendarSettingRepository;
+import back.code.calendar.repository.*;
 import back.code.calendar.service.CalendarFolderService;
 import back.code.file.repository.FileRepository;
 import back.code.milestone.repository.UserMilestoneRepository;
@@ -50,6 +49,9 @@ public class UserSettingService {
     private final UserMilestoneRepository userMilestoneRepository;
     private final NotificationRepository notificationRepository;
     private final FileRepository fileRepository;
+    private final PlanRepository planRepository;
+    private final PlanShareRepository planShareRepository;
+    private final PlanRepeatRuleRepository  planRepeatRuleRepository;
 
 
     /** 회원가입시 기본 사용자 설정 생성 */
@@ -124,6 +126,10 @@ public class UserSettingService {
 
         // 캘린더 데이터 삭제 및 초기화
         calendarFolderRepository.deleteByUser(user);
+        planRepository.deleteByUser(user);
+        planShareRepository.deleteBySharedUserUserId(user.getUserId());
+        planShareRepository.deleteByPlanUserUserId(user.getUserId());
+        planRepeatRuleRepository.deleteByPlan_User(user);
         calendarSettingRepository.deleteByUser(user);  // 알아서 초기화 됨
         calendarFolderService.createDefaultFolders(user);  // 캘린더 공유폴더 자동 생성
 

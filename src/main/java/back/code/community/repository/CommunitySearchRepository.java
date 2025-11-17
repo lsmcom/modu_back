@@ -24,7 +24,9 @@ public interface CommunitySearchRepository extends JpaRepository<CommunityPostEn
         )
         ORDER BY p.createAt DESC
     """)
-    List<CommunityPostEntity> searchAll(@Param("keyword") String keyword, @Param("boardId") Integer boardId);
+    List<CommunityPostEntity> searchAll(@Param("keyword") String keyword,
+                                        @Param("boardId") Integer boardId,
+                                        @Param("userId") String userId);
 
     /* 제목만 검색 */
     @Query("""
@@ -37,7 +39,9 @@ public interface CommunitySearchRepository extends JpaRepository<CommunityPostEn
         AND LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
         ORDER BY p.createAt DESC
     """)
-    List<CommunityPostEntity> searchByTitle(@Param("keyword") String keyword, @Param("boardId") Integer boardId);
+    List<CommunityPostEntity> searchByTitle(@Param("keyword") String keyword,
+                                            @Param("boardId") Integer boardId,
+                                            @Param("userId") String userId);
 
     /* 작성자명만 검색 */
     @Query("""
@@ -50,5 +54,7 @@ public interface CommunitySearchRepository extends JpaRepository<CommunityPostEn
         AND LOWER(p.user.userNick) LIKE LOWER(CONCAT('%', :keyword, '%'))
         ORDER BY p.createAt DESC
     """)
-    List<CommunityPostEntity> searchByUserNick(@Param("keyword") String keyword, @Param("boardId") Integer boardId);
+    List<CommunityPostEntity> searchByUserNick(@Param("keyword") String keyword,
+                                               @Param("boardId") Integer boardId,
+                                               @Param("userId") String userId);
 }
