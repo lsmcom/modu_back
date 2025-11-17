@@ -5,10 +5,7 @@ import back.code.common.utils.SecurityUtils;
 import back.code.file.entity.FileEntity;
 import back.code.file.repository.FileRepository;
 import back.code.file.service.FileService;
-import back.code.inquiry.dto.InquiryCreateRequest;
-import back.code.inquiry.dto.InquiryDetailResponse;
-import back.code.inquiry.dto.InquiryDto;
-import back.code.inquiry.dto.InquiryUpdateRequest;
+import back.code.inquiry.dto.*;
 import back.code.inquiry.entity.InquiryEntity;
 import back.code.inquiry.entity.InquiryFileMappingEntity;
 import back.code.inquiry.entity.InquiryStatus;
@@ -316,6 +313,22 @@ public class InquiryService {
         int inquiryCount = inquiryRepository.countByUser_UserId(userId);
 
         return inquiryCount;
+    }
+
+    // 사용자별 문의 목록 조회
+    @Transactional(readOnly = true)
+    public List<MyInquiryListDTO> getUserInquiries(String userId) {
+
+        List<InquiryEntity> list =
+                inquiryRepository.findByUser_UserIdOrderByCreateAtDesc(userId);
+
+        return list.stream()
+                .map(i -> MyInquiryListDTO.builder()
+                        .inquiryId(i.getInquiryId())
+                        .title(i.getTitle())
+                        .status(i.getStatus().name()) // submitted, answered, temp
+                        .build()
+                ).toList();
     }
 
     /** 공용 파일 URL 생성 유틸 (CommunityPostDTO와 동일한 로직) */

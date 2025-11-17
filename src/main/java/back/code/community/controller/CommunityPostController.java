@@ -135,4 +135,11 @@ public class CommunityPostController {
         communityPostService.reportPost(request);
         return ResponseEntity.ok(ApiResponse.ok("신고가 접수되었습니다."));
     }
+
+    /** 마이페이지 - 내가 쓴 게시글 목록 조회 */
+    @GetMapping("/users/{userId}/posts")
+    public ResponseEntity<ApiResponse<List<MyPostActivityDTO>>> getUserPosts(@PathVariable String userId) {
+        List<MyPostActivityDTO> posts = communityPostService.getUserPosts(userId);
+        return ResponseEntity.ok(ApiResponse.ok(posts));
+    }
 }

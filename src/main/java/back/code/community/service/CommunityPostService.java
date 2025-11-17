@@ -540,4 +540,41 @@ public class CommunityPostService {
                 request.getPostId(), request.getUserId(), request.getReportReason()
         );
     }
+
+    /** 마이페이지 - 내가 쓴 게시글 목록 */
+    @Transactional(readOnly = true)
+    public List<MyPostActivityDTO> getUserPosts(String userId) {
+
+        // 사용자가 쓴 게시글(임시글 제외, 게시판 포함) 조회
+        List<CommunityPostEntity> posts = postRepository.findUserPostsWithBoard(userId);
+
+        // DTO 매핑 + 댓글 수 + 썸네일
+        return posts.stream().map(p -> {
+            // 댓글 수
+            int commentCount = commentRepository.countByPost_PostId(p.getPostId());
+
+            // 썸네일 (첫 번째 이미지 파일)
+            String thumbnailPath = postFileRepository.findByPost_PostIdOrderByFileOrderAsc(p.getPostId())
+                    .stream()
+                    .map(CommunityPostFileEntity::getFile)
+                    .filter(file -> file.getStoredName() != null &&
+                            file.getStoredName().toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$"))
+                    .findFirst()
+                    .map(file -> buildUrl(file.getFilePath(), file.getStoredName()))
+                    .orElse(null);
+
+            return MyPostActivityDTO.builder()
+                    .postId(p.getPostId())
+                    .boardId(p.getBoard() != null ? p.getBoard().getBoardId() : null)
+                    .boardName(p.getBoard() != null ? p.getBoard().getBoardName() : null)
+                    .title(p.getTitle())
+                    .contents(p.getContents())
+                    .readCount(p.getReadCount())
+                    .likeCount(p.getLikeCount())
+                    .commentCount(commentCount)
+                    .thumbnailPath(thumbnailPath)
+                    .createAt(p.getCreateAt())
+                    .build();
+        }).toList();
+    }
 }

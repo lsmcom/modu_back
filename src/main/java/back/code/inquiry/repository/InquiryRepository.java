@@ -12,4 +12,7 @@ public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
 
     // 사용자별 게시글 수 조회
     int countByUser_UserId(String userId);
+
+    // 사용자별 문의 목록 조회 (최신순)
+    List<InquiryEntity> findByUser_UserIdOrderByCreateAtDesc(String userId);
 }
