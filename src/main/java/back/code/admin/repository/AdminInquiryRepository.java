@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AdminInquiryRepository extends JpaRepository<InquiryEntity,Integer> {
+public interface AdminInquiryRepository extends JpaRepository<InquiryEntity,Long> {
 
     // isPublic = false 인 Inquiry 조회
     List<InquiryEntity> findByIsPublicFalse();
