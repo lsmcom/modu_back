@@ -3,6 +3,7 @@ package back.code.community.service;
 import back.code.common.utils.SecurityUtils;
 import back.code.community.dto.CommunityPostCommentCreateDTO;
 import back.code.community.dto.CommunityPostCommentDTO;
+import back.code.community.dto.MyCommentActivityDTO;
 import back.code.community.entity.CommunityPostCommentEntity;
 import back.code.community.entity.CommunityPostEntity;
 import back.code.community.repository.CommunityPostCommentRepository;
@@ -113,5 +114,25 @@ public class CommunityPostCommentService {
                 .filter(c -> c.getParentComment() == null)
                 .map(c -> CommunityPostCommentDTO.fromEntityWithReplies(c, fileRepository))
                 .collect(Collectors.toList());
+    }
+
+    /** 마이페이지 - 내가 쓴 댓글 목록 */
+    @Transactional(readOnly = true)
+    public List<MyCommentActivityDTO> getUserComments(String userId) {
+
+        // 사용자가 쓴 댓글 + 해당 게시글까지 조회
+        List<CommunityPostCommentEntity> comments =
+                commentRepository.findUserCommentsWithPost(userId);
+
+        // DTO 매핑
+        return comments.stream()
+                .map(c -> MyCommentActivityDTO.builder()
+                        .commentId(c.getCommentId())
+                        .postId(c.getPost().getPostId())
+                        .postTitle(c.getPost().getTitle())
+                        .contents(c.getContents())
+                        .createAt(c.getCreateAt())
+                        .build()
+                ).toList();
     }
 }

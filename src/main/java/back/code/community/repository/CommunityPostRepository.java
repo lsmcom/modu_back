@@ -117,4 +117,15 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
     List<CommunityPostDTO> findPopularPosts(@Param("userId") String userId, @Param("cutoff") LocalDateTime cutoff,
             @Param("sortBy") String sortBy, @Param("period") String period
     );
+
+    /** 특정 사용자가 쓴 게시글(임시글 제외)을 최신순으로 조회 (게시판까지 fetch) */
+    @Query("""
+        SELECT p
+        FROM CommunityPostEntity p
+        JOIN FETCH p.board b
+        WHERE p.user.userId = :userId
+          AND p.isTemporary = 'N'
+        ORDER BY p.createAt DESC
+    """)
+    List<CommunityPostEntity> findUserPostsWithBoard(@Param("userId") String userId);
 }

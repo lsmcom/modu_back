@@ -31,4 +31,14 @@ public interface CommunityPostCommentRepository extends JpaRepository<CommunityP
 
     // 사용자 별 댓글수 조회
     int countByUser_UserId(String userId);
+
+    /** 특정 사용자가 쓴 댓글 목록 (게시글까지 fetch) */
+    @Query("""
+        SELECT c
+        FROM CommunityPostCommentEntity c
+        JOIN FETCH c.post p
+        WHERE c.user.userId = :userId
+        ORDER BY c.createAt DESC
+    """)
+    List<CommunityPostCommentEntity> findUserCommentsWithPost(@Param("userId") String userId);
 }

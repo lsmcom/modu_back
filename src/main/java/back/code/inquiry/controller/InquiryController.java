@@ -1,10 +1,7 @@
 package back.code.inquiry.controller;
 
 import back.code.common.dto.ApiResponse;
-import back.code.inquiry.dto.InquiryCreateRequest;
-import back.code.inquiry.dto.InquiryDetailResponse;
-import back.code.inquiry.dto.InquiryDto;
-import back.code.inquiry.dto.InquiryUpdateRequest;
+import back.code.inquiry.dto.*;
 import back.code.inquiry.service.InquiryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -82,4 +79,10 @@ public class InquiryController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /** 사용자별 문의사항 목록 조회 */
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<List<MyInquiryListDTO>>> getUserInquiries(@PathVariable String userId) {
+        List<MyInquiryListDTO> result = inquiryService.getUserInquiries(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
 }
