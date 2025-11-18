@@ -15,6 +15,9 @@ public interface SavingGoalRepository extends JpaRepository<AccountSavingsGoalEn
     // 특정 유저와 목표 이름이 존재하는지 체크
     boolean existsByUserAndGoalName(UserEntity user, String goalName);
 
+    // 본인 제외 후 중복된 목표명이 존재하는지 체크
+    boolean existsByUserAndGoalNameAndGoalIdNot(UserEntity user, String goalName, Integer goalId);
+
     // 해당 유저의 가계부 내역 삭제
     void deleteByUser(UserEntity user);
 

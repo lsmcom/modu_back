@@ -99,7 +99,7 @@ public class AccountSettingService {
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         // 저축목표 중복체크        
-        if (savingGoalRepository.existsByUserAndGoalName(user, request.getGoalName())) {
+        if (savingGoalRepository.existsByUserAndGoalNameAndGoalIdNot(user, request.getGoalName(), request.getGoalId())) {
             throw new RuntimeException("같은 이름의 저축 목표가 이미 존재합니다.");
         }
         AccountSavingsGoalEntity goals;
