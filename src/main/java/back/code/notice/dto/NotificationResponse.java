@@ -16,6 +16,7 @@ public class NotificationResponse {
     private String senderId;
     private Long milestoneId;
     private Long inquiryId;
+    private Long referenceId;;
     private String type;
     private String title;
     private String content;
@@ -30,8 +31,7 @@ public class NotificationResponse {
                 .notificationId(notification.getNotificationId())
                 .userId(notification.getUserId())
                 .senderId(notification.getSenderId())
-                .milestoneId(notification.getMilestoneId())
-                .inquiryId(notification.getInquiryId())
+                .referenceId(notification.getReferenceId())
                 // Enum 타입을 String으로 변환하여 전달
                 .type(notification.getType() != null ? notification.getType().name() : null)
                 .title(notification.getTitle())

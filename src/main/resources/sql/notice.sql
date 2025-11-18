@@ -34,11 +34,26 @@ ALTER TABLE notification
 
 ALTER TABLE notification
     MODIFY COLUMN type ENUM(
-        'announcement',
+        'community_announcement',
+        'inquiry_announcement',
         'milestone',
         'planshare',
         'planshare_request',
         'planshare_accept',
         'planshare_reject',
-        'inquiryAnswer'
+        'inquiryAnswer',
+        'comment'
         ) NOT NULL COMMENT '알림 유형';
+
+ALTER TABLE notification
+    ADD COLUMN reference_id BIGINT NULL COMMENT '관련 게시글 ID -> type과 합쳐서 특정 가능';
+
+-- milestone_id FK 제약 조건 삭제
+ALTER TABLE notification
+    DROP FOREIGN KEY fk_notification_milestone;
+-- milestone_id 컬럼 삭제
+ALTER TABLE notification
+    DROP COLUMN milestone_id;
+-- inquiry_id 컬럼 삭제
+ALTER TABLE notification
+    DROP COLUMN inquiry_id;

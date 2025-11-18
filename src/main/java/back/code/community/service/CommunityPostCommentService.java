@@ -9,6 +9,7 @@ import back.code.community.entity.CommunityPostEntity;
 import back.code.community.repository.CommunityPostCommentRepository;
 import back.code.community.repository.CommunityPostRepository;
 import back.code.file.repository.FileRepository;
+import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class CommunityPostCommentService {
     private final CommunityPostRepository postRepository;
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
+    private final NotificationService notificationService;
 
     /** 댓글/대댓글 등록 */
     @Transactional
@@ -64,6 +66,18 @@ public class CommunityPostCommentService {
         commentRepository.save(comment);
 
         log.info("[COMMENT CREATE] postId={}, userId={}, parentId={}", dto.getPostId(), userId, dto.getParentCommentId());
+
+        UserEntity postAuthor = post.getUser();
+
+        // 본인이 자기 글에 댓글 남긴 경우 → 알림 제외
+        if (!postAuthor.getUserId().equals(user.getUserId())) {
+            notificationService.sendCommentNotification(
+                    postAuthor,       // 알림 받을 사람
+                    user,             // 댓글 작성자
+                    Long.valueOf(post.getPostId()), // referenceId → 게시글 상세 이동
+                    post.getTitle()   // 게시글 제목
+            );
+        }
 
         return comment.getCommentId();
     }

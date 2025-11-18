@@ -22,4 +22,15 @@ public interface TodoCompletionStatusRepository extends JpaRepository<TodoComple
             "ON DUPLICATE KEY UPDATE completed_count = completed_count + 1",
             nativeQuery = true)
     void incrementCompletionCount(@Param("userId") String userId);
+
+    /**
+     * 완료 카운트 조회 메소드
+     */
+    @Query("SELECT t.completedCount FROM TodoCompletionStatus t WHERE t.userId = :userId")
+    Integer getCompletedCount(@Param("userId") String userId);
+
+    /**
+     * 최초 사용자라면 레코드 생성이 필요한 경우를 위해 존재 여부 체크
+     */
+    boolean existsByUserId(String userId);
 }

@@ -72,7 +72,7 @@ public class NotificationService {
         return NotificationResponse.fromEntity(savedNotification);
     }
 
-    /** 🔔 일정 공유 "초대" 알림 발송 (PlanShare는 만들지 않음) */
+    /** 일정 공유 "초대" 알림 발송 (PlanShare는 만들지 않음) */
     @Transactional
     public void sendPlanShareRequestNotification(
             String targetUserId, String senderId, Long planId, String title) {
@@ -81,8 +81,6 @@ public class NotificationService {
         noti.setUserId(targetUserId);      // 알림 받는 사람
         noti.setSenderId(senderId);        // 초대한 사람
         noti.setPlanId(planId);            // 수락 시 사용할 일정 ID
-        noti.setMilestoneId(null);
-        noti.setInquiryId(null);
         noti.setType(Notification.NotificationType.planshare_request);
         noti.setTitle("[일정 공유 초대] " + title);
         noti.setContent("일정 공유 초대가 도착했습니다. 수락 또는 거절할 수 있습니다.");
@@ -91,7 +89,7 @@ public class NotificationService {
         notificationRepository.save(noti);
     }
 
-    /** ✅ 일정 공유 초대 수락: 여기에서 PlanShareEntity 저장 */
+    /** 일정 공유 초대 수락: 여기에서 PlanShareEntity 저장 */
     @Transactional
     public void acceptPlanShare(Long notificationId, String userId) {
 
@@ -135,7 +133,7 @@ public class NotificationService {
         noti.setType(Notification.NotificationType.planshare_accept); // 선택적: 상태 표현용
     }
 
-    /** ❌ 일정 공유 초대 거절 (PlanShare 저장 없이 읽음 처리만) */
+    /** 일정 공유 초대 거절 (PlanShare 저장 없이 읽음 처리만) */
     @Transactional
     public void rejectPlanShare(Long notificationId, String userId) {
 
@@ -151,7 +149,12 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendAnnouncementNotification(String title, String content, Long announcementId) {
+    public void sendAnnouncementNotification(
+            String title,
+            String content,
+            Long referenceId,
+            Notification.NotificationType type
+    ) {
 
         List<UserEntity> allUsers = userRepository.findAll();
 
@@ -160,14 +163,53 @@ public class NotificationService {
                     Notification n = new Notification();
                     n.setUserId(user.getUserId());
                     n.setSenderId("ADMIN");
-                    n.setType(Notification.NotificationType.announcement);
-                    n.setTitle("[공지사항] " + title);
+                    n.setReferenceId(referenceId);
+                    n.setType(type);      // 공지 타입 설정
                     n.setContent(content);
                     n.setIsRead(false);
+                    // 타입에 따라 타이틀 prefix 정확히 구분
+                    switch (type) {
+                        case community_announcement:
+                            n.setTitle("[커뮤니티 공지사항] " + title);
+                            break;
+
+                        case inquiry_announcement:
+                            n.setTitle("[문의 공지사항] " + title);
+                            break;
+
+                        default:
+                            n.setTitle("[공지사항] " + title);
+                    }
                     return n;
                 })
                 .toList();
 
         notificationRepository.saveAll(notifications);
+    }
+
+    public void sendCommentNotification(
+            UserEntity receiver,   // 알림 받을 사람 (게시글 작성자)
+            UserEntity sender,     // 알림 보낸 사람 (댓글 작성자)
+            Long postId,           // referenceId
+            String postTitle       // 게시글 제목
+    ) {
+
+        Notification notification = new Notification();
+
+        notification.setUserId(receiver.getUserId());     // 알림 받을 userId
+        notification.setSenderId(sender.getUserId());     // 댓글 단 userId
+        notification.setReferenceId(postId);              // 게시글 이동용
+        notification.setType(Notification.NotificationType.comment);
+        notification.setTitle("[댓글] 새로운 댓글이 달렸습니다.");
+
+        notification.setContent(
+                String.format("%s님이 회원님의 게시글 \"%s\"에 댓글을 작성했습니다.",
+                        sender.getUserId(),
+                        postTitle)
+        );
+
+        notification.setIsRead(false);                   // 처음 생성은 읽지 않음
+
+        notificationRepository.save(notification);
     }
 }

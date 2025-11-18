@@ -11,6 +11,7 @@ import back.code.notice.repository.NotificationRepository;
 import back.code.milestone.entity.UserMilestone;
 import back.code.milestone.repository.MilestoneRepository;
 import back.code.milestone.repository.UserMilestoneRepository;
+import back.code.todo.repository.TodoCompletionStatusRepository;
 import back.code.todo.repository.TodoListRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
@@ -33,6 +34,7 @@ public class MilestoneService {
     private final NotificationRepository notificationRepository;
     private final AccountBookRepository accountBookRepository;
     private final SavingGoalRepository savingGoalRepository;
+    private final TodoCompletionStatusRepository  todoCompletionStatusRepository;
 
     /**
      * Todo 완료 개수 기반, 가계부 작성 개수 기반, 저축 목표율 100% 달성 기반 
@@ -48,7 +50,9 @@ public class MilestoneService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         // 1. 현재 사용자의 총 완료 개수 조회
-        long totalCompletedCount = todoListRepository.countCompletedTodosByUserId(userId);  // 투두 작성
+        Integer completed = todoCompletionStatusRepository.getCompletedCount(userId);
+        long totalCompletedCount = completed != null ? completed : 0;
+
         long totalAccountWrite = accountBookRepository.countByUserId(userId);  // 가계부 작성
         
         List<AccountSavingsGoalEntity> goalEntity = savingGoalRepository.findAllByUser(user);  // 가계부 목표 달성률
@@ -103,7 +107,7 @@ public class MilestoneService {
         notification.setUserId(userId);
         // ENUM 타입이 '업적'으로 정의되어 있다고 가정
         notification.setType(Notification.NotificationType.milestone);
-        notification.setMilestoneId(milestone.getMilestoneId());
+        notification.setReferenceId(milestone.getMilestoneId());
         notification.setTitle("[업적] " + milestone.getName());
         notification.setContent(milestone.getDescription());
         notification.setIsRead(false);

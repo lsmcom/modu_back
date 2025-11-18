@@ -17,14 +17,16 @@ public class Notification {
      * DB ENUM('공지', '업적', '일정 공유', '문의 답변')에 대응하는 Java Enum 정의
      */
     public enum NotificationType {
-        announcement,
+        community_announcement,
+        inquiry_announcement,
         milestone,
         planshare,
         planshare_request,
         planshare_accept,
         planshare_reject,
         inquiryAnswer,
-        account
+        account,
+        comment,
     }
 
     @Id
@@ -42,13 +44,8 @@ public class Notification {
     @Column(name = "sender_id")
     private String senderId;   // 알림 보낸 사람 (일정 공유한 userId)
 
-    // FK: Milestone 엔티티 참조
-    @Column(name = "milestone_id")
-    private Long milestoneId;
-
-    // FK: Inquiry 엔티티 참조
-    @Column(name = "inquiry_id")
-    private Long inquiryId;
+    @Column(name = "reference_id")
+    private Long referenceId;
 
     // 알림 유형 ENUM 매핑
     @Enumerated(EnumType.STRING)

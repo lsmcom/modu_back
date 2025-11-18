@@ -6,9 +6,12 @@ import back.code.admin.dto.announcement.AnnouncementResponseDTO;
 import back.code.admin.repository.AdminCommunityPostRepository;
 import back.code.admin.repository.AdminInquiryRepository;
 import back.code.community.entity.CommunityPostEntity;
+import back.code.community.entity.CommunityPostSettingEntity;
 import back.code.community.repository.CommunityBoardRepository;
+import back.code.community.repository.CommunityPostSettingRepository;
 import back.code.inquiry.entity.InquiryEntity;
 import back.code.inquiry.entity.InquiryStatus;
+import back.code.notice.entity.Notification;
 import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
@@ -31,6 +34,7 @@ public class AdminAnnouncementService {
     private final CommunityBoardRepository  communityBoardRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final CommunityPostSettingRepository  communityPostSettingRepository;
 
 
 
@@ -80,36 +84,68 @@ public class AdminAnnouncementService {
         return result;
     }
 
+    // 공지 추가
     @Transactional
     public void createAnnouncement(AnnouncementCreateDTO dto) {
 
-        // (1) 관리자 계정 조회
+        // 관리자 계정 조회
         UserEntity adminUser = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         String title = dto.getTitle();
         String content = dto.getContent();
 
-        Long announcementId; // 공지 ID 저장용
+        Long referenceId; // 공지 ID 저장용
+        Notification.NotificationType notificationType; // 공지 알림 타입 추가
 
+        /*
+         * - NOTICE           → 커뮤니티 공지
+         * - INQUIRY_RESPONSE → 문의사항 공지
+         */
         switch (dto.getType()) {
 
+            // 커뮤니티 공지 생성
             case "NOTICE": {
+
+                // 커뮤니티 공지 게시글 저장
                 CommunityPostEntity post = CommunityPostEntity.builder()
                         .title(title)
                         .contents(content)
-                        .board(communityBoardRepository.getReferenceById(1))
+                        .board(communityBoardRepository.getReferenceById(1))  // 공지 게시판(boardId=1)
                         .user(adminUser)
                         .likeCount(0)
                         .readCount(0)
+                        .isTemporary('N')
                         .build();
 
-                CommunityPostEntity saved = communityPostRepository.save(post);
-                announcementId = Long.valueOf(saved.getPostId());
+                CommunityPostEntity savedPost = communityPostRepository.save(post);
+
+                // 공지 글 기본 설정 자동 생성
+                CommunityPostSettingEntity setting = CommunityPostSettingEntity.builder()
+                        .post(savedPost)
+                        .user(adminUser)
+                        .isPublic('Y')
+                        .isSearch('Y')
+                        .isComment('Y')
+                        .isInShare('Y')
+                        .isOutShare('Y')
+                        .isCopy('Y')
+                        .build();
+
+                communityPostSettingRepository.save(setting);
+
+                // referenceId는 커뮤니티 게시글 ID
+                referenceId = Long.valueOf(savedPost.getPostId());
+
+                // 공지 유형을 커뮤니티 공지로 구분
+                notificationType = Notification.NotificationType.community_announcement;
+
                 break;
             }
-
+            // 문의사항 공지 생성
             case "INQUIRY_RESPONSE": {
+
+                // 문의사항 공지 저장
                 InquiryEntity inquiry = InquiryEntity.builder()
                         .title(title)
                         .content(content)
@@ -118,20 +154,31 @@ public class AdminAnnouncementService {
                         .user(adminUser)
                         .build();
 
-                InquiryEntity saved = adminInquiryRepository.save(inquiry);
-                announcementId = saved.getInquiryId();
+                InquiryEntity savedInquiry = adminInquiryRepository.save(inquiry);
+
+                // referenceId는 문의사항 ID
+                referenceId = savedInquiry.getInquiryId();
+
+                // 공지 유형을 문의사항 공지로 구분
+                notificationType = Notification.NotificationType.inquiry_announcement;
+
                 break;
             }
-
+            // 지원하지 않는 경우
             default:
                 throw new IllegalArgumentException("지원하지 않는 공지 유형입니다.");
         }
-
-        // (2) 🔔 전체 사용자에게 알림 발송
-        notificationService.sendAnnouncementNotification(title, content, announcementId);
+        // 모든 사용자에게 알림 발송
+        notificationService.sendAnnouncementNotification(
+                title,
+                content,
+                referenceId,
+                notificationType   // 구분된 공지 타입 전달
+        );
 
         log.info("[AdminAnnouncementService] 공지 생성 완료 및 전체 알림 발송 완료");
     }
+
 
     // 공지 삭제(커뮤니티)
     @Transactional
