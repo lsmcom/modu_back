@@ -73,6 +73,18 @@ public class AccountCategoryService {
         if(request.getCategoryId() != 0) {
             category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다."));
+
+            if (Boolean.TRUE.equals(category.getIsDefault())) {
+                throw new IllegalArgumentException("기본 카테고리는 수정할 수 없습니다.");
+            }
+
+            // 소유자 체크(선택)
+            if (!category.getUser().getUserId().equals(user.getUserId())) {
+                throw new IllegalArgumentException("해당 카테고리에 대한 권한이 없습니다.");
+            }
+
+            category.setCategoryName(request.getCategoryName());
+            category.setType(request.getType());
         } else {
             category = request.to(user);
         }
