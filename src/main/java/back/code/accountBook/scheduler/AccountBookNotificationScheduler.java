@@ -115,7 +115,7 @@ public class AccountBookNotificationScheduler {
 
     // 매시간마다 저축 목표 체크
     @Transactional
-    @Scheduled(cron = "0 0,1 * * * *")
+    @Scheduled(cron = "0 0,10 * * * *")
     public void checkSavingsGoalAlerts() throws Exception{
         List<AccountSavingsGoalEntity> allGoals = savingGoalRepository.findAll();
             
