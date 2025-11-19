@@ -31,4 +31,14 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> ok(T response) {
         return new ApiResponse<>(HttpStatus.OK, response);
     }
+
+    /** 에러 응답 (HTTP 상태코드 + 메시지) */
+    public static <T> ApiResponse<T> error(HttpStatus status, T message) {
+        return new ApiResponse<>(status, message);
+    }
+
+    /** 에러 응답 (기본 400 BAD REQUEST) */
+    public static <T> ApiResponse<T> error(T message) {
+        return new ApiResponse<>(HttpStatus.BAD_REQUEST, message);
+    }
 }

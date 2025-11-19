@@ -42,7 +42,10 @@ public class CommunityPostEntity extends BaseTimeEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityPostFileEntity> postFiles = new ArrayList<>();
 
-    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "post",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true)
     private CommunityPostSettingEntity setting;
 
     // 생성 전용 팩토리

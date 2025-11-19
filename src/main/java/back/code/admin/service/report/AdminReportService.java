@@ -2,6 +2,7 @@ package back.code.admin.service.report;
 
 import back.code.admin.dto.report.AdminReportDTO;
 import back.code.admin.repository.AdminReportRepository;
+import back.code.community.entity.CommunityReportEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,5 +42,23 @@ public class AdminReportService {
         log.info("[AdminReportService] 신고 {}건 조회 (seq 부여 완료)", list.size());
 
         return list;
+    }
+
+    @Transactional
+    public void updateReportStatus(Integer reportId, String newStatus) {
+
+        CommunityReportEntity report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new IllegalArgumentException("신고 정보를 찾을 수 없습니다."));
+
+        // 문자열 → Enum 변환
+        CommunityReportEntity.ReportStatus statusEnum;
+
+        try {
+            statusEnum = CommunityReportEntity.ReportStatus.valueOf(newStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("잘못된 상태 값입니다: " + newStatus);
+        }
+
+        report.setReportStatus(statusEnum); // 상태 변경
     }
 }

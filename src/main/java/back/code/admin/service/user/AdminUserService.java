@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -51,5 +52,30 @@ public class AdminUserService {
                         .build()
                 )
                 .toList();
+    }
+
+    @Transactional
+    public void updateUserStatus(String userId, String newStatus) {
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        String oldStatus = user.getStatus();
+
+        // 탈퇴한 사용자는 절대 되돌릴 수 없음
+        if (oldStatus.equals("withdrawn") && !newStatus.equals("withdrawn")) {
+            throw new IllegalStateException("탈퇴한 사용자는 상태를 변경할 수 없습니다.");
+        }
+
+        // 상태 변경 실행
+        user.setStatus(newStatus);
+
+        // 정상/정지 상태에서 탈퇴로 변경 시 → 탈퇴일 기록
+        if (newStatus.equals("withdrawn") && !oldStatus.equals("withdrawn")) {
+            user.setWithdrawAt(Instant.now());
+            user.setWithdrawReason("관리자 처리");
+        }
+
+        userRepository.save(user);
     }
 }
