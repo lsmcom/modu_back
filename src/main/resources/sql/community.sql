@@ -190,7 +190,15 @@ UPDATE community_board
 SET board_name = '절약 / 가계부 팁'
 WHERE board_name = '절약 / 가게부 팁';
 
+/* 11.19 수정 */
+ALTER TABLE community_post_view
+    DROP FOREIGN KEY fk_view_post;
 
+ALTER TABLE community_post_view
+    ADD CONSTRAINT fk_view_post
+        FOREIGN KEY (post_id)
+            REFERENCES community_post(post_id)
+            ON DELETE CASCADE;
 
 
 
