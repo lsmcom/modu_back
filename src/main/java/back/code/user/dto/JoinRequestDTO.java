@@ -50,4 +50,6 @@ public class JoinRequestDTO {
 
     @NotBlank(message = "상세주소를 입력하세요.")
     private String addrDetail; //회원 상세주소
+
+    private String marketingAgree; // Y or N
 }

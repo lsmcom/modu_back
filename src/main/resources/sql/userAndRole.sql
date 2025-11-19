@@ -102,8 +102,9 @@ INSERT INTO user_setting (setting_id, user_id, the_day_of_week, theme_mode, alar
 (UUID(), 'user04', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
 (UUID(), 'user05', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-
-
+/* 11.19 수정 sql */
+/* 사용자 설정 테이블 다크모드 컬럼 삭제 */
+ALTER TABLE user_setting DROP COLUMN theme_mode;
 
 
 

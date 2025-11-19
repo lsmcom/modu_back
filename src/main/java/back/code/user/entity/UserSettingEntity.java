@@ -24,8 +24,6 @@ public class UserSettingEntity {
     @Column(length = 1, columnDefinition = "CHAR(1)")
     private String theDayOfWeek = "M"; // 주시작일 -> M: 월요일, S: 일요일
 
-    private String themeMode = "light"; // 테마 모드 -> light: 기본 모드, dark: 다크모드
-
     @Column(length = 1, columnDefinition = "CHAR(1)")
     private String alarmAllowed = "Y"; // 알람 허용 여부 -> Y: 허용, N: 미허용
 

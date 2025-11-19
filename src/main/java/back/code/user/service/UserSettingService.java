@@ -56,16 +56,17 @@ public class UserSettingService {
 
     /** 회원가입시 기본 사용자 설정 생성 */
     @Transactional
-    public void createDefaultSetting(UserEntity user) {
+    public void createDefaultSetting(UserEntity user, String marketingAgree) {
         UserSettingEntity setting = UserSettingEntity.builder()
                 .settingId(UUID.randomUUID().toString())
                 .user(user)
                 .theDayOfWeek("M")           // 기본 월요일
-                .themeMode("light")          // 기본 라이트 모드
                 .alarmAllowed("Y")           // 알림 허용
                 .personalInfoAgreed("Y")     // 개인정보 동의
                 .locationInfoAgreed("Y")     // 위치정보 동의
-                .marketingInfoAgreed("N")    // 마케팅 동의
+                .marketingInfoAgreed(
+                        marketingAgree != null && marketingAgree.equals("Y") ? "Y" : "N"
+                )
                 .build();
 
         userSettingRepository.save(setting);
@@ -92,10 +93,12 @@ public class UserSettingService {
 
         if (dto.getTheDayOfWeek() != null)
             setting.setTheDayOfWeek(dto.getTheDayOfWeek());
-        if (dto.getThemeMode() != null)
-            setting.setThemeMode(dto.getThemeMode());
         if (dto.getAlarmAllowed() != null)
             setting.setAlarmAllowed(dto.getAlarmAllowed());
+        if (dto.getPersonalInfoAgreed() != null)
+            setting.setPersonalInfoAgreed(dto.getPersonalInfoAgreed());
+        if (dto.getLocationInfoAgreed() != null)
+            setting.setLocationInfoAgreed(dto.getLocationInfoAgreed());
         if (dto.getMarketingInfoAgreed() != null)
             setting.updateMarketingAgree(dto.getMarketingInfoAgreed());
 
@@ -112,7 +115,7 @@ public class UserSettingService {
 
         // 사용자 설정 초기화
         userSettingRepository.deleteByUser(user);
-        createDefaultSetting(user);
+        createDefaultSetting(user, "N");
             
         // 가계부 데이터 삭제
         budgetRepository.deleteByUser(user);

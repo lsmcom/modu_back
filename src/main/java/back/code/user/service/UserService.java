@@ -149,7 +149,7 @@ public class UserService {
         // flush 실행하여 save 기능 밀림 해결
         userRepository.flush();
         // 기본 사용자 설정 생성
-        userSettingService.createDefaultSetting(user);
+        userSettingService.createDefaultSetting(user, dto.getMarketingAgree());
 
         // 캘린더 폴더 자동 생성
         calendarFolderService.createDefaultFolders(user);

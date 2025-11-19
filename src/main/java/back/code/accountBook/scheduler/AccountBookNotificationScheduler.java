@@ -70,6 +70,13 @@ public class AccountBookNotificationScheduler {
 
         if (usedExpense == null || budget.getBudgetAmount() == null || budget.getBudgetAmount() == 0) return;
 
+        // threshold null 방어
+        Integer threshold = budget.getThreshold();
+        if (threshold == null || threshold == 0) {
+            // 예: 알림을 안 보낸다거나, 기본값을 100으로 본다거나 등 정책 결정
+            return;
+        }
+
         double percent = (double) usedExpense / budget.getBudgetAmount() * 100;
 
         if (percent >= budget.getThreshold()) {
