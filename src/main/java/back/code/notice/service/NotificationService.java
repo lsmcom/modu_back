@@ -212,4 +212,23 @@ public class NotificationService {
 
         notificationRepository.save(notification);
     }
+
+    /** 알림 삭제 */
+    @Transactional
+    public NotificationResponse noticeDelete(long notificationId) throws Exception{
+
+        Notification notice = notificationRepository.findById(notificationId)
+                            .orElseThrow(()-> new RuntimeException("알림을 찾을 수 없습니다."));
+
+        if(!notice.getUserId().equals(notice.getUserId())) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }   
+
+        NotificationResponse response = NotificationResponse.fromEntity(notice);
+
+        notificationRepository.delete(notice);
+
+        return response;
+    }
+
 }

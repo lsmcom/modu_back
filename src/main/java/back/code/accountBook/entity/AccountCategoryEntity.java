@@ -9,7 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "category")
+@Table(name = "category",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_user_category_default",
+            columnNames = {"user_id", "category_name", "is_default"}
+        )
+    }
+)
 public class AccountCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

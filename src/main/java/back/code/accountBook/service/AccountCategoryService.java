@@ -29,9 +29,9 @@ public class AccountCategoryService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         // 기본 카테고리
-        List<AccountCategoryEntity> defaultCategories = categoryRepository.findAllByIsDefaultTrue();
+        List<AccountCategoryEntity> defaultCategories = categoryRepository.findByUserAndIsDefaultTrue(user);
         // 사용자 정의 카테고리
-        List<AccountCategoryEntity> userCategories = categoryRepository.findAllByUser(user);
+        List<AccountCategoryEntity> userCategories = categoryRepository.findByUserAndIsDefaultFalseOrIsDefaultIsNull(user);
 
         List<AccountCategoryEntity> allCategories = new ArrayList<>();
         allCategories.addAll(defaultCategories);
@@ -130,12 +130,18 @@ public class AccountCategoryService {
                 {"운동", "EXPENSE", "#AB47BC"},
         };
 
-        List<AccountCategoryEntity> defaultCategories = new ArrayList<>();
-
         for (Object[] data : defaultCategoriesData) {
             String categoryName = (String) data[0];
-            AccountType type = AccountType.valueOf((String) data[1]); // 핵심 수정
+            AccountType type = AccountType.valueOf((String) data[1]);
             String color = (String) data[2];
+
+            // 이미 존재하는지 체크
+            boolean exists = categoryRepository
+                .existsByUserAndCategoryNameAndIsDefaultTrue(user, categoryName);
+            
+            if (exists) {
+                continue;
+            }
 
             // DTO 생성
             AccountCategoryDTO.Request dto = new AccountCategoryDTO.Request();
@@ -148,10 +154,8 @@ public class AccountCategoryService {
             AccountCategoryEntity category = dto.to(user);
             category.setColor(color);
 
-            defaultCategories.add(category);
+            categoryRepository.save(category);
         }
-
-        categoryRepository.saveAll(defaultCategories);
     }
 
 }

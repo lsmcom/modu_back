@@ -1,5 +1,6 @@
 package back.code.notice.controller;
 
+import back.code.common.dto.ApiResponse;
 import back.code.notice.dto.NotificationResponse;
 import back.code.notice.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,17 @@ public class NotificationController {
             @RequestHeader("X-User-Id") String userId,
             @PathVariable Long notificationId) {
 
-        NotificationResponse updatedNotification = notificationService.markNotificationAsRead(notificationId, userId); // 🔄 수정: userId 인자 사용
+        NotificationResponse updatedNotification = notificationService.markNotificationAsRead(notificationId, userId); // 수정: userId 인자 사용
         return ResponseEntity.ok(updatedNotification);
     }
+
+    /** 알림 삭제 */
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<ApiResponse<NotificationResponse>> noticeDelete(
+                                                            @PathVariable("notificationId") long notificationId) throws Exception{
+        NotificationResponse response = notificationService.noticeDelete(notificationId);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+
+    }
+
 }

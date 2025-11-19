@@ -4,6 +4,7 @@ import back.code.accountBook.repository.AccountBookRepository;
 import back.code.accountBook.repository.BudgetRepository;
 import back.code.accountBook.repository.CategoryRepository;
 import back.code.accountBook.repository.SavingGoalRepository;
+import back.code.accountBook.service.AccountCategoryService;
 import back.code.calendar.repository.*;
 import back.code.calendar.service.CalendarFolderService;
 import back.code.file.repository.FileRepository;
@@ -39,6 +40,7 @@ public class UserSettingService {
     private final BudgetRepository budgetRepository;
     private final SavingGoalRepository savingGoalRepository;
     private final CategoryRepository categoryRepository;
+    private final AccountCategoryService categoryService;
     private final MemoFolderRepository memoFolderRepository;
     private final MemoFolderService memoFolderService;
     private final CalendarFolderRepository calendarFolderRepository;
@@ -121,7 +123,8 @@ public class UserSettingService {
         budgetRepository.deleteByUser(user);
         accountBookRepository.deleteByUser(user);
         savingGoalRepository.deleteByUser(user);
-        categoryRepository.deleteByUserAndIsDefaultNull(user);  // 사용자 카테고리만 초기화
+        categoryRepository.deleteByUser(user);
+        categoryService.createDefaultCategory(user);
 
         // 메모 데이터 삭제 및 초기화
         memoFolderRepository.deleteByUser(user);
