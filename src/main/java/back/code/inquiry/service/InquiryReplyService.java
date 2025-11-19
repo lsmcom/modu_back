@@ -8,6 +8,9 @@ import back.code.inquiry.entity.InquiryReplyEntity;
 import back.code.inquiry.entity.InquiryStatus;
 import back.code.inquiry.repository.InquiryReplyRepository;
 import back.code.inquiry.repository.InquiryRepository;
+import back.code.milestone.entity.Milestone;
+import back.code.notice.entity.Notification;
+import back.code.notice.repository.NotificationRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,6 +26,7 @@ public class InquiryReplyService {
     private final InquiryRepository inquiryRepository;
     private final InquiryReplyRepository replyRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     /** 관리자 답변 등록 */
     @Transactional
@@ -51,6 +55,8 @@ public class InquiryReplyService {
                         .build()
         );
 
+        inquiryNotification(inquiry.getUser().getUserId(), inquiry);
+
         return InquiryReplyResponse.builder()
                 .replyId(reply.getReplyId())
                 .content(reply.getContent())
@@ -58,6 +64,21 @@ public class InquiryReplyService {
                 .createAt(reply.getCreateAt())
                 .build();
     }
+
+    /** 알림 테이블에 추가 */
+    private void inquiryNotification(String userId, InquiryEntity inquiry) {
+        Notification notification = new Notification();
+        notification.setUserId(userId);
+        notification.setType(Notification.NotificationType.inquiryAnswer);
+
+        notification.setReferenceId(inquiry.getInquiryId());
+        notification.setTitle("[문의사항] 관리자님이 댓글을 등록하셨습니다.");
+        notification.setContent(inquiry.getTitle());
+        notification.setIsRead(false);
+
+        notificationRepository.save(notification);
+    }
+
 
     /** 답변 목록 조회 */
     @Transactional
@@ -73,4 +94,5 @@ public class InquiryReplyService {
                         .build()
                 ).toList();
     }
+
 }

@@ -371,6 +371,14 @@ public class AccountBookService {
         RecurringSettingEntity recurring = recurringRepository.findByAccount(account).orElse(null);
         InstallmentSettingEntity installment = installmentRepository.findByAccount(account).orElse(null);
 
+        if(recurring != null) {
+            recurringRepository.delete(recurring);
+        }  
+        
+         if(installment != null) {
+            installmentRepository.delete(installment);
+         }
+
         // dto 변경
         AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
 
