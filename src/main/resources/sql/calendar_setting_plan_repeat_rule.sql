@@ -30,3 +30,6 @@ CREATE TABLE plan_repeat_rule (
 
 ALTER TABLE calendar_setting
     ADD COLUMN show_repeat_plan CHAR(1) DEFAULT 'Y' COMMENT '반복 일정 표시 여부 (Y/N)';
+
+ALTER TABLE calendar_setting
+    DROP COLUMN enable_notification;

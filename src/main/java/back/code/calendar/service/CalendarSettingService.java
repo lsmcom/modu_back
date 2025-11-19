@@ -26,7 +26,6 @@ public class CalendarSettingService {
                 .orElseGet(() -> {
                     CalendarSettingEntity defaultSetting = CalendarSettingEntity.builder()
                             .user(user)
-                            .enableNotification("N")
                             .sharePlanColor("#A9EDED")
                             .defaultView("dayGridMonth")
                             .timeZone("Asia/Seoul")
@@ -43,16 +42,14 @@ public class CalendarSettingService {
         CalendarSettingEntity existing = settingRepository.findByUser(user)
                 .orElse(CalendarSettingEntity.builder().user(user).build());
 
-        // ✅ 전달된 값들 업데이트
-        if (req.getEnableNotification() != null)
-            existing.setEnableNotification(req.getEnableNotification());
+        // 전달된 값들 업데이트
         if (req.getSharePlanColor() != null)
             existing.setSharePlanColor(req.getSharePlanColor());
         if (req.getDefaultView() != null)
             existing.setDefaultView(req.getDefaultView());
         if (req.getTimeZone() != null)
             existing.setTimeZone(req.getTimeZone());
-        if (req.getShowRepeatPlan() != null) // ✅ 추가!
+        if (req.getShowRepeatPlan() != null)
             existing.setShowRepeatPlan(req.getShowRepeatPlan());
 
         return settingRepository.save(existing);

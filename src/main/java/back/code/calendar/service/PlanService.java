@@ -104,6 +104,19 @@ public class PlanService {
     /** 폴더별 일정 목록 */
     @Transactional(readOnly = true)
     public List<PlanResponse> getPlansByFolder(Long folderId) {
+        CalendarFolderEntity folder = calendarFolderRepository.findById(folderId)
+                .orElseThrow(() -> new IllegalArgumentException("폴더 없음"));
+
+        // 공유 폴더라면 PlanShare에서 가져오기
+        if ("SHARED".equals(folder.getFolderType())) {
+            List<PlanShareEntity> shared = planShareRepository.findBySharedUser_UserId(folder.getUser().getUserId());
+            return shared.stream()
+                    .map(PlanShareEntity::getPlan)
+                    .map(PlanResponse::fromEntity)
+                    .toList();
+        }
+
+        // 일반 폴더라면 기존 로직
         return planRepository.findByFolder_FolderId(folderId)
                 .stream()
                 .map(PlanResponse::fromEntity)
@@ -178,6 +191,7 @@ public class PlanService {
                 .map(p -> {
                     PlanResponse r = PlanResponse.fromEntity(p);
                     r.setFolderType("SHARED");
+                    r.setOwnerId(p.getUser().getUserId());  // 일정 원래 작성자
                     return r;
                 })
                 .toList();

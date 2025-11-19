@@ -25,6 +25,7 @@ public class PlanResponse {
     private Long folderId;
     private String folderName;
     private String folderType;
+    private String ownerId;
 
     public static PlanResponse fromEntity(PlanEntity e) {
         return PlanResponse.builder()
@@ -39,6 +40,7 @@ public class PlanResponse {
                 .folderId(e.getFolder() != null ? e.getFolder().getFolderId() : null)
                 .folderName(e.getFolder() != null ? e.getFolder().getFolderName() : null)
                 .folderType(e.getFolder() != null ? e.getFolder().getFolderType() : null)
+                .ownerId(e.getUser().getUserId())
                 .build();
     }
 }

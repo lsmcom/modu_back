@@ -26,9 +26,6 @@ public class CalendarSettingEntity {
     @JsonIgnore
     private UserEntity user;
 
-    @Column(name = "enable_notification", length = 1, columnDefinition = "CHAR(1) DEFAULT 'N'")
-    private String enableNotification = "N";
-
     @Column(name = "share_plan_color", length = 10, columnDefinition = "VARCHAR(10) DEFAULT '#A9EDED'")
     private String sharePlanColor = "#A9EDED";
 
