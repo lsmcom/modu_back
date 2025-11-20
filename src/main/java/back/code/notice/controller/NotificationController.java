@@ -52,7 +52,7 @@ public class NotificationController {
     @PatchMapping("/{notificationId}/read")
     public ResponseEntity<NotificationResponse> markAsRead(
             @RequestHeader("X-User-Id") String userId,
-            @PathVariable Long notificationId) {
+            @PathVariable("notificationId") Long notificationId) {
 
         NotificationResponse updatedNotification = notificationService.markNotificationAsRead(notificationId, userId); // 수정: userId 인자 사용
         return ResponseEntity.ok(updatedNotification);

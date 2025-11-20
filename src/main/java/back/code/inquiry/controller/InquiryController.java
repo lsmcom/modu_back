@@ -44,21 +44,21 @@ public class InquiryController {
 
     /** 문의사항 상세 조회 */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryDetail(@PathVariable Long inquiryId) {
+    public ResponseEntity<?> getInquiryDetail(@PathVariable("inquiryId") Long inquiryId) {
         InquiryDetailResponse dto = inquiryService.getInquiryDetail(inquiryId);
         return ResponseEntity.ok(dto);
     }
 
     /** 파일 삭제 */
     @DeleteMapping("/{inquiryId}/files/{fileId}")
-    public ResponseEntity<Void> deleteFile(@PathVariable Long inquiryId, @PathVariable String fileId) {
+    public ResponseEntity<Void> deleteFile(@PathVariable("inquiryId") Long inquiryId, @PathVariable("fileId") String fileId) {
         inquiryService.deleteInquiryFile(inquiryId, fileId);
         return ResponseEntity.ok().build();
     }
 
     /** 문의사항 게시글 수정 */
     @PutMapping("/{inquiryId}")
-    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @RequestPart("meta") InquiryUpdateRequest dto,
+    public ResponseEntity<?> updateInquiry(@PathVariable("inquiryId") Long inquiryId, @RequestPart("meta") InquiryUpdateRequest dto,
             @RequestPart(value = "files", required = false) List<MultipartFile> newFiles) throws IOException {
         dto.setInquiryId(inquiryId);
         Long updatedId = inquiryService.updateInquiry(dto, newFiles);
@@ -67,21 +67,21 @@ public class InquiryController {
 
     /** 문의사항 삭제 */
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<Void> deleteInquiry(@PathVariable Long inquiryId) {
+    public ResponseEntity<Void> deleteInquiry(@PathVariable("inquiryId") Long inquiryId) {
         inquiryService.deleteInquiry(inquiryId);
         return ResponseEntity.ok().build();
     }
 
     /** 사용자 별 문의사항 게시글 수 조회 */
     @GetMapping("/users/{userId}/inquiry-count")
-    public ResponseEntity<ApiResponse<Integer>> getUserInquiryCount(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<Integer>> getUserInquiryCount(@PathVariable("userId") String userId) {
         int result = inquiryService.getUserInquiryCount(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     /** 사용자별 문의사항 목록 조회 */
     @GetMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<List<MyInquiryListDTO>>> getUserInquiries(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<List<MyInquiryListDTO>>> getUserInquiries(@PathVariable("userId") String userId) {
         List<MyInquiryListDTO> result = inquiryService.getUserInquiries(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }

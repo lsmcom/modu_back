@@ -17,7 +17,7 @@ public class MemoFolderAPIController {
 
     // 특정 유저의 폴더 조회
     @GetMapping("/{userId}")
-    public List<MemoFolderDTO> getUserFolders(@PathVariable String userId) {
+    public List<MemoFolderDTO> getUserFolders(@PathVariable("userId") String userId) {
         System.out.println("폴더 조회 요청 userId=" + userId);
         return memoFolderService.getUserFolders(userId);
     }
@@ -31,7 +31,7 @@ public class MemoFolderAPIController {
     // 폴더 수정
     @PatchMapping("/{folderId}")
     public ResponseEntity<MemoFolderDTO> updateFolder(
-            @PathVariable Integer folderId,
+            @PathVariable("folderId") Integer folderId,
             @RequestBody MemoFolderDTO dto) {
         MemoFolderDTO updated = memoFolderService.updateFolder(folderId, dto);
         return ResponseEntity.ok(updated);
@@ -39,7 +39,7 @@ public class MemoFolderAPIController {
 
     // 폴더 삭제
     @DeleteMapping("/{folderId}")
-    public ResponseEntity<Void> deleteFolder(@PathVariable Integer folderId) {
+    public ResponseEntity<Void> deleteFolder(@PathVariable("folderId") Integer folderId) {
         memoFolderService.deleteFolder(folderId);
         return ResponseEntity.noContent().build();
     }

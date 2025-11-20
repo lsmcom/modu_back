@@ -37,7 +37,7 @@ public class PlanAPIController {
     /** 일정 수정 */
     @PutMapping("/{planId}")
     public ResponseEntity<PlanResponse> updatePlan(
-            @PathVariable Long planId,
+            @PathVariable("planId") Long planId,
             @RequestBody PlanUpdateRequestDTO request) {
 
         PlanEntity updated = planService.updatePlan(planId, request);
@@ -47,13 +47,13 @@ public class PlanAPIController {
 
     /** 일정 삭제 */
     @DeleteMapping("/{planId}")
-    public ResponseEntity<Void> deletePlan(@PathVariable Long planId) {
+    public ResponseEntity<Void> deletePlan(@PathVariable("planId") Long planId) {
         planService.deletePlan(planId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PlanResponse>> getPlansByUser(@PathVariable String userId) {
+    public ResponseEntity<List<PlanResponse>> getPlansByUser(@PathVariable("userId") String userId) {
         // 트랜지언트 객체 대신 레퍼런스/조회 권장
         UserEntity user = userRepository.getReferenceById(userId); // 또는 findById(...).orElseThrow(...)
 
@@ -66,21 +66,21 @@ public class PlanAPIController {
 
     /** 내 일정 + 공유받은 일정 */
     @GetMapping("/user/{userId}/all")
-    public ResponseEntity<List<PlanResponse>> getPlansByUserIncludingShared(@PathVariable String userId) {
+    public ResponseEntity<List<PlanResponse>> getPlansByUserIncludingShared(@PathVariable("userId") String userId) {
         List<PlanResponse> plans = planService.getPlansByUserIncludingShared(userId);
         return ResponseEntity.ok(plans);
     }
 
     /** 폴더별 일정 */
     @GetMapping("/folder/{folderId}")
-    public ResponseEntity<List<PlanResponse>> getPlansByFolder(@PathVariable Long folderId) {
+    public ResponseEntity<List<PlanResponse>> getPlansByFolder(@PathVariable("folderId") Long folderId) {
         List<PlanResponse> response = planService.getPlansByFolder(folderId);
         return ResponseEntity.ok(response);
     }
 
     /** 일정 공유자 목록 */
     @GetMapping("/{planId}/share")
-    public ResponseEntity<List<PlanShareEntity>> getSharedUsers(@PathVariable Long planId) {
+    public ResponseEntity<List<PlanShareEntity>> getSharedUsers(@PathVariable("planId") Long planId) {
 
         PlanEntity plan = planRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
@@ -90,8 +90,8 @@ public class PlanAPIController {
 
     /** 일정 공유자 추가 (이제는 공유 초대만 전송) */
     @PostMapping("/{planId}/share/{sharedUserId}")
-    public ResponseEntity<Void> addSharedUser(@PathVariable Long planId,
-                                              @PathVariable String sharedUserId) {
+    public ResponseEntity<Void> addSharedUser(@PathVariable("planId") Long planId,
+                                              @PathVariable("sharedUserId") String sharedUserId) {
 
         PlanEntity plan = planRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
@@ -107,7 +107,7 @@ public class PlanAPIController {
 
     /** 일정 공유자 삭제 */
     @DeleteMapping("/{planId}/share/{sharedUserId}")
-    public ResponseEntity<Void> removeSharedUser(@PathVariable Long planId, @PathVariable String sharedUserId) {
+    public ResponseEntity<Void> removeSharedUser(@PathVariable("planId") Long planId, @PathVariable("sharedUserId") String sharedUserId) {
 
         PlanEntity plan = planRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
@@ -123,8 +123,8 @@ public class PlanAPIController {
     // 공유 일정 색상 변경
     @PutMapping("/shared/color")
     public ResponseEntity<String> updateSharedPlanColors(
-            @RequestParam String userId,
-            @RequestParam String color
+            @RequestParam("userId") String userId,
+            @RequestParam("color") String color
     ) {
         planService.updateSharedPlanColors(userId, color);
         return ResponseEntity.ok("공유 일정 색상 변경 완료");
@@ -133,8 +133,8 @@ public class PlanAPIController {
     // 공유 초대 수락
     @PostMapping("/share/accept")
     public ResponseEntity<?> acceptShare(
-            @RequestParam Long notificationId,
-            @RequestParam String userId) {
+            @RequestParam("notificationId") Long notificationId,
+            @RequestParam("userId") String userId) {
 
         notificationService.acceptPlanShare(notificationId, userId);
         return ResponseEntity.ok("공유 초대 수락 완료");
@@ -142,8 +142,8 @@ public class PlanAPIController {
 
     @PostMapping("/share/reject")
     public ResponseEntity<?> rejectShare(
-            @RequestParam Long notificationId,
-            @RequestParam String userId) {
+            @RequestParam("notificationId") Long notificationId,
+            @RequestParam("userId") String userId) {
 
         notificationService.rejectPlanShare(notificationId, userId);
         return ResponseEntity.ok("공유 초대 거절 완료");

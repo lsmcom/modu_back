@@ -19,7 +19,7 @@ public class NaverOAuthController {
      * ① 인가 코드로 Access Token 요청 및 사용자 정보 처리
      */
     @GetMapping("/callback")
-    public ResponseEntity<ApiResponse<?>> naverCallback(@RequestParam String code, @RequestParam String state) {
+    public ResponseEntity<ApiResponse<?>> naverCallback(@RequestParam("code") String code, @RequestParam("state") String state) {
         log.info("[NAVER CALLBACK] code={}, state={}", code, state);
 
         String accessToken = naverOAuthService.requestAccessToken(code, state);

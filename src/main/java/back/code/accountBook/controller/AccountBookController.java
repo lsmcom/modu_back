@@ -44,8 +44,8 @@ public class AccountBookController {
 
     // 파일 삭제
     @DeleteMapping("/account/{accountId}/file/{fileId}")
-    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable Integer accountId,
-                                                              @PathVariable String fileId) throws Exception {
+    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable("accountId") Integer accountId,
+                                                              @PathVariable("fileId") String fileId) throws Exception {
         accountBookService.deleteFile(accountId, fileId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
     }
@@ -63,7 +63,7 @@ public class AccountBookController {
     @DeleteMapping("/{accountId}")
     public ResponseEntity<ApiResponse<AccountBookDTO.Detail>> deleteAccount(
                                             @RequestParam("userId") String userId,
-                                            @PathVariable int accountId) throws Exception{
+                                            @PathVariable("accountId") int accountId) throws Exception{
         AccountBookDTO.Detail result = accountBookService.deleteAccount(userId, accountId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }

@@ -44,14 +44,14 @@ public class AdminAnnouncementController {
 
     // 공지 삭제(커뮤니티)
     @DeleteMapping("/community/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteCommunity(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<String>> deleteCommunity(@PathVariable("id") Integer id) {
         adminAnnouncementService.deleteCommunity(id);
         return ResponseEntity.ok(ApiResponse.ok("커뮤니티 공지 삭제 완료"));
     }
 
     // 공지 삭제(문의사항)
     @DeleteMapping("/inquiry/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteInquiry(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteInquiry(@PathVariable("id") Long id) {
         adminAnnouncementService.deleteInquiry(id);
         return ResponseEntity.ok(ApiResponse.ok("문의 공지 삭제 완료"));
     }
@@ -59,7 +59,7 @@ public class AdminAnnouncementController {
     // 공지 수정(커뮤니티)
     @PutMapping("/community/{id}")
     public ResponseEntity<ApiResponse<String>> updateCommunity(
-            @PathVariable Integer id,
+            @PathVariable("id") Integer id,
             @RequestBody AnnouncementCreateDTO dto) {
 
         adminAnnouncementService.updateCommunity(id, dto);
@@ -69,7 +69,7 @@ public class AdminAnnouncementController {
     // 공지 수정(문의사항)
     @PutMapping("/inquiry/{id}")
     public ResponseEntity<ApiResponse<String>> updateInquiry(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody AnnouncementCreateDTO dto) {
 
         adminAnnouncementService.updateInquiry(id, dto);

@@ -44,7 +44,7 @@ public class FileRestController {
 
     //썸네일 불러오기
     @GetMapping("/{fileId}/thumbnail")
-    public ResponseEntity<Resource> getFileThumbnail(@PathVariable String fileId) {
+    public ResponseEntity<Resource> getFileThumbnail(@PathVariable("fileId") String fileId) {
         try {
             // 파일 정보 가져오기
             FileEntity file = fileService.getFileById(fileId);
@@ -82,14 +82,14 @@ public class FileRestController {
      * 파일 다운로드 API
      */
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) throws IOException {
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") String fileId) throws IOException {
         log.info("[FileController] Download request: {}", fileId);
         return fileService.downloadFile(fileId);
     }
 
     /** 파일 미리보기 */
     @GetMapping("/preview/{fileId}")
-    public ResponseEntity<Resource> previewFile(@PathVariable String fileId) throws IOException {
+    public ResponseEntity<Resource> previewFile(@PathVariable("fileId") String fileId) throws IOException {
         return fileService.previewFile(fileId);
     }
 }

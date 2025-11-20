@@ -18,14 +18,14 @@ public class UserSettingController {
 
     /** 사용자 설정 조회 */
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserSettingEntity>> getUserSetting(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<UserSettingEntity>> getUserSetting(@PathVariable("userId") String userId) {
         UserSettingEntity setting = userSettingService.getUserSetting(userId);
         return ResponseEntity.ok(ApiResponse.ok(setting));
     }
 
     /** 사용자 설정 수정 */
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<String>> updateUserSetting(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<String>> updateUserSetting(@PathVariable("userId") String userId,
             @Valid @RequestBody UserSettingUpdateDTO dto) {
 
         userSettingService.updateUserSetting(userId, dto);
@@ -34,7 +34,7 @@ public class UserSettingController {
 
     /** 데이터 초기화 */
     @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse<String>> resetData(@PathVariable String userId) throws Exception {
+    public ResponseEntity<ApiResponse<String>> resetData(@PathVariable("userId") String userId) throws Exception {
         userSettingService.resetData(userId);
         
         return ResponseEntity.ok(ApiResponse.ok("데이터 초기화가 완료되었습니다."));

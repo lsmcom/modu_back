@@ -20,7 +20,7 @@ public class MemoAPIController {
 
     // 로그인된 사용자의 폴더 조회
     @GetMapping("/folders/{userId}")
-    public List<MemoFolderDTO> getUserFolders(@PathVariable String userId) {
+    public List<MemoFolderDTO> getUserFolders(@PathVariable("userId") String userId) {
         System.out.println("폴더 조회");
         return memoService.getUserFolders(userId);
     }
@@ -28,27 +28,27 @@ public class MemoAPIController {
     // 특정 폴더의 메모 조회
     @GetMapping("/folder/{folderId}/memos")
     public List<MemoDTO> getFolderMemos(
-            @PathVariable Integer folderId,
-            @RequestParam String userId) {
+            @PathVariable("folderId") Integer folderId,
+            @RequestParam("userId") String userId) {
         return memoService.getMemosByFolder(userId, folderId);
     }
 
     /* 단일 메모 조회 */
     @GetMapping("/{memoId}")
-    public ResponseEntity<MemoDTO> getMemoById(@PathVariable Integer memoId) {
+    public ResponseEntity<MemoDTO> getMemoById(@PathVariable("memoId") Integer memoId) {
         MemoDTO memo = memoService.getMemoById(memoId);
         return ResponseEntity.ok(memo);
     }
 
     // 로그인된 사용자의 모든 폴더 + 메모 조회
     @GetMapping("/all/{userId}")
-    public List<MemoFolderWithMemosDTO> getAllFoldersWithMemos(@PathVariable String userId) {
+    public List<MemoFolderWithMemosDTO> getAllFoldersWithMemos(@PathVariable("userId") String userId) {
         return memoService.getAllFoldersWithMemos(userId);
     }
 
     /* 메모 고정 상태 토글 */
     @PatchMapping("/{memoId}/toggle-pin")
-    public ResponseEntity<Void> toggleMemoPin(@PathVariable int memoId) {
+    public ResponseEntity<Void> toggleMemoPin(@PathVariable("memoId") int memoId) {
         memoService.toggleMemoPin(memoId);
         return ResponseEntity.ok().build();
     }
@@ -62,7 +62,7 @@ public class MemoAPIController {
 
     // 메모 삭제
     @DeleteMapping("/{memoId}")
-    public ResponseEntity<Void> deleteMemo(@PathVariable int memoId) {
+    public ResponseEntity<Void> deleteMemo(@PathVariable("memoId") int memoId) {
         memoService.deleteMemo(memoId);
         return ResponseEntity.noContent().build();
     }
@@ -76,7 +76,7 @@ public class MemoAPIController {
     // 메모 수정
     @PutMapping("/{memoId}")
     public ResponseEntity<MemoDTO> updateMemo(
-            @PathVariable Integer memoId,
+            @PathVariable("memoId") Integer memoId,
             @RequestBody MemoDTO dto) {
         MemoDTO updated = memoService.updateMemo(memoId, dto);
         return ResponseEntity.ok(updated);
@@ -85,9 +85,9 @@ public class MemoAPIController {
     // 메모 검색
     @GetMapping("/search")
     public ResponseEntity<List<MemoDTO>> searchMemos(
-            @RequestParam String userId,
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "전체") String range
+            @RequestParam("userId") String userId,
+            @RequestParam("keyword") String keyword,
+            @RequestParam(name="range", defaultValue = "전체") String range
     ) {
         List<MemoDTO> results = memoService.searchMemos(userId, keyword, range);
         return ResponseEntity.ok(results);

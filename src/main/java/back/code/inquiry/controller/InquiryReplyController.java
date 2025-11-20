@@ -19,7 +19,7 @@ public class InquiryReplyController {
 
     /** 답변 등록 */
     @PostMapping("/{inquiryId}/replies")
-    public ResponseEntity<?> createReply(@PathVariable Long inquiryId, @RequestBody InquiryReplyRequest req) {
+    public ResponseEntity<?> createReply(@PathVariable("inquiryId") Long inquiryId, @RequestBody InquiryReplyRequest req) {
         req.setInquiryId(inquiryId);
         InquiryReplyResponse created = replyService.createReply(req);
         return ResponseEntity.ok(created);
@@ -27,7 +27,7 @@ public class InquiryReplyController {
 
     /** 답변 조회 */
     @GetMapping("/{inquiryId}/replies")
-    public ResponseEntity<?> getReplies(@PathVariable Long inquiryId) {
+    public ResponseEntity<?> getReplies(@PathVariable("inquiryId") Long inquiryId) {
         return ResponseEntity.ok(replyService.getReplies(inquiryId));
     }
 }

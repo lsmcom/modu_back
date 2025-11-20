@@ -29,7 +29,7 @@ public class CommunityPostController {
 
     /** 게시판별 게시글 목록 조회 */
     @GetMapping("/boards/{boardId}/posts")
-    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getPostsByBoard(@PathVariable Integer boardId) {
+    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getPostsByBoard(@PathVariable("boardId") Integer boardId) {
         List<CommunityPostDTO> posts = communityPostService.getPostsByBoardId(boardId);
         return ResponseEntity.ok(ApiResponse.ok(posts));
     }
@@ -51,36 +51,36 @@ public class CommunityPostController {
 
     /** 사용자별 임시저장 게시글 조회 */
     @GetMapping("/posts/temp/{userId}")
-    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getTempPosts(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getTempPosts(@PathVariable("userId") String userId) {
         List<CommunityPostDTO> temps = communityPostService.getTempPosts(userId);
         return ResponseEntity.ok(ApiResponse.ok(temps));
     }
 
     /** 게시글 첨부파일 조회 */
     @GetMapping("/posts/{postId}/files")
-    public ResponseEntity<ApiResponse<List<CommunityPostFileDTO>>> getPostFiles(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<List<CommunityPostFileDTO>>> getPostFiles(@PathVariable("postId") Integer postId) {
         List<CommunityPostFileDTO> files = communityPostService.getPostFiles(postId);
         return ResponseEntity.ok(ApiResponse.ok(files));
     }
 
     /** 게시글 첨부파일 삭제 */
     @DeleteMapping("/posts/{postId}/files/{fileId}")
-    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable Integer postId,
-            @PathVariable String fileId) throws IOException {
+    public ResponseEntity<ApiResponse<String>> deletePostFile(@PathVariable("postId") Integer postId,
+            @PathVariable("fileId") String fileId) throws IOException {
         communityPostService.deletePostFile(postId, fileId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
     }
 
     /** 게시글 삭제 (임시글 포함) */
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Integer postId) throws IOException {
+    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable("postId") Integer postId) throws IOException {
         communityPostService.deletePost(postId);
         return ResponseEntity.ok(ApiResponse.ok("삭제 완료"));
     }
 
     /** 게시글 상세조회 */
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<ApiResponse<CommunityPostDetailDTO>> getPostDetail(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<CommunityPostDetailDTO>> getPostDetail(@PathVariable("postId") Integer postId) {
         CommunityPostDetailDTO dto = communityPostService.getPostDetail(postId);
         return ResponseEntity.ok(ApiResponse.ok(dto));
     }
@@ -90,28 +90,28 @@ public class CommunityPostController {
      * - 수정 페이지 진입 시 기존 설정값 불러오기용
      */
     @GetMapping("/setting/{postId}")
-    public ResponseEntity<ApiResponse<CommunityPostSettingDTO>> getSetting(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<CommunityPostSettingDTO>> getSetting(@PathVariable("postId") Integer postId) {
         CommunityPostSettingDTO dto = communityPostService.getSettingByPostId(postId);
         return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 
     /** 게시글 추천 */
     @PatchMapping("/posts/{postId}/like")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> toggleLike(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> toggleLike(@PathVariable("postId") Integer postId) {
         Map<String, Object> result = communityPostService.togglePostLike(postId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     /** 게시글 추천 상태 확인 */
     @GetMapping("/posts/{postId}/like-status")
-    public ResponseEntity<ApiResponse<Boolean>> checkLikeStatus(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<Boolean>> checkLikeStatus(@PathVariable("postId") Integer postId) {
         boolean liked = communityPostService.isPostLikedByUser(postId);
         return ResponseEntity.ok(ApiResponse.ok(liked));
     }
 
     /** 사용자 별 게시글, 댓글 수 조회 */
     @GetMapping("/users/{userId}/activity-count")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> getUserActivityCount(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getUserActivityCount(@PathVariable("userId") String userId) {
         Map<String, Integer> result = communityPostService.getUserPostAndCommentCount(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
@@ -124,7 +124,7 @@ public class CommunityPostController {
      */
     @GetMapping("/posts/popular")
     public ResponseEntity<ApiResponse<List<CommunityPostDTO>>> getPopularPosts(
-            @RequestParam(defaultValue = "view") String sortBy, @RequestParam(defaultValue = "7") String period) {
+            @RequestParam(name="sortBy", defaultValue = "view") String sortBy, @RequestParam(name="period", defaultValue = "7") String period) {
         List<CommunityPostDTO> posts = communityPostService.getPopularPosts(sortBy, period);
         return ResponseEntity.ok(ApiResponse.ok(posts));
     }
@@ -138,7 +138,7 @@ public class CommunityPostController {
 
     /** 마이페이지 - 내가 쓴 게시글 목록 조회 */
     @GetMapping("/users/{userId}/posts")
-    public ResponseEntity<ApiResponse<List<MyPostActivityDTO>>> getUserPosts(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<List<MyPostActivityDTO>>> getUserPosts(@PathVariable("userId") String userId) {
         List<MyPostActivityDTO> posts = communityPostService.getUserPosts(userId);
         return ResponseEntity.ok(ApiResponse.ok(posts));
     }

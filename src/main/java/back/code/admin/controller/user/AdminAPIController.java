@@ -30,7 +30,7 @@ public class AdminAPIController {
 
     @PatchMapping("/{userId}/status")
     public ResponseEntity<ApiResponse<String>> updateStatus(
-            @PathVariable String userId,
+            @PathVariable("userId") String userId,
             @RequestBody AdminUserStatusUpdateDTO request
     ) {
         try {

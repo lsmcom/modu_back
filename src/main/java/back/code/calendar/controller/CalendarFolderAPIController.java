@@ -26,20 +26,20 @@ public class CalendarFolderAPIController {
 
     /** 사용자 폴더 목록 조회 */
     @GetMapping("/{userId}")
-    public ResponseEntity<List<CalendarFolderEntity>> getFolders(@PathVariable String userId) {
+    public ResponseEntity<List<CalendarFolderEntity>> getFolders(@PathVariable("userId") String userId) {
         return ResponseEntity.ok(folderService.getFoldersByUser(userId));
     }
 
     /** 폴더명 수정 */
     @PatchMapping("/{folderId}")
     public ResponseEntity<CalendarFolderEntity> updateFolder(
-            @PathVariable Long folderId, @RequestParam String newName) {
+            @PathVariable("folderId") Long folderId, @RequestParam("newName") String newName) {
         return ResponseEntity.ok(folderService.updateFolder(folderId, newName));
     }
 
     /** 폴더 삭제 */
     @DeleteMapping("/{folderId}")
-    public ResponseEntity<Void> deleteFolder(@PathVariable Long folderId) {
+    public ResponseEntity<Void> deleteFolder(@PathVariable("folderId") Long folderId) {
         folderService.deleteFolder(folderId);
         return ResponseEntity.noContent().build();
     }

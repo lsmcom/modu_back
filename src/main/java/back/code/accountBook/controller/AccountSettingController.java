@@ -69,8 +69,8 @@ public class AccountSettingController {
     // 월별 예산 조회
     @GetMapping("/budget")
     public ResponseEntity<ApiResponse<BudgetDTO.BudgetSettingResponse>> getBudgetSetting(
-                                                                @RequestParam String userId,
-                                                                @RequestParam String yearMonth) throws Exception {
+                                                                @RequestParam("userId") String userId,
+                                                                @RequestParam("yearMonth") String yearMonth) throws Exception {
         BudgetDTO.BudgetSettingResponse result = accountSettingService.getBudgetSetting(userId, yearMonth);
         
         return ResponseEntity.ok(ApiResponse.ok(result));

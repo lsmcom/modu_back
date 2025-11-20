@@ -29,14 +29,14 @@ public class UserRestController {
 
     /** 아이디 중복 확인 */
     @GetMapping("/check/id")
-    public ResponseEntity<ApiResponse<String>> checkUserId(@RequestParam String userId) {
+    public ResponseEntity<ApiResponse<String>> checkUserId(@RequestParam("userId") String userId) {
         String result = userService.checkDuplicateUserId(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     /** 이메일 중복확인 + 인증코드 발송 */
     @GetMapping("/check/email")
-    public ResponseEntity<ApiResponse<String>> checkEmail(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> checkEmail(@RequestParam("email") String email) {
         String result = userService.checkDuplicateEmailAndSendCode(email);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
@@ -44,8 +44,8 @@ public class UserRestController {
     /** 이메일 인증번호 검증 */
     @PostMapping("/verify/email")
     public ResponseEntity<ApiResponse<String>> verifyEmail(
-            @RequestParam String email,
-            @RequestParam String code) {
+            @RequestParam("email") String email,
+            @RequestParam("code") String code) {
 
         String result = userService.verifyEmailCode(email, code);
         return ResponseEntity.ok(ApiResponse.ok(result));
@@ -53,14 +53,14 @@ public class UserRestController {
 
     /** 닉네임 중복 확인 */
     @GetMapping("/check/nick")
-    public ResponseEntity<ApiResponse<String>> checkNick(@RequestParam String nick) {
+    public ResponseEntity<ApiResponse<String>> checkNick(@RequestParam("nick") String nick) {
         String result = userService.checkDuplicateNick(nick);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     /** 전화번호 중복 확인 */
     @GetMapping("/check/phone")
-    public ResponseEntity<ApiResponse<String>> checkPhone(@RequestParam String phone) {
+    public ResponseEntity<ApiResponse<String>> checkPhone(@RequestParam("phone") String phone) {
         String result = userService.checkDuplicatePhone(phone);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
@@ -76,7 +76,7 @@ public class UserRestController {
      * 아이디 찾기 - 이메일로 인증코드 발송
      */
     @GetMapping("/find/id/send")
-    public ResponseEntity<ApiResponse<String>> sendFindIdEmail(@RequestParam String email) throws MessagingException {
+    public ResponseEntity<ApiResponse<String>> sendFindIdEmail(@RequestParam("email") String email) throws MessagingException {
         userService.sendFindIdEmail(email);
         return ResponseEntity.ok(ApiResponse.ok("인증번호가 이메일로 전송되었습니다."));
     }
@@ -85,7 +85,7 @@ public class UserRestController {
      * 아이디 찾기 - 인증번호 검증 및 아이디 반환
      */
     @PostMapping("/find/id/verify")
-    public ResponseEntity<ApiResponse<String>> verifyFindIdCode(@RequestParam String email, @RequestParam String code) {
+    public ResponseEntity<ApiResponse<String>> verifyFindIdCode(@RequestParam("email") String email, @RequestParam("code") String code) {
         String userId = userService.verifyFindIdCode(email, code);
         return ResponseEntity.ok(ApiResponse.ok(userId));
     }
@@ -94,8 +94,8 @@ public class UserRestController {
      * 비밀번호 찾기 - 인증코드 발송
      */
     @GetMapping("/find/pw/send")
-    public ResponseEntity<ApiResponse<String>> sendFindPwEmail(@RequestParam String userId,
-            @RequestParam String email) throws MessagingException {
+    public ResponseEntity<ApiResponse<String>> sendFindPwEmail(@RequestParam("userId") String userId,
+            @RequestParam("email") String email) throws MessagingException {
         userService.sendFindPwEmail(userId, email);
         return ResponseEntity.ok(ApiResponse.ok("비밀번호 재설정을 위한 인증코드가 이메일로 전송되었습니다."));
     }
@@ -104,8 +104,8 @@ public class UserRestController {
      * 비밀번호 찾기 - 인증번호 검증
      */
     @PostMapping("/find/pw/verify")
-    public ResponseEntity<ApiResponse<String>> verifyFindPwCode(@RequestParam String userId,
-            @RequestParam String email, @RequestParam String code) {
+    public ResponseEntity<ApiResponse<String>> verifyFindPwCode(@RequestParam("userId") String userId,
+            @RequestParam("email") String email, @RequestParam("code") String code) {
         userService.verifyFindPwCode(userId, email, code);
         return ResponseEntity.ok(ApiResponse.ok("이메일 인증이 완료되었습니다. 비밀번호를 재설정하세요."));
     }
@@ -114,8 +114,8 @@ public class UserRestController {
      * 비밀번호 재설정
      */
     @PostMapping("/reset/pw")
-    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String userId,
-            @RequestParam String newPassword) {
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam("userId") String userId,
+            @RequestParam("newPassword") String newPassword) {
         userService.resetPassword(userId, newPassword);
         return ResponseEntity.ok(ApiResponse.ok("비밀번호가 성공적으로 변경되었습니다."));
     }
@@ -124,7 +124,7 @@ public class UserRestController {
      * 유저 프로필 이미지 조회 API
      */
     @GetMapping("/{userId}/profile-image")
-    public ResponseEntity<ApiResponse<String>> getProfileImage(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<String>> getProfileImage(@PathVariable("userId") String userId) {
         String profileImagePath = userService.getProfileImage(userId);
         return ResponseEntity.ok(ApiResponse.ok(profileImagePath));
     }
@@ -133,7 +133,7 @@ public class UserRestController {
      * 프로필 이미지 업로드 및 변경
      */
     @PostMapping("/{userId}/profile-image")
-    public ResponseEntity<ApiResponse<String>> updateProfileImage(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<String>> updateProfileImage(@PathVariable("userId") String userId,
             @RequestPart("file") MultipartFile file) throws IOException {
         userService.updateProfileImage(userId, file);
         return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 변경되었습니다."));
@@ -143,7 +143,7 @@ public class UserRestController {
      * 사용자 닉네임 조회
      */
     @GetMapping("/{userId}/nickname")
-    public ResponseEntity<ApiResponse<String>> getUserNickname(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<String>> getUserNickname(@PathVariable("userId") String userId) {
         String nickname = userService.getUserNickname(userId);
         return ResponseEntity.ok(ApiResponse.ok(nickname));
     }
@@ -152,7 +152,7 @@ public class UserRestController {
      * 닉네임 변경
      */
     @PutMapping("/{userId}/nickname")
-    public ResponseEntity<ApiResponse<String>> updateNickname(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<String>> updateNickname(@PathVariable("userId") String userId,
             @RequestBody Map<String, String> body) {
         String newNick = body.get("nickname");
         userService.updateNickname(userId, newNick);
@@ -161,14 +161,14 @@ public class UserRestController {
 
     /** 회원정보 조회 */
     @GetMapping("/{userId}/info")
-    public ResponseEntity<ApiResponse<UserInfoDTO>> getUserInfo(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<UserInfoDTO>> getUserInfo(@PathVariable("userId") String userId) {
         UserInfoDTO result = userService.getUserInfo(userId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     /** 회원정보 수정 */
     @PutMapping("/{userId}/info")
-    public ResponseEntity<ApiResponse<String>> updateUserInfo(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<String>> updateUserInfo(@PathVariable("userId") String userId,
             @RequestBody UserUpdateRequest req) {
         userService.updateUserInfo(userId, req);
         return ResponseEntity.ok(ApiResponse.ok("회원정보가 수정되었습니다."));
@@ -178,23 +178,23 @@ public class UserRestController {
      * 비밀번호 변경
      */
     @PostMapping("/edit/pw")
-    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String userId,
-            @RequestParam String currentPassword, @RequestParam String newPassword) {
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam("userId") String userId,
+            @RequestParam("currentPassword") String currentPassword, @RequestParam("newPassword") String newPassword) {
         userService.editPassword(userId, currentPassword, newPassword);
         return ResponseEntity.ok(ApiResponse.ok("비밀번호가 성공적으로 변경되었습니다."));
     }
 
     /** 회원 탈퇴 */
     @PostMapping("/withdraw")
-    public ResponseEntity<ApiResponse<String>> withdrawUser(@RequestParam String userId,
-            @RequestParam String password, @RequestParam(required = false) String reason) {
+    public ResponseEntity<ApiResponse<String>> withdrawUser(@RequestParam("userId") String userId,
+            @RequestParam("password") String password, @RequestParam(name="reason", required = false) String reason) {
         userService.withdrawUser(userId, password, reason);
         return ResponseEntity.ok(ApiResponse.ok("회원 탈퇴가 완료되었습니다."));
     }
 
     // 아이디로 회원 존재 여부 검색
     @GetMapping("/exists/{userId}")
-    public ResponseEntity<ApiResponse<Boolean>> checkUserExists(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<Boolean>> checkUserExists(@PathVariable("userId") String userId) {
         boolean exists = userRepository.existsById(userId);
         return ResponseEntity.ok(ApiResponse.ok(exists));
     }

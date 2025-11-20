@@ -17,9 +17,9 @@ public class CommunitySearchController {
     private final CommunitySearchService searchService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CommunitySearchResponse>>> searchPosts(@RequestParam String keyword,
-            @RequestParam(defaultValue = "전체") String range, @RequestParam(required = false) Integer boardId,
-            @RequestParam String userId) {
+    public ResponseEntity<ApiResponse<List<CommunitySearchResponse>>> searchPosts(@RequestParam("keyword") String keyword,
+            @RequestParam(name="range", defaultValue = "전체") String range, @RequestParam(name="boardId", required = false) Integer boardId,
+            @RequestParam("userId") String userId) {
         List<CommunitySearchResponse> results = searchService.searchPosts(keyword, range, boardId);
         return ResponseEntity.ok(ApiResponse.ok(results));
     }
