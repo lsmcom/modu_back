@@ -105,18 +105,11 @@ public class MemoFolderServiceImpl implements MemoFolderService {
     @Transactional
     public void createDefaultFolders(UserEntity user) {
 
-        MemoFolderEntity memoFolderEntity = MemoFolderEntity.builder()
-            .user(user)
-            .folderName("전체")
-            .folderType(FolderType.ALL)
-            .build();
-        memoFolderRepository.save(memoFolderEntity);     
-
         MemoFolderEntity memoBasicFolderEntity = MemoFolderEntity.builder()
             .user(user)
-            .folderName("기본폴더")
+            .folderName("기본 폴더")
             .folderType(FolderType.DEFAULT)
             .build();
-        memoFolderRepository.save(memoBasicFolderEntity);     
+        memoFolderRepository.save(memoBasicFolderEntity);
     }
 }

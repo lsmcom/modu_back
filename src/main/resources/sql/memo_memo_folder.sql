@@ -75,7 +75,9 @@ SELECT * FROM memo;
 select * from file;
 
 
--- 여기부터 추가
+-- 11.19 수정 --
+ALTER TABLE memo_folder DROP COLUMN folder_type;
+
 ALTER TABLE memo_folder
-ADD COLUMN folder_type ENUM('ALL', 'DEFAULT', 'NORMAL') NOT NULL DEFAULT 'NORMAL'
-COMMENT '폴더 타입 (전체, 기본, 일반)';
+ADD COLUMN folder_type ENUM('DEFAULT', 'NORMAL') NOT NULL DEFAULT 'NORMAL'
+COMMENT '폴더 타입 (기본, 일반)';
