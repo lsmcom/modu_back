@@ -231,4 +231,18 @@ public class NotificationService {
         return response;
     }
 
+    @Transactional
+    public void sendPlanUpdatedNotification(String targetUserId, String senderId, Long planId, String title) {
+
+        Notification noti = new Notification();
+        noti.setUserId(targetUserId);
+        noti.setSenderId(senderId);
+        noti.setPlanId(planId);
+        noti.setType(Notification.NotificationType.planshare_update);
+        noti.setTitle("[일정 수정] " + title);
+        noti.setContent("공유된 일정이 수정되었습니다.");
+        noti.setIsRead(false);
+
+        notificationRepository.save(noti);
+    }
 }

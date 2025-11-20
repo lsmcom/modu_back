@@ -24,6 +24,7 @@ public class Notification {
         planshare_request,
         planshare_accept,
         planshare_reject,
+        planshare_update,
         inquiryAnswer,
         account,
         comment,

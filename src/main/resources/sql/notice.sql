@@ -41,6 +41,7 @@ ALTER TABLE notification
         'planshare_request',
         'planshare_accept',
         'planshare_reject',
+        'planshare_update',
         'inquiryAnswer',
         'comment'
         ) NOT NULL COMMENT '알림 유형';
