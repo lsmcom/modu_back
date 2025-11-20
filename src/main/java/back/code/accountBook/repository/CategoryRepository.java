@@ -3,6 +3,8 @@ package back.code.accountBook.repository;
 import back.code.accountBook.entity.AccountCategoryEntity;
 import back.code.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -12,7 +14,13 @@ public interface CategoryRepository extends JpaRepository<AccountCategoryEntity,
      List<AccountCategoryEntity> findByUserAndIsDefaultTrue(UserEntity user);
 
      // 사용자 정의 카테고리 조회
-     List<AccountCategoryEntity> findByUserAndIsDefaultFalseOrIsDefaultIsNull(UserEntity user);
+     @Query(value = """
+               select c 
+               from AccountCategoryEntity c 
+               where c.user = :user 
+                 and (c.isDefault = false or c.isDefault is null)
+          """)
+     List<AccountCategoryEntity> findByUserAndDefaultFalseOrNull(@Param("user") UserEntity user);
 
      // 특정 유저의 모든 카테고리 조회
      List<AccountCategoryEntity> findAllByUser(UserEntity user);
