@@ -86,7 +86,7 @@ public class JWTFilter  extends OncePerRequestFilter{
         String userRole = jwtUtils.getUserRole(accessToken);
 
         // 사용자 정보를 SecurityContext에 등록
-        SecureUserDTO dto = new SecureUserDTO(userId, userName, userName, userRole);
+        SecureUserDTO dto = new SecureUserDTO(userId, userName, userName, userRole, null);
 
         // 시큐리티 세션에 저장()
         Authentication authentication = 

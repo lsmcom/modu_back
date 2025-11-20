@@ -26,6 +26,8 @@ public class SecureUserDTO extends User {
     private String userId;
     @Getter
     private String userName;
+    @Getter
+    private String status;
 
     /**
      * 인증용 사용자 객체 생성자.
@@ -35,11 +37,12 @@ public class SecureUserDTO extends User {
      * @param password 암호화된 비밀번호 (BCrypt 등) — JWT 컨텍스트에선 placeholder 사용 가능
      * @param roleId 권한 명(예: USER, ADMIN). 내부에서 {@code ROLE_} 접두사를 자동 부여
      */
-    public SecureUserDTO(String userId, String userName, String password, String roleId) {
+    public SecureUserDTO(String userId, String userName, String password, String roleId, String status) {
         super(userId, password, getAuthority(roleId));
 
         this.userId = userId;
         this.userName = userName;
+        this.status = status;
     }
 
     /**
