@@ -109,6 +109,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         data.put("userName", userName);
         data.put("userRole", userRole);
         data.put("token", accessToken);
+        data.put("status", user.getStatus());
 
         jObj.put("content", data);
         response.getWriter().write(jObj.toString());
