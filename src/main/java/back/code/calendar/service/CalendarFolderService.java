@@ -27,10 +27,15 @@ public class CalendarFolderService {
         UserEntity user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
+        String type = (req.getFolderType() == null || req.getFolderType().trim().isEmpty())
+                ? "PERSONAL"
+                : req.getFolderType();
+
         // 엔티티 생성 시 UserEntity 주입
         CalendarFolderEntity folder = CalendarFolderEntity.builder()
                 .user(user)
                 .folderName(req.getFolderName())
+                .folderType(type)
                 .build();
 
         return folderRepository.save(folder);
