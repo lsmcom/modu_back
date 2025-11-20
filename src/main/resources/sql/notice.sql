@@ -58,3 +58,12 @@ ALTER TABLE notification
 -- inquiry_id 컬럼 삭제
 ALTER TABLE notification
     DROP COLUMN inquiry_id;
+
+
+-- 11.20 수정
+ALTER TABLE notification
+MODIFY COLUMN type ENUM(
+  'community_announcement','inquiry_announcement','milestone','planshare',
+  'planshare_request','planshare_accept','planshare_reject','planshare_update',
+  'inquiryAnswer','comment','account_goals','account_budget'
+) NOT NULL COMMENT '알림 유형';

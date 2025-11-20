@@ -27,9 +27,9 @@ public class AccountBookNotificationScheduler {
     private final AccountBookRepository accountBookRepository;
     private final SavingGoalRepository savingGoalRepository;
     
-    // 10분에 한번 실행
+    // 30초에 한번 실행
     @Transactional
-    @Scheduled(cron = "0 0,10 * * * *")
+    @Scheduled(cron = "0,30 * * * * *")
     public void checkBudgetAlerts() throws Exception{
         String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
 
@@ -73,16 +73,24 @@ public class AccountBookNotificationScheduler {
         // threshold null 방어
         Integer threshold = budget.getThreshold();
         if (threshold == null || threshold == 0) {
-            // 예: 알림을 안 보낸다거나, 기본값을 100으로 본다거나 등 정책 결정
             return;
         }
 
         double percent = (double) usedExpense / budget.getBudgetAmount() * 100;
 
         if (percent >= budget.getThreshold()) {
+            // 이미 알림 보냈는지 체크
+            boolean alreadySent = notificationRepository.existsByUserIdAndTypeAndContentContaining(
+                budget.getUser().getUserId(),
+                Notification.NotificationType.account_budget,
+                String.format("이번 달 예산 %d%% 사용하였습니다.", threshold)
+            );
+
+            if (alreadySent) return;
+
             Notification noti = new Notification();
             noti.setUserId(budget.getUser().getUserId());
-            noti.setType(Notification.NotificationType.account);
+            noti.setType(Notification.NotificationType.account_budget);
             noti.setTitle("[가계부] 예산 한도 도달");
             noti.setContent(String.format("이번 달 예산 %d%% 사용하였습니다.", budget.getThreshold()));
             noti.setIsRead(false);
@@ -103,14 +111,27 @@ public class AccountBookNotificationScheduler {
 
         if (categoryExpense == null || budget.getBudgetAmount() == null || budget.getBudgetAmount() == 0) return;
 
+        Integer threshold = budget.getThreshold();
+        if (threshold == null || threshold == 0) {
+            return;
+        }
+
         double percent = (double) categoryExpense / budget.getBudgetAmount() * 100;
 
         if (percent >= budget.getThreshold()) {
             String categoryName = budget.getCategory().getCategoryName();
+            // 이미 알림 보냈는지 체크
+            boolean alreadySent = notificationRepository.existsByUserIdAndTypeAndContentContaining(
+                budget.getUser().getUserId(),
+                Notification.NotificationType.account_budget,
+                String.format("'%s' 카테고리 예산 %d%% 사용했습니다.", categoryName, threshold)
+            );
+
+            if (alreadySent) return;
 
             Notification noti = new Notification();
             noti.setUserId(budget.getUser().getUserId());
-            noti.setType(Notification.NotificationType.account); 
+            noti.setType(Notification.NotificationType.account_budget); 
             noti.setTitle("[가계부] 카테고리 예산 한도 도달");
             noti.setContent(String.format("'%s' 카테고리 예산 %d%% 사용했습니다.", categoryName, budget.getThreshold()));
             noti.setIsRead(false);
@@ -120,9 +141,9 @@ public class AccountBookNotificationScheduler {
         }
     }
 
-    // 매시간마다 저축 목표 체크
+    // 저축 목표 체크
     @Transactional
-    @Scheduled(cron = "0 0,10 * * * *")
+    @Scheduled(cron = "0,30 * * * * *")
     public void checkSavingsGoalAlerts() throws Exception{
         List<AccountSavingsGoalEntity> allGoals = savingGoalRepository.findAll();
             
@@ -144,7 +165,7 @@ public class AccountBookNotificationScheduler {
         // 이미 달성 알림 보냈는지 체크
         boolean alreadySent = notificationRepository.existsByUserIdAndTypeAndContentContaining(
             userId,
-            Notification.NotificationType.account,
+            Notification.NotificationType.account_goals,
             goalName
         );
         
@@ -168,7 +189,7 @@ public class AccountBookNotificationScheduler {
     private void sendSavingsGoalAlert(String userId, String goalName) {
         Notification noti = new Notification();
         noti.setUserId(userId);
-        noti.setType(Notification.NotificationType.account);
+        noti.setType(Notification.NotificationType.account_goals);
         noti.setTitle("[가계부] 저축 목표 달성");
         noti.setContent(String.format("저축 목표 '%s' 100%% 달성했습니다!", goalName));
         noti.setIsRead(false);
