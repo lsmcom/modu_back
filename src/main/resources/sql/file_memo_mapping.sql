@@ -17,3 +17,9 @@ CREATE TABLE file_memo_mapping (
         REFERENCES file (file_id)
         ON DELETE CASCADE
 ) COMMENT='메모-파일 매핑 테이블';
+
+DELETE FROM category
+WHERE user_id = '123123123';
+
+DELETE FROM user
+WHERE user_id = '123123123';
