@@ -4,6 +4,7 @@ import back.code.todo.dto.FolderCreateRequest;
 import back.code.todo.dto.FolderDeleteRequest;
 import back.code.todo.dto.FolderResponse;
 import back.code.todo.dto.FolderUpdateRequest;
+import back.code.todo.entity.TodoList;
 import back.code.todo.entity.TodoFolder;
 import back.code.todo.entity.TodoFolderId;
 import back.code.todo.repository.TodoFolderRepository;
@@ -12,14 +13,13 @@ import back.code.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Optional;
-import back.code.user.entity.UserEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
-
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +36,51 @@ public class TodoFolderService {
     public void createDefaultTodoFolders(UserEntity user) {
         String userId = user.getUserId();
 
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endOfYear = LocalDateTime.of(now.getYear(), 12, 31, 23, 59, 59);
+
         if (!todoFolderRepository.existsByUserIdAndFolderId(userId, 1)) {
             TodoFolder defaultFolder = new TodoFolder(1, userId, "기본 폴더", true);
             todoFolderRepository.save(defaultFolder);
+            
+            TodoList guideTodo = new TodoList();
+            guideTodo.setFolder(defaultFolder);
+            guideTodo.setTitle("꾹 누르면 Drag And Drop이 됩니다!");
+            guideTodo.setTdFixed(true);
+            guideTodo.setIsCompleted(false);
+            guideTodo.setOrderIndex(0);
+            guideTodo.setCreateDate(now);
+            guideTodo.setDueDate(endOfYear);
+             
+            todoListRepository.save(guideTodo);
+
+            TodoList overdueguide = new TodoList();
+            overdueguide.setFolder(defaultFolder);
+            overdueguide.setTitle("날짜를 변경해 재사용 가능");
+            overdueguide.setTdFixed(true);
+            overdueguide.setIsCompleted(false);
+            overdueguide.setOrderIndex(0);
+            overdueguide.setCreateDate(now);
+            overdueguide.setDueDate(now);
+             
+            todoListRepository.save(overdueguide);
         }
 
         if (!todoFolderRepository.existsByUserIdAndFolderId(userId, 999)) {
             TodoFolder notTodoFolder = new TodoFolder(999, userId, "NotTodoList", false);
             todoFolderRepository.save(notTodoFolder);
+
+        // NotTodoList 안내 투두 추가
+            TodoList notTodoGuide = new TodoList();
+            notTodoGuide.setFolder(notTodoFolder);
+            notTodoGuide.setTitle("나쁜 습관, 하지말아야 할 것을 관리");
+            notTodoGuide.setTdFixed(true);
+            notTodoGuide.setIsCompleted(false);
+            notTodoGuide.setOrderIndex(0);
+            notTodoGuide.setCreateDate(now);
+            notTodoGuide.setDueDate(endOfYear);
+
+            todoListRepository.save(notTodoGuide);
         }
     }
 
