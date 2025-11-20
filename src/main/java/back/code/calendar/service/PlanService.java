@@ -66,6 +66,8 @@ public class PlanService {
     /** 일정 수정 */
     @Transactional
     public PlanEntity updatePlan(Long planId, PlanUpdateRequestDTO request) {
+
+        // 1) 일정 조회 및 수정
         PlanEntity plan = planRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다. planId=" + planId));
 
@@ -77,20 +79,37 @@ public class PlanService {
         plan.setRepeatType(request.getRepeatType());
         plan.setReminder(request.getReminder());
 
-        // folderId로 실제 폴더 엔티티 조회
         CalendarFolderEntity folder = calendarFolderRepository.findById(request.getFolderId())
                 .orElseThrow(() -> new IllegalArgumentException("폴더를 찾을 수 없습니다. folderId=" + request.getFolderId()));
         plan.setFolder(folder);
 
-        // userId로 실제 유저 엔티티 조회
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + request.getUserId()));
         plan.setUser(user);
 
-        //  반복 규칙 갱신 (없음 → 반복 / 반복 → 없음)
         repeatRuleService.updateRepeatRule(plan, request.getRepeatType());
 
-        return planRepository.saveAndFlush(plan);
+        PlanEntity saved = planRepository.saveAndFlush(plan);
+
+
+        // 2) 공유받은 사용자들에게 수정 알림 전송
+        List<PlanShareEntity> sharedUsers = planShareRepository.findByPlan(plan);
+
+        for (PlanShareEntity ps : sharedUsers) {
+            String targetUserId = ps.getSharedUser().getUserId();
+
+            // 본인에게는 알림 X
+            if (targetUserId.equals(user.getUserId())) continue;
+
+            notificationService.sendPlanUpdatedNotification(
+                    targetUserId,
+                    user.getUserId(),
+                    plan.getPlanId(),
+                    plan.getPlanTitle()
+            );
+        }
+
+        return saved;
     }
 
     /** 일정 삭제 */

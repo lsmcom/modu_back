@@ -39,6 +39,7 @@ public class AccountCategoryDTO {
         private AccountType type;
         private Boolean isDefault;
         private String userId;
+        private String color;
 
         public AccountCategoryEntity to(UserEntity user){
             AccountCategoryEntity category = new AccountCategoryEntity();
@@ -47,6 +48,7 @@ public class AccountCategoryDTO {
             category.setType(this.type);
             category.setIsDefault(this.isDefault);
             category.setUser(user);
+            category.setColor(color);
 
             return category;
         }

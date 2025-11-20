@@ -377,6 +377,7 @@ public class UserService {
                 .phone(user.getPhone())
                 .addr(user.getAddr())
                 .addrDetail(user.getAddrDetail())
+                .createAt(user.getCreateAt())
                 .build();
     }
 

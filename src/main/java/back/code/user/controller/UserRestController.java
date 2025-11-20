@@ -5,6 +5,7 @@ import back.code.user.dto.JoinRequestDTO;
 import back.code.admin.dto.user.UserAllInfoDTO;
 import back.code.user.dto.UserInfoDTO;
 import back.code.user.dto.UserUpdateRequest;
+import back.code.user.repository.UserRepository;
 import back.code.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class UserRestController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     /** 아이디 중복 확인 */
     @GetMapping("/check/id")
@@ -188,6 +190,13 @@ public class UserRestController {
             @RequestParam String password, @RequestParam(required = false) String reason) {
         userService.withdrawUser(userId, password, reason);
         return ResponseEntity.ok(ApiResponse.ok("회원 탈퇴가 완료되었습니다."));
+    }
+
+    // 아이디로 회원 존재 여부 검색
+    @GetMapping("/exists/{userId}")
+    public ResponseEntity<ApiResponse<Boolean>> checkUserExists(@PathVariable String userId) {
+        boolean exists = userRepository.existsById(userId);
+        return ResponseEntity.ok(ApiResponse.ok(exists));
     }
 
 }

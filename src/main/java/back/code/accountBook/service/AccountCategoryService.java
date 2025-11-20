@@ -31,7 +31,7 @@ public class AccountCategoryService {
         // 기본 카테고리
         List<AccountCategoryEntity> defaultCategories = categoryRepository.findByUserAndIsDefaultTrue(user);
         // 사용자 정의 카테고리
-        List<AccountCategoryEntity> userCategories = categoryRepository.findByUserAndIsDefaultFalseOrIsDefaultIsNull(user);
+        List<AccountCategoryEntity> userCategories = categoryRepository.findByUserAndDefaultFalseOrNull(user);
 
         List<AccountCategoryEntity> allCategories = new ArrayList<>();
         allCategories.addAll(defaultCategories);
@@ -78,13 +78,14 @@ public class AccountCategoryService {
                 throw new IllegalArgumentException("기본 카테고리는 수정할 수 없습니다.");
             }
 
-            // 소유자 체크(선택)
+            // 소유자 체크
             if (!category.getUser().getUserId().equals(user.getUserId())) {
                 throw new IllegalArgumentException("해당 카테고리에 대한 권한이 없습니다.");
             }
 
             category.setCategoryName(request.getCategoryName());
             category.setType(request.getType());
+            category.setColor(request.getColor());
         } else {
             category = request.to(user);
         }

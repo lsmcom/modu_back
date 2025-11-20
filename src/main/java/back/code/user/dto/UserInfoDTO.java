@@ -1,7 +1,9 @@
 package back.code.user.dto;
 
 import lombok.*;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -16,4 +18,5 @@ public class UserInfoDTO {
     private String phone;
     private String addr;
     private String addrDetail;
+    private LocalDateTime createAt;
 }
