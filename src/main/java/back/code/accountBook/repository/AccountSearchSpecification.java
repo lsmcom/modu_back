@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import back.code.accountBook.dto.AccountSearchDTO;
 import back.code.accountBook.entity.AccountBookEntity;
+import back.code.accountBook.enums.AccountMethod;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,7 +30,15 @@ public class AccountSearchSpecification implements Specification<AccountBookEnti
         // 검색어
         if (search.getKeyword() != null && !search.getKeyword().trim().isEmpty()) {
             String likeText = "%" + search.getKeyword().trim() + "%";
-            predicates.add(cb.like(root.get("content"), likeText));
+
+            List<Predicate> orPredicates = new ArrayList<>();
+
+            orPredicates.add(cb.like(root.get("content"), likeText));
+            orPredicates.add(cb.like(root.get("category").get("categoryName"), likeText));
+            orPredicates.add(cb.like(root.get("amount").as(String.class), likeText));
+
+            predicates.add(cb.or(orPredicates.toArray(new Predicate[0])));
+
         }
 
         // 사용자 ID

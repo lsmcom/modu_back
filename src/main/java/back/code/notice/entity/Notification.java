@@ -26,7 +26,8 @@ public class Notification {
         planshare_reject,
         planshare_update,
         inquiryAnswer,
-        account,
+        account_goals,
+        account_budget,
         comment,
     }
 
