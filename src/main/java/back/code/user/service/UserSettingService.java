@@ -62,8 +62,7 @@ public class UserSettingService {
         UserSettingEntity setting = UserSettingEntity.builder()
                 .settingId(UUID.randomUUID().toString())
                 .user(user)
-                .theDayOfWeek("M")           // 기본 월요일
-                .alarmAllowed("Y")           // 알림 허용
+                .theDayOfWeek("M")           // 기본 월요일\
                 .personalInfoAgreed("Y")     // 개인정보 동의
                 .locationInfoAgreed("Y")     // 위치정보 동의
                 .marketingInfoAgreed(
@@ -95,8 +94,6 @@ public class UserSettingService {
 
         if (dto.getTheDayOfWeek() != null)
             setting.setTheDayOfWeek(dto.getTheDayOfWeek());
-        if (dto.getAlarmAllowed() != null)
-            setting.setAlarmAllowed(dto.getAlarmAllowed());
         if (dto.getPersonalInfoAgreed() != null)
             setting.setPersonalInfoAgreed(dto.getPersonalInfoAgreed());
         if (dto.getLocationInfoAgreed() != null)

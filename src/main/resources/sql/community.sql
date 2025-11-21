@@ -166,10 +166,6 @@ ALTER TABLE community_post_like
 ADD CONSTRAINT fk_like_post FOREIGN KEY (post_id) REFERENCES community_post(post_id) ON DELETE CASCADE,
 ADD CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE;
 
-
-/* 11.12 수정사항 */
-drop table user_block;
-
 INSERT INTO community_post_setting (post_id, user_id, is_public, is_search, is_comment, 
 is_in_share, is_copy, is_out_share, image_size_type)
 SELECT 

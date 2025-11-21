@@ -106,6 +106,8 @@ INSERT INTO user_setting (setting_id, user_id, the_day_of_week, theme_mode, alar
 /* 사용자 설정 테이블 다크모드 컬럼 삭제 */
 ALTER TABLE user_setting DROP COLUMN theme_mode;
 
+ALTER TABLE user_setting DROP COLUMN alarm_allowed;
+
 
 
 

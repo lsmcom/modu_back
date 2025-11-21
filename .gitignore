@@ -22,6 +22,7 @@ bin/
 ### IntelliJ IDEA ###
 .idea
 .env
+src/main/resources/application-lsm.yml
 src/main/resources/application-haram.yml
 src/main/resources/application-hy.yml
 *.iws

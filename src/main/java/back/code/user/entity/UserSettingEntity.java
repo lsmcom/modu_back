@@ -25,9 +25,6 @@ public class UserSettingEntity {
     private String theDayOfWeek = "M"; // 주시작일 -> M: 월요일, S: 일요일
 
     @Column(length = 1, columnDefinition = "CHAR(1)")
-    private String alarmAllowed = "Y"; // 알람 허용 여부 -> Y: 허용, N: 미허용
-
-    @Column(length = 1, columnDefinition = "CHAR(1)")
     private String personalInfoAgreed = "Y"; // 개인정보 수집/이용 동의 여부 -> Y: 허용, N: 미허용
 
     @Column(length = 1, columnDefinition = "CHAR(1)")
