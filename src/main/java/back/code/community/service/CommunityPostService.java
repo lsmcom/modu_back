@@ -427,12 +427,22 @@ public class CommunityPostService {
         return dto;
     }
 
-    /** 공용 파일 URL 생성 유틸 (CommunityPostDTO와 동일한 로직) */
+    /** 공용 파일 URL 생성 유틸 */
     private String buildUrl(String filePath, String storedName) {
         if (filePath == null || storedName == null) return null;
+
+        // OS 경로를 표준화
         String normalized = filePath.replace("\\", "/");
+
+        // "C:/files/modu" 제거 → 상대 경로만 남김
         String relative = normalized.replace("C:/files/modu", "");
-        return "http://localhost:9090" + relative + "/" + storedName;
+
+        // Paths.get()은 중복 / 자동 정리해줌
+        String urlPath = Paths.get("files", relative, storedName)
+                .toString()
+                .replace("\\", "/");
+
+        return "http://localhost:9090/" + urlPath;
     }
 
     /** 게시글 설정 조회 */

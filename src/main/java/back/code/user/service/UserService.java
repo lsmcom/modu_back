@@ -18,6 +18,7 @@ import back.code.user.repository.UserRoleRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,9 @@ public class UserService {
     private final MemoFolderService memoFolderService;
     private final AccountCategoryService categoryService;
     private final TodoFolderService todoFolderService;
+
+    @Value("${server.file.upload.path}")
+    private String uploadPath;
 
     /** 아이디 중복 확인 */
     @Transactional(readOnly = true)
@@ -291,13 +295,15 @@ public class UserService {
                 .max(Comparator.comparing(FileEntity::getCreateAt))
                 .orElseThrow(() -> new RuntimeException("프로필 이미지 조회 중 오류가 발생했습니다."));
 
-        // 경로 문자열 반환
-        String fullPath = Paths.get(latest.getFilePath(), latest.getStoredName())
+        String normalized = latest.getFilePath().replace("\\", "/");
+        String relative = normalized.replace("C:/files/modu", "");
+
+        // Paths.get()이 알아서 / 를 정리
+        String urlPath = Paths.get("files", relative, latest.getStoredName())
                 .toString()
                 .replace("\\", "/");
 
-        log.info("[PROFILE] userId={} 최신 프로필 이미지 반환: {}", userId, fullPath);
-        return fullPath;
+        return "http://localhost:9090/" + urlPath;
     }
 
     /**
