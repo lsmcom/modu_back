@@ -102,6 +102,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/refresh").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/files/**").permitAll()
+                                .requestMatchers("/api/v1/file/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
 //                                .requestMatchers("/**").permitAll()
                                 .requestMatchers("/admin/**", "/api/v1/admin/**").hasAnyRole("ADMIN")
