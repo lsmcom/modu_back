@@ -45,7 +45,7 @@ public class FileUtils {
         String contentType = file.getContentType();
         if (contentType == null ||
                 contentType.contains("x-msdownload") ||
-                contentType.contains("application/x-msdos-program") ||
+//                contentType.contains("application/x-msdos-program") ||
                 contentType.contains("application/x-executable") ||
                 contentType.contains("application/x-sh")) {
             throw new IllegalArgumentException("실행 파일 업로드는 허용되지 않습니다.");

@@ -12,9 +12,8 @@ public interface CommunityFixedNoticeRepository extends JpaRepository<CommunityF
     /** 필독 공지(상단 고정) 목록 조회 */
     @Query("""
         SELECT new back.code.community.dto.CommunityPostDTO(
-            p.postId, b.boardId, b.boardName, u.userId, u.userNick,
-            f.filePath, f.storedName, p.title, p.contents,
-            p.readCount, p.likeCount, p.isTemporary, p.createAt
+            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+            p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
         )
         FROM CommunityFixedNoticeEntity fn
         JOIN fn.post p

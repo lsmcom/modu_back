@@ -295,15 +295,8 @@ public class UserService {
                 .max(Comparator.comparing(FileEntity::getCreateAt))
                 .orElseThrow(() -> new RuntimeException("프로필 이미지 조회 중 오류가 발생했습니다."));
 
-        String normalized = latest.getFilePath().replace("\\", "/");
-        String relative = normalized.replace("C:/files/modu", "");
-
-        // Paths.get()이 알아서 / 를 정리
-        String urlPath = Paths.get("files", relative, latest.getStoredName())
-                .toString()
-                .replace("\\", "/");
-
-        return "http://localhost:9090/" + urlPath;
+        // FileService 공용 URL 유틸 사용
+        return fileService.buildFileUrl(latest.getFilePath(), latest.getStoredName());
     }
 
     /**

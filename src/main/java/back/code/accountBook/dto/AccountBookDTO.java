@@ -77,12 +77,11 @@ public class AccountBookDTO {
         private InstallmentDTO installment;
 
         public static Detail of (AccountBookEntity entity,
-                                 String filePath,
                                  RecurringSettingEntity recurring,
                                  InstallmentSettingEntity installment){
 
             List<FileDTO> files = entity.getFiles().stream()
-                    .map(fm -> FileDTO.from(fm.getFile(), filePath))
+                    .map(fm -> FileDTO.from(fm.getFile()))
                     .collect(Collectors.toList());
 
             return Detail.builder()

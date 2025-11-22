@@ -183,7 +183,10 @@ public class SecurityConfig {
                 "http://localhost:3001",
                 "http://localhost:4000",
                 "http://localhost:4001",
-                "http://localhost:4002"
+                "http://localhost:4002",
+                "https://modu.pics:443",
+                "https://modu.pics",
+                "http://modu.pics:9090"
         ));
 
         // 쿠키 포함 허용

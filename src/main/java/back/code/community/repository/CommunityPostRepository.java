@@ -15,8 +15,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
     // 게시글 전체 조회 (최신순)
     @Query("""
         SELECT new back.code.community.dto.CommunityPostDTO(
-            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.filePath,
-            f.storedName, p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt,
+            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+            p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt,
             CASE WHEN EXISTS (
                 SELECT 1 FROM CommunityPostLikeEntity l
                 WHERE l.post.postId = p.postId AND l.user.userId = :userId
@@ -35,8 +35,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
     // 게시판별 게시글 조회
     @Query("""
         SELECT new back.code.community.dto.CommunityPostDTO(
-            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.filePath,
-            f.storedName, p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
+            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+            p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
         )
         FROM CommunityPostEntity p
         JOIN p.board b
@@ -52,19 +52,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
     // 임시저장 게시글 조회
     @Query("""
         SELECT new back.code.community.dto.CommunityPostDTO(
-            p.postId, 
-            b.boardId, 
-            b.boardName, 
-            u.userId, 
-            u.userNick, 
-            f.filePath,
-            f.storedName, 
-            p.title, 
-            p.contents, 
-            p.readCount, 
-            p.likeCount, 
-            p.isTemporary, 
-            p.createAt
+            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+            p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
         )
         FROM CommunityPostEntity p
         LEFT JOIN p.board b
@@ -96,8 +85,10 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
 
     // 인기 게시글 조회 (조회수 / 추천수 / 댓글수 순 정렬 + 기간 필터)
     @Query("""
-        SELECT new back.code.community.dto.CommunityPostDTO(p.postId, b.boardId, b.boardName, u.userId, u.userNick,
-            f.filePath, f.storedName, p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt)
+        SELECT new back.code.community.dto.CommunityPostDTO(
+            p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+            p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
+        )
         FROM CommunityPostEntity p
         JOIN p.board b
         JOIN p.user u
@@ -131,9 +122,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPostEnti
 
     @Query("""
     SELECT new back.code.community.dto.CommunityPostDTO(
-        p.postId, b.boardId, b.boardName, u.userId, u.userNick,
-        f.filePath, f.storedName, p.title, p.contents,
-        p.readCount, p.likeCount, p.isTemporary, p.createAt
+        p.postId, b.boardId, b.boardName, u.userId, u.userNick, f.storedName,
+        p.title, p.contents, p.readCount, p.likeCount, p.isTemporary, p.createAt
     )
         FROM CommunityPostEntity p
         JOIN p.board b

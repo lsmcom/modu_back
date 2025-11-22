@@ -1,6 +1,6 @@
 #서버 포트 설정
 server:
-  host: http://localhost:9090
+  host: https://modu.pics
   servlet:
     encoding:
       charset: 'UTF-8'
@@ -11,7 +11,7 @@ server:
   port: 9090
   file:
     upload:
-      path: C:\\files\\modu\\
+      path: /home/ec2-user/files/
 
 spring:
   config:
@@ -42,9 +42,9 @@ spring:
   #Database 설정
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url : jdbc:mariadb://localhost:3306/modu
+    url : jdbc:mariadb://modu.cleeu4aw6cb0.ap-northeast-2.rds.amazonaws.com:3306/modu
     username: root
-    password: 1234
+    password: root1234
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       connection-timeout: 60000

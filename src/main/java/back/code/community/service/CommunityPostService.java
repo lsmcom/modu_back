@@ -13,6 +13,7 @@ import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,7 @@ public class CommunityPostService {
                     .filter(file -> file.getStoredName() != null &&
                             file.getStoredName().toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$"))
                     .findFirst()
-                    .map(file -> buildUrl(file.getFilePath(), file.getStoredName()))
+                    .map(file -> fileService.buildFileUrl(file.getFilePath(), file.getStoredName()))
                     .orElse(null);
 
             dto.setThumbnailPath(thumbnailPath);
@@ -72,6 +73,7 @@ public class CommunityPostService {
     public List<CommunityPostDTO> getAllPosts() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         List<CommunityPostDTO> list = communityPostRepository.findAllPostSummariesWithLikeStatus(userId);
+        enrichProfileImages(list);
         enrichPostListWithExtras(list);
         return list;
     }
@@ -81,6 +83,7 @@ public class CommunityPostService {
     public List<CommunityPostDTO> getPostsByBoardId(Integer boardId) {
         String userId = SecurityUtils.getCurrentUserId();
         List<CommunityPostDTO> list = communityPostRepository.findPostDTOsByBoardId(userId, boardId);
+        enrichProfileImages(list);
         enrichPostListWithExtras(list);
         return list;
     }
@@ -244,9 +247,11 @@ public class CommunityPostService {
     }
 
     /** 사용자별 임시저장 게시글 조회 */
-    @Transactional(readOnly = true)
     public List<CommunityPostDTO> getTempPosts(String userId) {
-        return communityPostRepository.findTempPostsByUserId(userId);
+        List<CommunityPostDTO> list = communityPostRepository.findTempPostsByUserId(userId);
+        enrichProfileImages(list);
+        enrichPostListWithExtras(list);
+        return list;
     }
 
     /** 게시글 첨부파일 조회 */
@@ -256,7 +261,11 @@ public class CommunityPostService {
                 postFileRepository.findByPost_PostIdOrderByFileOrderAsc(postId);
 
         return entities.stream()
-                .map(e -> CommunityPostFileDTO.from(e.getFile()))
+                .map(e -> {
+                    FileEntity file = e.getFile();
+                    String url = fileService.buildFileUrl(file.getFilePath(), file.getStoredName());
+                    return CommunityPostFileDTO.from(file, url);
+                })
                 .toList();
     }
 
@@ -397,23 +406,18 @@ public class CommunityPostService {
         String profileImagePath = null;
         if (!profileFiles.isEmpty()) {
             FileEntity profileFile = profileFiles.get(0);
-            profileImagePath = buildUrl(profileFile.getFilePath(), profileFile.getStoredName());
+            profileImagePath = fileService.buildFileUrl(profileFile.getFilePath(), profileFile.getStoredName());
         }
 
         // 첨부파일 목록 조회 후 DTO 변환
-        List<CommunityPostFileDTO> fileDtos = postFileRepository.findByPost_PostId(postId).stream()
-                .map(CommunityPostFileEntity::getFile)
-                .map(file -> new CommunityPostFileDTO(
-                        file.getFileId(),
-                        file.getFileName(),
-                        file.getFileSize(),
-                        file.getFileType(),
-                        file.getFilePath(),
-                        file.getStoredName(),
-                        file.getFileThumbName(),
-                        buildUrl(file.getFilePath(), file.getStoredName())
-                ))
-                .toList();
+        List<CommunityPostFileDTO> fileDtos =
+                postFileRepository.findByPost_PostId(postId).stream()
+                        .map(CommunityPostFileEntity::getFile)
+                        .map(file -> {
+                            String url = fileService.buildFileUrl(file.getFilePath(), file.getStoredName());
+                            return CommunityPostFileDTO.from(file, url);
+                        })
+                        .toList();
 
         // DTO 변환
         CommunityPostDetailDTO dto = CommunityPostDetailDTO.fromEntity(post, fileDtos, profileImagePath);
@@ -425,24 +429,6 @@ public class CommunityPostService {
         }
 
         return dto;
-    }
-
-    /** 공용 파일 URL 생성 유틸 */
-    private String buildUrl(String filePath, String storedName) {
-        if (filePath == null || storedName == null) return null;
-
-        // OS 경로를 표준화
-        String normalized = filePath.replace("\\", "/");
-
-        // "C:/files/modu" 제거 → 상대 경로만 남김
-        String relative = normalized.replace("C:/files/modu", "");
-
-        // Paths.get()은 중복 / 자동 정리해줌
-        String urlPath = Paths.get("files", relative, storedName)
-                .toString()
-                .replace("\\", "/");
-
-        return "http://localhost:9090/" + urlPath;
     }
 
     /** 게시글 설정 조회 */
@@ -588,7 +574,7 @@ public class CommunityPostService {
                     .filter(file -> file.getStoredName() != null &&
                             file.getStoredName().toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$"))
                     .findFirst()
-                    .map(file -> buildUrl(file.getFilePath(), file.getStoredName()))
+                    .map(file -> fileService.buildFileUrl(file.getFilePath(), file.getStoredName()))
                     .orElse(null);
 
             return MyPostActivityDTO.builder()
@@ -609,7 +595,20 @@ public class CommunityPostService {
     @Transactional(readOnly = true)
     public List<CommunityPostDTO> getNoticePosts() {
         List<CommunityPostDTO> notices = communityPostRepository.findNoticePosts();
+        enrichProfileImages(notices);
         enrichPostListWithExtras(notices);
         return notices;
+    }
+
+    private void enrichProfileImages(List<CommunityPostDTO> list) {
+        for (CommunityPostDTO dto : list) {
+            List<FileEntity> files =
+                    fileRepository.findByUser_UserIdAndFileType(dto.getUserId(), "PROFILE");
+
+            if (!files.isEmpty()) {
+                FileEntity f = files.get(0);
+                dto.setProfileImagePath(fileService.buildFileUrl(f.getFilePath(), f.getStoredName()));
+            }
+        }
     }
 }

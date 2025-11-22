@@ -67,7 +67,6 @@ public class AccountBookService {
     private final FileUtils fileUtils;
     private final MilestoneService milestoneService;
 
-
     // 가계부 작성
     @Transactional
     public AccountBookDTO.Detail writeAccount(AccountBookDTO.Request request,List<MultipartFile> files) throws Exception{
@@ -146,7 +145,18 @@ public class AccountBookService {
             }
         }
         // DTO 변환
-        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
+        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, recurring, installment);
+
+        // ⬇파일 URL 세팅
+        detail.getFiles().forEach(f -> {
+            FileEntity fe = fileService.getFileById(f.getFileId());
+            f.setPublicUrl(fileService.buildFileUrl(fe.getFilePath(), fe.getStoredName()));
+
+            if (fe.getFileThumbName() != null) {
+                String thumbDir = Paths.get(fe.getFilePath(), "thumb").toString();
+                f.setThumbPublicUrl(fileService.buildFileUrl(thumbDir, fe.getFileThumbName()));
+            }
+        });
 
         milestoneService.checkAndAwardMilestones(user.getUserId());
 
@@ -303,7 +313,18 @@ public class AccountBookService {
         AccountBookEntity savedAccount = accountBookRepository.save(account);
         
         // DTO 변환
-        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(savedAccount, filePath, recurring, installment);
+        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(savedAccount, recurring, installment);
+
+        // 파일 URL 세팅
+        detail.getFiles().forEach(f -> {
+            FileEntity fe = fileService.getFileById(f.getFileId());
+            f.setPublicUrl(fileService.buildFileUrl(fe.getFilePath(), fe.getStoredName()));
+
+            if (fe.getFileThumbName() != null) {
+                String thumbDir = Paths.get(fe.getFilePath(), "thumb").toString();
+                f.setThumbPublicUrl(fileService.buildFileUrl(thumbDir, fe.getFileThumbName()));
+            }
+        });
 
         return detail;
     }
@@ -350,7 +371,18 @@ public class AccountBookService {
         InstallmentSettingEntity installment = installmentRepository.findByAccount(account).orElse(null);
 
         // DTO 변환
-        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
+        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, recurring, installment);
+
+        // 파일 URL 세팅
+        detail.getFiles().forEach(f -> {
+            FileEntity fe = fileService.getFileById(f.getFileId());
+            f.setPublicUrl(fileService.buildFileUrl(fe.getFilePath(), fe.getStoredName()));
+
+            if (fe.getFileThumbName() != null) {
+                String thumbDir = Paths.get(fe.getFilePath(), "thumb").toString();
+                f.setThumbPublicUrl(fileService.buildFileUrl(thumbDir, fe.getFileThumbName()));
+            }
+        });
 
         return detail;
     }
@@ -380,7 +412,7 @@ public class AccountBookService {
          }
 
         // dto 변경
-        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, filePath, recurring, installment);
+        AccountBookDTO.Detail detail = AccountBookDTO.Detail.of(account, recurring, installment);
 
         // 물리 파일 정보
         List<FileEntity> filesToDelete = new ArrayList<>();
@@ -399,10 +431,12 @@ public class AccountBookService {
                 fileRepository.delete(file);
 
                 String path = Paths.get(file.getFilePath(), file.getStoredName()).toString();
-                String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
-                
                 fileUtils.deleteFile(path);
-                fileUtils.deleteFile(thumbPath);
+
+                if (file.getFileThumbName() != null) {
+                    String thumbPath = Paths.get(file.getFilePath(), "thumb", file.getFileThumbName()).toString();
+                    fileUtils.deleteFile(thumbPath);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

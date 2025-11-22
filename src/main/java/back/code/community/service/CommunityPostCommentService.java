@@ -9,11 +9,13 @@ import back.code.community.entity.CommunityPostEntity;
 import back.code.community.repository.CommunityPostCommentRepository;
 import back.code.community.repository.CommunityPostRepository;
 import back.code.file.repository.FileRepository;
+import back.code.file.service.FileService;
 import back.code.notice.service.NotificationService;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class CommunityPostCommentService {
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
     private final NotificationService notificationService;
+    private final FileService fileService;
 
     /** 댓글/대댓글 등록 */
     @Transactional
@@ -126,7 +129,7 @@ public class CommunityPostCommentService {
         // 최상위 댓글만 뽑고, 재귀적으로 대댓글 DTO 구성
         return all.stream()
                 .filter(c -> c.getParentComment() == null)
-                .map(c -> CommunityPostCommentDTO.fromEntityWithReplies(c, fileRepository))
+                .map(this::convertToDTOWithReplies)
                 .collect(Collectors.toList());
     }
 
@@ -148,5 +151,31 @@ public class CommunityPostCommentService {
                         .createAt(c.getCreateAt())
                         .build()
                 ).toList();
+    }
+
+    /** 댓글 + 대댓글 DTO 변환 (재귀) */
+    private CommunityPostCommentDTO convertToDTOWithReplies(CommunityPostCommentEntity entity) {
+
+        // 프로필 파일 조회
+        String profilePath =
+                fileRepository.findByUser_UserIdAndFileType(entity.getUser().getUserId(), "PROFILE")
+                        .stream()
+                        .findFirst()
+                        .map(f -> fileService.buildFileUrl(f.getFilePath(), f.getStoredName()))
+                        .orElse(null);
+
+        // DTO 생성
+        CommunityPostCommentDTO dto = CommunityPostCommentDTO.fromEntity(entity, profilePath);
+
+        // 대댓글 재귀
+        if (entity.getReplies() != null && !entity.getReplies().isEmpty()) {
+            dto.setReplies(
+                    entity.getReplies().stream()
+                            .map(this::convertToDTOWithReplies)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return dto;
     }
 }

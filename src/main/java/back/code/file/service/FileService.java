@@ -55,6 +55,9 @@ public class FileService {
     @Value("${server.file.upload.path}")
     private String uploadPath;
 
+    @Value("${server.host}")
+    private String serverHost;
+
     /**
      * 일반 파일 업로드
      */
@@ -94,7 +97,16 @@ public class FileService {
 
         log.info("[FILE] 업로드 완료 - userId={}, type={}, file={}", userId, fileType, storedName);
 
-        return FileDTO.from(entity, uploadPath);
+        // DTO 생성 + URL 세팅
+        FileDTO dto = FileDTO.from(entity);
+        dto.setPublicUrl(buildFileUrl(entity.getFilePath(), entity.getStoredName()));
+
+        if (entity.getFileThumbName() != null) {
+            String thumbDir = Paths.get(entity.getFilePath(), "thumb").toString();
+            dto.setThumbPublicUrl(buildFileUrl(thumbDir, entity.getFileThumbName()));
+        }
+
+        return dto;
     }
 
     /**
@@ -157,7 +169,16 @@ public class FileService {
         fileRepository.save(entity);
         log.info("[FILE] URL 업로드 완료 - userId={}, type={}, url={}", userId, fileType, imageUrl);
 
-        return FileDTO.from(entity, uploadPath);
+        // DTO 생성 + URL 세팅
+        FileDTO dto = FileDTO.from(entity);
+        dto.setPublicUrl(buildFileUrl(entity.getFilePath(), entity.getStoredName()));
+
+        if (entity.getFileThumbName() != null) {
+            String thumbDir = Paths.get(entity.getFilePath(), "thumb").toString();
+            dto.setThumbPublicUrl(buildFileUrl(thumbDir, entity.getFileThumbName()));
+        }
+
+        return dto;
     }
 
     // 파일 확장자 찾기
@@ -296,5 +317,27 @@ public class FileService {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .body(resource);
+    }
+
+    public String buildFileUrl(String filePath, String storedName) {
+        if (filePath == null || storedName == null) return null;
+
+        String normalized = filePath.replace("\\", "/");
+        String normalizedUpload = uploadPath.replace("\\", "/");
+
+        // "/C:/files/modu", "C:/files/modu", "//C:/files/modu" 모두 제거
+        String relative = normalized
+                .replace(normalizedUpload, "")
+                .replace("/" + normalizedUpload, "")
+                .replace("//" + normalizedUpload, "");
+
+        // 혹시라도 절대경로가 남아있으면 한 번 더 제거
+        relative = relative.replaceAll("C:/files/modu/", "");
+        relative = relative.replaceAll("C:/files/", "");
+
+        // 슬래시 정리
+        if (relative.startsWith("/")) relative = relative.substring(1);
+
+        return serverHost + "/files/" + relative + "/" + storedName;
     }
 }

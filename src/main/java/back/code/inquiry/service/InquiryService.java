@@ -13,8 +13,6 @@ import back.code.inquiry.repository.InquiryFileMappingRepository;
 import back.code.inquiry.repository.InquiryRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,9 +34,6 @@ public class InquiryService {
     private final FileService fileService;
     private final FileUtils fileUtils;
     private final FileRepository fileRepository;
-
-    @PersistenceContext
-    private EntityManager em;
 
     /** 전체 문의사항 조회 (최신순) */
     @Transactional(readOnly = true)
@@ -143,7 +138,10 @@ public class InquiryService {
         String profileImagePath = null;
         if (!profileFiles.isEmpty()) {
             FileEntity profileFile = profileFiles.get(0);
-            profileImagePath = buildUrl(profileFile.getFilePath(), profileFile.getStoredName());
+            profileImagePath = fileService.buildFileUrl(
+                    profileFile.getFilePath(),
+                    profileFile.getStoredName()
+            );
         }
 
         return InquiryDetailResponse.builder()
@@ -329,13 +327,5 @@ public class InquiryService {
                         .status(i.getStatus().name()) // submitted, answered, temp
                         .build()
                 ).toList();
-    }
-
-    /** 공용 파일 URL 생성 유틸 (CommunityPostDTO와 동일한 로직) */
-    private String buildUrl(String filePath, String storedName) {
-        if (filePath == null || storedName == null) return null;
-        String normalized = filePath.replace("\\", "/");
-        String relative = normalized.replace("C:/files/modu", "");
-        return "http://localhost:9090" + relative + "/" + storedName;
     }
 }

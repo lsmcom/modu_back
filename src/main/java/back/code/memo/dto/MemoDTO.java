@@ -38,8 +38,8 @@ public class MemoDTO {
         String contents = entity.getMemoContents();
         if (contents != null) {
             contents = contents
-                    .replaceAll("/static/imgs/C:/files", "http://localhost:9090/files")
-                    .replaceAll("C:/files", "http://localhost:9090/files");
+                    .replaceAll("/static/imgs/C:/files", "http://files")
+                    .replaceAll("C:/files", "http://files");
         }
         dto.setMemoContents(contents);
 
@@ -60,7 +60,7 @@ public class MemoDTO {
             dto.setFileIds(fileIds);
 
             dto.setFileThumbnails(fileIds.stream()
-                    .map(id -> "http://localhost:9090/api/v1/file/" + id + "/thumbnail")
+                    .map(id -> "http://api/v1/file/" + id + "/thumbnail")
                     .collect(Collectors.toList()));
         }
 

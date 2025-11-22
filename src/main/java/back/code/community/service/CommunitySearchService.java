@@ -9,6 +9,7 @@ import back.code.community.repository.CommunitySearchRepository;
 import back.code.recentsearch.service.RecentSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public class CommunitySearchService {
     private final CommunitySearchRepository searchRepository;
     private final CommunityPostFileRepository postFileRepository;
     private final RecentSearchService recentSearchService;
+
+    @Value("${server.host}")
+    private String serverHost;
 
     // 커뮤니티 검색
     @Transactional(readOnly = true)
@@ -85,6 +89,6 @@ public class CommunitySearchService {
         if (filePath == null || storedName == null) return null;
         String normalized = filePath.replace("\\", "/");
         String relative = normalized.replace("C:/files/modu", "");
-        return "http://localhost:9090" + relative + "/" + storedName;
+        return serverHost + relative + "/" + storedName;
     }
 }

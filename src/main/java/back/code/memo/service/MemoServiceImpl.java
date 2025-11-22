@@ -12,6 +12,7 @@ import back.code.memo.repository.MemoFolderRepository;
 import back.code.user.entity.UserEntity;
 import back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,9 @@ public class MemoServiceImpl implements MemoService {
     private final UserRepository userRepository;
     private final FileService fileService;
     private final FileMemoMapService fileMemoMapService;
+
+    @Value("${server.host}")
+    private String serverHost;
 
     @Override
     @Transactional(readOnly = true)
@@ -55,12 +59,7 @@ public class MemoServiceImpl implements MemoService {
         dto.setMemoTitle(m.getMemoTitle());
 
         // 본문 내 이미지 경로 수정
-        String contents = m.getMemoContents();
-        if (contents != null) {
-            contents = contents
-                    .replaceAll("/static/imgs/C:/files", "http://localhost:9090/files")
-                    .replaceAll("C:/files", "http://localhost:9090/files");
-        }
+        String contents = convertImagePaths(m.getMemoContents());
         dto.setMemoContents(contents);
 
         dto.setIsFixed(m.getIsFixed());
@@ -72,7 +71,7 @@ public class MemoServiceImpl implements MemoService {
         // 첨부파일 정보 포함
         List<String> fileIds = fileMemoMapService.getFileIdsByMemoId(m.getMemoId());
         List<String> thumbnails = fileIds.stream()
-                .map(id -> "http://localhost:9090/api/v1/file/" + id + "/thumbnail")
+                .map(id -> serverHost + "/api/v1/file/" + id + "/thumbnail")
                 .toList();
 
         dto.setFileIds(fileIds);
@@ -118,13 +117,7 @@ public class MemoServiceImpl implements MemoService {
                 dto.setMemoTitle(m.getMemoTitle());
 
                 // C:/files 경로 → API URL로 자동 변환
-                String contents = m.getMemoContents();
-                if (contents != null) {
-                    contents = contents
-                            .replaceAll("/static/imgs/C:/files/modu", "http://localhost:9090/files")
-                            .replaceAll("C:/files/modu", "http://localhost:9090/files");
-                }
-                dto.setMemoContents(contents);
+                dto.setMemoContents(convertImagePaths(m.getMemoContents()));
 
                 dto.setIsFixed(m.getIsFixed());
                 dto.setFolderId(m.getFolder().getFolderId());
@@ -137,7 +130,7 @@ public class MemoServiceImpl implements MemoService {
 
                 // 썸네일 URL 생성
                 List<String> fileThumbnails = fileIds.stream()
-                        .map(id -> "http://localhost:9090/api/v1/file/" + id + "/thumbnail")
+                        .map(id -> serverHost + "/api/v1/file/" + id + "/thumbnail")
                         .collect(Collectors.toList());
 
                 dto.setFileIds(fileIds);
@@ -221,7 +214,7 @@ public class MemoServiceImpl implements MemoService {
         MemoDTO dto = new MemoDTO();
         dto.setMemoId(m.getMemoId());
         dto.setMemoTitle(m.getMemoTitle());
-        dto.setMemoContents(m.getMemoContents());
+        dto.setMemoContents(convertImagePaths(m.getMemoContents()));
         dto.setIsFixed(m.getIsFixed());
         dto.setFolderId(m.getFolder() != null ? m.getFolder().getFolderId() : null);
         dto.setUserId(m.getUser().getUserId());
@@ -233,7 +226,7 @@ public class MemoServiceImpl implements MemoService {
         dto.setFileIds(fileIds);
         dto.setFileThumbnails(
                 fileIds.stream()
-                        .map(id -> "http://localhost:9090/api/v1/file/" + id + "/thumbnail")
+                        .map(id -> serverHost + "/api/v1/file/" + id + "/thumbnail")
                         .collect(Collectors.toList())
         );
         return dto;
@@ -299,8 +292,37 @@ public class MemoServiceImpl implements MemoService {
                 entities = memoRepository.findByUserIdAndKeyword(userId, lowerKeyword);
         }
 
-        return entities.stream()
-                .map(MemoDTO::from)
-                .toList();
+        return entities.stream().map(m -> {
+            MemoDTO dto = MemoDTO.from(m);
+
+            // DTO.from()은 경로 변환 안 하므로 여기서 직접 변환
+            dto.setMemoContents(convertImagePaths(m.getMemoContents()));
+
+            return dto;
+        }).toList();
+    }
+
+    private String convertImagePaths(String contents) {
+        if (contents == null) return null;
+
+        // 절대 경로를 /files 로 변환
+        contents = contents.replaceAll("C:/files/modu/", "/files/");
+        contents = contents.replaceAll("C:/files/", "/files/");
+        contents = contents.replaceAll("C:\\\\files\\\\modu\\\\", "/files/");
+        contents = contents.replaceAll("C:\\\\files\\\\", "/files/");
+
+        // 이미 서버 URL이 붙어 있으면 중복 변환 금지
+        // src="http://~" 형태는 건드리지 않음
+        if (contents.contains("src=\"http")) {
+            return contents;
+        }
+
+        // 이미지 src 속성에서 딱 첫 번째 /files/만 치환
+        contents = contents.replaceFirst(
+                "src=[\"']/files/",
+                "src=\"" + serverHost + "/files/"
+        );
+
+        return contents;
     }
 }
